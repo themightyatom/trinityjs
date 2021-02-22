@@ -1,0 +1,163 @@
+
+<script type="module">
+    import * as THREE from '/three/build/three.module.js';
+    import { RoomEnvironment } from '/three/examples/jsm/environments/RoomEnvironment.js';
+    import { OrbitControls } from '/three/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from '/three/examples/jsm/loaders/GLTFLoader.js';
+
+
+    let camera, scene, renderer,preview,controls,width3d,height3d;;
+
+    init('container');
+    render();
+
+
+
+
+    function init(cont) {
+        
+        const container = document.getElementById(cont);
+        console.log("width", container.offsetHeight)
+
+        width3d = container.offsetWidth - 20;
+        height3d = container.offsetHeight - 20;
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(width3d, height3d);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        container.appendChild(renderer.domElement);
+
+       
+
+        camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 30);
+        camera.position.set(0, 1, 5);
+
+        const environment = new RoomEnvironment();
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xCCCCCC);
+        scene.environment = pmremGenerator.fromScene(environment).texture;
+
+        const grid = new THREE.GridHelper(20, 20, 0xffffff, 0xffffff);
+        grid.material.opacity = 0.5;
+        grid.material.depthWrite = false;
+        grid.material.transparent = true;
+        scene.add(grid);
+
+        preview = new THREE.Object3D();
+        scene.add(preview);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.addEventListener('change', render); // use if there is no animation loop
+        controls.minDistance = .1;
+        controls.maxDistance = 10;
+        controls.target.set(0, 1, 0);
+        controls.update();
+
+        window.addEventListener('resize', onWindowResize, false);
+
+    }
+
+    function onWindowResize() {
+        let win = document.getElementById("container");
+        camera.aspect = width3d / height3d;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(width3d, height3d);
+
+        render();
+
+    }
+    function loadModel(path){
+        const loader = new GLTFLoader().setPath('/glb/');;
+        loader.load(path, (gltf) =>{
+            analyzeModel(gltf);
+        })
+
+    }
+    function analyzeModel(gltf){
+        let snapPoints = [];
+                    
+                        gltf.scene.traverse( function ( child ) {
+                            if (child.name.substr(0, 3) == "_as" && !child.isMesh) snapPoints.push(child.name);
+                            if ( child.isMesh ) {
+                              switch(child.name.substr(0,4)){
+                                case 'wood':
+                                   
+                                   // child.material = SharedMaterials.getMaterialFromID('lightWood');
+                                   
+                                    break;
+                                case 'glas':
+                                    // child.material = SharedMaterials.getMaterialFromID('glass');
+                                    break;
+                                default:
+                                    break;
+
+                              }
+
+                              console.log("MATERIAL",child.name, child.material);
+
+                            }
+
+                        } );
+                        //clear preview
+                        while(preview.children.length > 0){
+                            preview.remove(preview.children[0]);
+                        } 
+                        preview.add( gltf.scene);
+                        onWindowResize();
+                        render();
+                        window.registerSnaps(snapPoints);
+                        adjustCamera(gltf.scene);
+
+    }
+
+    function loadDataAsModel(data) {
+        const loader = new GLTFLoader();
+        
+         loader.parse( data, '', function (gltf) {
+                    
+                analyzeModel(gltf);
+                    } );
+    }
+    function adjustCamera(target){
+       let boundingBox = new THREE.Box3().setFromObject(target);
+       let size = new THREE.Vector3();
+       boundingBox.getSize(size) // Returns Vector3
+       console.log("size", size);
+       controls.target.set(target.position.x, size.y/2, target.position.z);
+       camera.position.y = size.y/2;
+       camera.position.x = target.position.x;
+       camera.position.z = Math.max(size.x,size.y) * 2;
+       camera.updateProjectionMatrix();
+       render();
+       camera.updateProjectionMatrix();
+       render();
+    }
+
+
+
+
+    function render() {
+
+        renderer.render(scene, camera);
+
+    }
+    function setCamPos(cam){
+        console.log(cam.matrix);
+        camera.position.copy( cam.position );
+        camera.quaternion.copy( cam.quaternion );
+        render();
+    }
+    
+    window.loadDataAsModel = loadDataAsModel;
+    window.loadModel = loadModel;
+    window.setCamPos = setCamPos;
+    window.render = render;
+    
+
+</script>

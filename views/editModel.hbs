@@ -1,0 +1,73 @@
+<h1>Attributes for {{model}}</h1>
+
+
+<div id="container" class="window3d">
+
+</div>
+
+<form action="/models/updatemodel" method="post">
+    <p>
+        <lable for="model">Model id</lable><br>
+        <input type="text" id="id" name="id" value="{{id}}" readonly>
+    </p>
+    <p>
+        <lable for="model">Model</lable><br>
+        <input type="text" id="model" name="model" value="{{model}}" readonly>
+    </p>
+    <p>
+        <lable for="title">Title</lable><br>
+        <input type="text" id="title" name="title" value="{{title}}" required>
+    </p>
+    <p>
+        <lable for="sku">SKU</lable><br>
+        <input type="text" name="sku" id="sku" value="{{sku}}" required>
+    </p>
+    <button type="submit" name="submit">
+        Update
+    </button>
+</form>
+<div class="bottomButs">
+    <form action="/models/deletemodel/" method="POST" onsubmit="return confirm('Are you sure you want to permanently delte this model?')">
+    <input type="hidden" id="id" name="id" value="{{id}}">
+    <input type="hidden" id="model" name="model" value="{{model}}">
+    <button class="warn" type="submit">DELETE</button>
+    </form>
+<!--<button class="warn" onclick="deletemodel()">Delete</button>-->
+    <button onclick="window.location.href='/models'">Cancel</button>
+</div>
+<script>
+    function startup() {
+        loadModel('{{model}}');
+    }
+    function registerSnaps(points) {
+
+    }
+    function deletemodel() {
+        var txt;
+        var r = confirm("Are you sure you want to permanently delte this model?");
+        if (r == true) {
+            const data = { id: '{{id}}', model: '{{model}}' };
+           
+            let jsondata = JSON.stringify(data);
+             console.log('sending', jsondata);
+
+            fetch('/models/deletemodel/', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsondata
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            
+        }
+    }
+</script>
+
+{{>preview3d}}

@@ -1,0 +1,12 @@
+<h1>{{ title }}</h1>
+<p>Welcome to {{ title }}</p>
+{{# if condition }}
+    Condition is met
+{{ else }}
+   Condition not met
+{{/if}}
+
+{{# each items as |val key|}}
+
+   <li> {{ val.title }}  ({{ val.sku }}) </li>
+{{/each}}

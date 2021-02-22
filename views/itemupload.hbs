@@ -1,0 +1,80 @@
+<h1>{{title}}</h1>
+<form name="glbupload" action="/models/uploadglb" enctype="multipart/form-data" method="post" onsubmit="return validateUpload()">
+    <input type="file" name="file-to-upload" onchange="checkExist(event)">
+    <input type="submit" value="Upload">
+</form>
+<div id="message" style="padding-bottom: 20px;">
+<h4>(Models should be in scale of 1 unit = 1 meter)</h4>
+</div>
+<div id="container" class="window3d" style="visibility:hidden;float: left;">
+
+</div>
+<div id="compare" class="window3d" style="visibility:hidden; float: left;">
+
+</div>
+
+<script>
+    let focusFile = "";
+    let previewLoaded = false;
+    function validateUpload(event) {
+            console.log("Is loaded?" + previewLoaded)
+            if(previewLoaded){
+                return true;
+                console.log("send");
+            } else{
+                  alert("Please select a model from your hard drive");
+                return false;
+              
+            } 
+            
+    }
+    function checkExist(e) {
+        var filename = e.target.value.replace(/^.*[\\\/]/, ''); // use last index /substr
+        if (filename == "") {
+            alert("Please select a file");
+            return false;
+        }
+        focusFile = filename;
+        let file = e.target.files[0];
+        console.log("test", filename);
+        fetch('/models/glbexists/' + filename)
+            .then(response => response.json())
+            .then(data => {
+                var m = document.getElementById('message');
+                if (data == true) {
+                    m.innerHTML = '<span style="color:#ce0000"><h3>The model ' + filename + ' already exists on the server<br>NB: Upload will overwrite existing file</h3></span><p><h3>Choose another file or upload with another name</h3></p><button onclick="loadCompare()">Compare</button><button onclick="cancel()">Cancel</button>';
+                } else {
+                    m.innerHTML = '<h3>Model ' + filename + ' ready for upload</h2><h2>Preview:</h2>';
+                }
+            });
+        let reader = new FileReader();
+        reader.onloadend = function () {
+            console.log("sending model");
+           //var model = URL.createObjectURL(file);
+            let snapPoints = loadDataAsModel(reader.result);
+            document.getElementById("container").style.visibility = "visible";
+            previewLoaded = true;
+            console.log(snapPoints);
+        }
+        reader.readAsArrayBuffer(file);
+    }
+    function registerSnaps(arrayOfSnapPoints){
+        console.log("snap points",arrayOfSnapPoints);
+    }
+    function loadCompare(){
+        console.log("load comparison");
+        loadModel(focusFile);
+        document.getElementById("compare").style.visibility = "visible";
+    }
+    function updateCameraPos(cam){
+        setCamPos(cam);
+        render();
+    }
+    function cancel(){
+        location.reload();
+    }
+    function startup(){};
+</script>
+
+{{>preview3d}}
+{{>compare3d}}
