@@ -144,12 +144,19 @@ input[type="submit" i]{
 .devine-link a:hover{
     color: #7a9ed8;
 }
-.login{
+.logout{
    position: absolute;
    right: 20px;
    display: flex;
    align-items: center;
    padding: 15px;
+}
+.logout a{
+    text-decoration: none;
+    color: #4f678e;
+}
+.logout a:hover{
+    color: #7a9ed8;
 }
 .item-row{
     background-color: #dcdcdc;
@@ -187,4 +194,13 @@ input[type="submit" i]{
 .warn:active{
 background-color: #ff0000 !important;
 color: white !important;
+}
+.login-box{
+    padding: 30px;
+    background: white;
+    width: fit-content;
+    box-shadow: rgb(40 42 49 / 16%) 0px 1px 2px 0px;
+    position: relative;
+    left: 20px;
+    top: 20px;
 }

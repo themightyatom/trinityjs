@@ -4,6 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 
 const db = require('../utils/db.js');
+const pp = require('../utils/passport.js');
 //const pp = require('../utils/controller.js');
 
 
@@ -53,16 +54,15 @@ router.post('/addNewModel', (req, res) => {
 });
 
 
-router.get('/',  (req, res) => {
+router.get('/', checkAuthenticated, (req, res) => {
     let sql = 'SELECT * FROM models';
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
-        console.log(result);
         res.render('modelList', { models: result, title: 'All models' });
     })
 });
 
-router.get('/editModel/:id', (req, res) => {
+router.get('/editModel/:id', checkAuthenticated, (req, res) => {
     let _id = req.params.id;
     let sql = "SELECT * from models WHERE ID ='" + _id + "'";
     let query = db.query(sql, (err, result) => {
@@ -131,7 +131,7 @@ router.get('/glbexists/:name', (req, res) => {
 
 });
 
-router.post('/updatemodel', (req, res) => {
+router.post('/updatemodel', checkAuthenticated,(req, res) => {
     console.log(req.body);
     let sql = "UPDATE models SET ? WHERE id = '" + req.body.id + "'";
     let post = { title: req.body.title, sku: req.body.sku };
@@ -141,7 +141,7 @@ router.post('/updatemodel', (req, res) => {
     });
 
 })
-router.post('/deletemodel', (req, res) => {
+router.post('/deletemodel', checkAuthenticated, (req, res) => {
     // remove the model from the server
     const path = glbfolder + req.body.model;
 

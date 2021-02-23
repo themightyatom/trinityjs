@@ -10,56 +10,15 @@ const bodyParser = require('body-parser');
 const flash = require('express-flash');
 const session = require('express-session');
 const db = require('./utils/db');
-const pp = require('./utils/controller');
 
 
-let getUserByEmail = (email) => {
-  return new Promise((resolve, reject) => {
-      try {
-          db.query(
-              ' SELECT * FROM `users` WHERE `email` = ?  ', email,
-              function(err, rows) {
-                  if (err) {
-                      reject(err)
-                  }
-                  let user = rows[0];
-                  console.log("USER", user);
-                  resolve(user);
 
-
-              }
-          );
-      } catch (err) {
-          reject(err);
-      }
-  });
-};
-
-let getUserById = (id) => {
-  return new Promise((resolve, reject) => {
-      try {
-          db.query(
-              ' SELECT * FROM `users` WHERE `id` = ?  ', id,
-              function(err, rows) {
-                  if (err) {
-                      reject(err)
-                  }
-                  let user = rows[0];
-                  resolve(user);
-                  
-              }
-          );
-      } catch (err) {
-          reject(err);
-      }
-  });
-};
 
 //PASSPORT
 const passport = require('passport');
 const initializePassport = require('./utils/passport');
 initializePassport(
-    passport,getUserByEmail,getUserById
+    passport
   )
 
 
@@ -93,7 +52,8 @@ app.use('/login', require('./routes/login'));
 
 
 
-checkAuthenticated = (req, res, next) => {
+global[checkAuthenticated] = (req, res, next) => {
+  console.log("Checking");
   if (req.isAuthenticated()) {
     return next()
   }
@@ -101,7 +61,7 @@ checkAuthenticated = (req, res, next) => {
   res.redirect('/login')
 }
 
-checkNotAuthenticated = (req, res, next) =>{
+global[checkNotAuthenticated] = (req, res, next) =>{
   if (req.isAuthenticated()) {
     return res.redirect('/')
   }
@@ -123,6 +83,12 @@ app.post('/log-in', passport.authenticate('local', {
   }))
 
 
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
+
 app.get('/', checkAuthenticated, (req,res) =>{
   //res.render('login', { layout: 'loginregister.hbs', title: 'Login' });
   res.redirect('/models');
@@ -136,5 +102,7 @@ app.listen( PORT,() =>{
 
 
 app.use(express.static(path.join(__dirname, '/public')));
+
+
 
 

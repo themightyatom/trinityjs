@@ -1,5 +1,7 @@
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
+const db = require('../utils/db.js');
+let pasprt; // keep reference to passport
 
 /*
 
@@ -32,7 +34,8 @@ function initialize(passport,getUserByEmail,getUserById) {
 
 */
 
-function initialize(passport,getUserByEmail,getUserById) {
+function initialize(passport) {
+ 
   passport.serializeUser((user, done) => done(null, user.id))
   passport.deserializeUser((id, done) => {
     return done(null, getUserById(id))
@@ -68,8 +71,63 @@ function initialize(passport,getUserByEmail,getUserById) {
 
 };
 
+let getUserByEmail = (email) => {
+  return new Promise((resolve, reject) => {
+      try {
+          db.query(
+              ' SELECT * FROM `users` WHERE `email` = ?  ', email,
+              function(err, rows) {
+                  if (err) {
+                      reject(err)
+                  }
+                  let user = rows[0];
+                  console.log("USER", user);
+                  resolve(user);
+
+
+              }
+          );
+      } catch (err) {
+          reject(err);
+      }
+  });
+};
+
+let getUserById = (id) => {
+  return new Promise((resolve, reject) => {
+      try {
+          db.query(
+              ' SELECT * FROM `users` WHERE `id` = ?  ', id,
+              function(err, rows) {
+                  if (err) {
+                      reject(err)
+                  }
+                  let user = rows[0];
+                  resolve(user);
+                  
+              }
+          );
+      } catch (err) {
+          reject(err);
+      }
+  });
+};
+
+checkAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next()
+  }
+
+  res.redirect('/login')
+}
+
+checkNotAuthenticated = (req, res, next) =>{
+  if (req.isAuthenticated()) {
+    return res.redirect('/')
+  }
+  next()
+}
 
 
 
-
-module.exports = initialize
+module.exports = initialize,checkAuthenticated

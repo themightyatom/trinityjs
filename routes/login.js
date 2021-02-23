@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 
 const db = require('../utils/db.js');
 
-const passport = require('passport');
 
 router.get('/', (req, res) => {
     res.render('login', { layout: 'loginregister.hbs', title: 'Login' });
