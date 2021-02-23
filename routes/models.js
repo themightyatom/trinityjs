@@ -4,6 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 
 const db = require('../utils/db.js');
+//const pp = require('../utils/controller.js');
 
 
 const glbfolder = 'public/glb/';
@@ -52,7 +53,7 @@ router.post('/addNewModel', (req, res) => {
 });
 
 
-router.get('/', (req, res) => {
+router.get('/',  (req, res) => {
     let sql = 'SELECT * FROM models';
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
@@ -70,9 +71,9 @@ router.get('/editModel/:id', (req, res) => {
     });
 });
 
-/* router.get('/', (req,res) =>{
+router.get('/', (req,res) =>{
     res.render('dashboard');
- });*/
+ });
 
 
 router.get('/uploadModel', (req, res) => {

@@ -1,6 +1,10 @@
 <h1>{{title}}</h1>
-<form action="/login/user-login" method="POST" >
-    <input type="text" id="username" name="username">
-    <input type="text" id="password" name="password">
+<form action="/login/register" method="POST" >
+<label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br>
+    <label for="email">email:</label>
+    <input type="text" id="email" name="email" required><br>
+    <label for="password">password:</label>
+    <input type="text" id="password" name="password" required><br>
     <button type="submit">Register</button>
 </form>
