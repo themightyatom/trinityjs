@@ -53,12 +53,20 @@ router.post('/addNewModel', (req, res) => {
     });
 });
 
+router.get('/all', (req,res) => {
+    let sql = 'SELECT * FROM models';
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        res.send( result );
+    })
+});
+
 
 router.get('/', checkAuthenticated, (req, res) => {
     let sql = 'SELECT * FROM models';
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
-        res.render('modelList', { models: result, title: 'All models' });
+        res.render('modelList', { models: result, title: 'Models' });
     })
 });
 
@@ -133,8 +141,14 @@ router.get('/glbexists/:name', (req, res) => {
 
 router.post('/updatemodel', checkAuthenticated,(req, res) => {
     console.log(req.body);
+    let cats;
+        if(Array.isArray(req.body.categories)){
+            cats = req.body.categories.join('|');
+        }else{
+            cats = req.body.categories;
+        }
     let sql = "UPDATE models SET ? WHERE id = '" + req.body.id + "'";
-    let post = { title: req.body.title, sku: req.body.sku };
+    let post = { title: req.body.title, sku: req.body.sku, categories:cats };
     let query = db.query(sql, post, (err, result) => {
         if (err) throw err;
         res.redirect('/models');

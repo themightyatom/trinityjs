@@ -22,9 +22,17 @@
         <lable for="sku">SKU</lable><br>
         <input type="text" name="sku" id="sku" value="{{sku}}" required>
     </p>
+    <p>
+        <label for="list">Choose categories:</label><br>
+    <div class="allcategories">
+        <select style="display:none" name="categories" id="categories" multiple placeholder="Select"> </select>
+    </div>
+    </p>
+    <div class="submit-bt">
     <button type="submit" name="submit">
         Update
     </button>
+    </div>
 </form>
 <div class="bottomButs">
     <form action="/models/deletemodel/" method="POST" onsubmit="return confirm('Are you sure you want to permanently delte this model?')">
@@ -42,32 +50,34 @@
     function registerSnaps(points) {
 
     }
-    function deletemodel() {
-        var txt;
-        var r = confirm("Are you sure you want to permanently delte this model?");
-        if (r == true) {
-            const data = { id: '{{id}}', model: '{{model}}' };
-           
-            let jsondata = JSON.stringify(data);
-             console.log('sending', jsondata);
+    const selected = '{{categories}}';
+    const selectedArray = selected.split('|');
 
-            fetch('/models/deletemodel/', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: jsondata
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            
-        }
-    }
+    fetch('/categories/all')
+        .then(response => response.json())
+        .then(data => {
+            var i;
+            for (i = 0; i < data.length; i++) {
+                data[i].name = data[i].title;
+                data[i].value = data[i].id;
+                if (selectedArray.includes(String(data[i].id))) {
+                    data[i].selected = true;
+                }
+            }
+
+            $('.allcategories').dropdown({
+                data: data,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    //getlist();
+                }
+            });
+        });
+
+
+  
 </script>
 
 {{>preview3d}}

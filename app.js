@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config()
+    require('dotenv').config() 
   }
 
 const express = require('express');
@@ -49,6 +49,8 @@ const PORT = process.env.PORT || 3000;
 app.use('/models', require('./routes/models'));
 app.use('/users', require('./routes/users'));
 app.use('/login', require('./routes/login'));
+app.use('/accessories', require('./routes/accessories'));
+app.use('/categories', require('./routes/categories'));
 
 
 
@@ -57,7 +59,6 @@ global[checkAuthenticated] = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next()
   }
-
   res.redirect('/login')
 }
 

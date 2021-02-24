@@ -1,0 +1,84 @@
+<h1>{{title}}</h1>
+
+
+
+<form action="/accessories/edit" method="post">
+    <p>
+        <input type="hidden" id="id" name="id" value="{{id}}">
+    </p>
+    <p>
+        <lable for="title">Title</lable><br>
+        <input type="text" id="title" name="title" value="{{title}}" required>
+    </p>
+    <p>
+        <lable for="type">Type</lable><br>
+        <input type="text" name="type" id="type" value="{{type}}" required>
+    </p>
+    <p>
+        <label for="list">Choose models:</label><br>
+    <div class="allproducts">
+        <select style="display:none" name="list" id="list" multiple placeholder="Select"> </select>
+    </div>
+    </p>
+    <div class="submit-bt">
+        <button type="submit" name="submit" id="submit">
+            Update
+        </button>
+    </div>
+</form>
+<div class="bottomButs" id='bb'>
+    <form action="/accessories/delete/" method="POST"
+        onsubmit="return confirm('Are you sure you want to permanently delete this accessory group?')">
+        <input type="hidden" id="id" name="id" value="{{id}}">
+        <button class="warn" type="submit">DELETE</button>
+    </form>
+    <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
+    <button onclick="window.location.href='/accessories'">Cancel</button>
+</div>
+<script>
+    function startup() {
+        var id = document.getElementById("id").value;
+        if (id == 'new') {
+            document.getElementById('bb').style.display = 'none';
+            document.getElementById('submit').innerHTML = 'Create';
+        }
+    }
+    //var data2 = [{ id: 2, disabled: false, groupName: "Beds", groupId: 1, selected: true, name: "hello" }, { id: 3, disabled: false, groupName: "Beds", groupId: 1, selected: false, name: "world" }, { id: 4, disabled: true, groupName: "Beds", groupId: 1, selected: false, name: "hello" }];
+
+    const selected = '{{list}}';
+    const selectedArray = selected.split('|');
+
+    fetch('/models/all')
+        .then(response => response.json())
+        .then(data => {
+            var i;
+            for (i = 0; i < data.length; i++) {
+                data[i].name = data[i].title;
+                data[i].value = data[i].id;
+                if (selectedArray.includes(String(data[i].id))) {
+                    data[i].selected = true;
+                }
+            }
+
+            $('.allproducts').dropdown({
+                data: data,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    getlist();
+                }
+            });
+        });
+
+    function getlist() {
+        var val = document.getElementById('list').value;
+        console.log("value", val);
+    }
+
+
+
+
+
+
+</script>
