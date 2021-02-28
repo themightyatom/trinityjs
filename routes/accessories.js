@@ -24,7 +24,12 @@ router.post('/edit', checkAuthenticated, (req, res) => {
     } else {
         let sql = 'INSERT INTO accessories SET ?';
         let title = req.body.title;
-        let list = req.body.list.join('|');
+        let list;
+        if(Array.isArray(req.body.list)){
+            list = req.body.list.join('|');
+        }else{
+            list = req.body.list;
+        }
         console.log("new list", list);
         let type = req.body.type;
         let post = { title: title, list: list, type: type };

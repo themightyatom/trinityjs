@@ -1,0 +1,37 @@
+<h2>{{title}}</h2>
+
+
+
+<form action="/textures/edit" method="post">
+    
+        
+            <p>
+            <input type="hidden" id="id" name="id" value="{{id}}">
+            <lable for="title" class="menutitle">Title</lable><br>
+            <input type="text" id="title" name="title" value="{{title}}" required>
+            </p>  
+            <div id="container" class="textureBox" style="float: left;">
+                <img width="500px" id="preview" src="/textures/{{texture}}" />
+            </div>
+         
+    <div class="submit-bt">
+        <button type="submit" name="submit" id="submit">
+            Update
+        </button>
+    </div>
+</form>
+<div class="bottomButs" id='bb'>
+    <form action="/textures/delete/" method="POST"
+        onsubmit="return confirm('Are you sure you want to permanently delete this texture?')">
+        <input type="hidden" id="id" name="id" value="{{id}}">
+        <input type="hidden" id="texture" name="texture" value="{{texture}}">
+        <button class="warn" type="submit">DELETE</button>
+    </form>
+    <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
+    <button onclick="window.location.href='/textures'">Cancel</button>
+</div>
+<script>
+    function startup() {
+        
+    }
+</script>

@@ -138,6 +138,12 @@ input[type="submit" i]{
     padding-right: 20px;
     padding-bottom: 20px
 }
+.textureBox{
+    min-width:500px;
+    min-height: 500px;
+    padding-right: 20px;
+    padding-bottom: 20px
+}
 .devine-link a{
     font-family: 'Lato' , sans-serif;
     font-size: 12px;
@@ -168,8 +174,9 @@ input[type="submit" i]{
     background-color: #dcdcdc;
     -webkit-font-smoothing: antialiased;
     margin: 5px;
-    height: 30px;
     cursor: pointer;
+    display: flex;
+    min-height: 30px;
 }
 .item-row-top{
     background-color: #b1b1b1;

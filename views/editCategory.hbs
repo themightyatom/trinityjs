@@ -1,15 +1,15 @@
-<h1>{{title}}</h1>
+<h1>{{languages.title}}</h1>
 
 
 
 <form action="/categories/edit" method="post">
-    <p>
-        <input type="hidden" id="id" name="id" value="{{id}}">
-    </p>
-    <p>
-        <lable for="title">Title</lable><br>
-        <input type="text" id="title" name="title" value="{{title}}" required>
-    </p>
+    
+        {{# each languages as |val key|}}
+            <p id="_{{key}}">
+            <lable for="{{key}}" class="menutitle">{{key}}</lable><br>
+            <input type="text" id="{{key}}" name="{{key}}" value="{{val}}" required>
+            </p>  
+        {{/each}}  
     <div class="submit-bt">
         <button type="submit" name="submit" id="submit">
             Update
@@ -18,12 +18,12 @@
 </form>
 <div class="bottomButs" id='bb'>
     <form action="/categories/delete/" method="POST"
-        onsubmit="return confirm('Are you sure you want to permanently delete this accessory group?')">
-        <input type="hidden" id="id" name="id" value="{{id}}">
+        onsubmit="return confirm('Are you sure you want to permanently delete this category?')">
+        <input type="hidden" id="id" name="id" value="{{languages.id}}">
         <button class="warn" type="submit">DELETE</button>
     </form>
     <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
-    <button onclick="window.location.href='/accessories'">Cancel</button>
+    <button onclick="window.location.href='/categories'">Cancel</button>
 </div>
 <script>
     function startup() {
@@ -33,5 +33,11 @@
             document.getElementById('submit').innerHTML = 'Create';
         }
     }
+    // hide id 
+    var idfield = document.getElementById("id");
+    idfield.type = 'hidden';
+    var _label = document.getElementById("_id");
+    _label.style.display = 'none';
+
 
 </script>

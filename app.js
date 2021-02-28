@@ -51,6 +51,9 @@ app.use('/users', require('./routes/users'));
 app.use('/login', require('./routes/login'));
 app.use('/accessories', require('./routes/accessories'));
 app.use('/categories', require('./routes/categories'));
+app.use('/languages', require('./routes/languages'));
+app.use('/materials', require('./routes/materials'));
+app.use('/textures', require('./routes/textures'));
 
 
 
