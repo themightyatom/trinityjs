@@ -38,9 +38,15 @@ app.use(passport.session())
 // deliver previously cached page version
 const cache = false;
 // view engine setup
-app.engine('hbs', hbs({defaultLayout: 'main', extname: '.hbs'}));
+const hbs_json = function(context) {
+  return JSON.stringify(context);
+};
+
+app.engine('hbs', hbs({defaultLayout: 'main', extname: '.hbs', helpers:require('./utils/handlebars-helpers')}));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 

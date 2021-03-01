@@ -79,7 +79,7 @@ body{
 }
 input[type=text] {
     width: 80%;
-    padding: 7px 22px;
+    padding: 7px;
     margin: 10px 5px;
     box-sizing: border-box;
     font-size: 14px;
@@ -136,7 +136,8 @@ input[type="submit" i]{
     min-width:500px;
     min-height: 500px;
     padding-right: 20px;
-    padding-bottom: 20px
+    padding-bottom: 20px;
+    width:500px;
 }
 .textureBox{
     min-width:500px;
@@ -226,4 +227,32 @@ color: white !important;
 }
 .multi-select{
     width: 400px;
+}
+.material-parameters{
+    /* background-color: #18202d; */
+    width: 400px;
+    position: absolute;
+    left:550px;
+}
+.image-input{
+    width:220px !important;
+}
+.image-chooser{
+    width:500px;
+    height: 200px;
+    position: fixed;
+    right: 10px;
+    top:100px;
+    z-index: 100;
+}
+.map-preview{
+    margin-top: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #FFFFFF;
+    float: left;
+}
+.thumb-img{
+    float: left;
+    padding: 7px;
 }

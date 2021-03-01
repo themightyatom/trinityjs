@@ -1,34 +1,143 @@
-<h2>{{title}}</h2>
+<h2 style="position: fixed;">{{title}}</h2>
+<div class='window3d' id="container" style="position: fixed; top:130px"></div>
+<div class='material-parameters'>
+    <form action="/materials/edit" method="post">
 
-<form action="/textures/edit" method="post">
-            <p>
-            <input type="hidden" id="id" name="id" value="{{id}}">
+        <input type="hidden" id="id" name="id" value="{{id}}">
+
+        <p>
             <lable for="title" class="menutitle">Title</lable><br>
             <input type="text" id="title" name="title" value="{{title}}" required>
-            </p>  
-            <div id="container" class="textureBox" style="float: left;">
-                <img width="500px" id="preview" src="/textures/{{texture}}" />
-            </div>
-         
-    <div class="submit-bt">
-        <button type="submit" name="submit" id="submit">
-            Update
-        </button>
-    </div>
-</form>
-<div class="bottomButs" id='bb'>
-    <form action="/textures/delete/" method="POST"
+        </p>
+        <p>
+            <lable for="color_hex" class="menutitle">Color</lable><br>
+            <input type="color" id="color_hex" name="color_hex" value="{{color_hex}}">
+        </p>
+        <div>
+            <lable for="opacity_value" class="menutitle">Opacity</lable><br>
+            <input type="range" id="opacity_value" name="opacity_value" min="0" max="1" step="0.01"
+                value="{{opacity_value}}">
+            <lable for="transparent_check" class="menutitle">Transparent</lable>
+            <input type="checkbox" id="transparent_check" name="transparent_check" value="1" {{checked
+                transparent_check}}>
+        </div>
+        <p>
+            <lable for="emissive_hex" class="menutitle">Emissive Color</lable><br>
+            <input type="color" id="emissive_hex" name="emissive_hex" value="{{emissive_hex}}">
+        </p>
+        <p>
+            <lable for="environment_value" class="menutitle">Reflectivity</lable><br>
+            <input type="range" id="environment_value" name="environment_value" min="0" max="1" step="0.01"
+                value="{{environment_value}}">
+        </p>
+        <p>
+            <lable for="roughness_value" class="menutitle">Roughness</lable><br>
+            <input type="range" id="roughness_value" name="roughness_value" min="0" max="1" step="0.01"
+                value="{{roughness_value}}">
+        </p>
+        <p>
+            <lable for="metalness_value" class="menutitle">Metalness</lable><br>
+            <input type="range" id="metalness_value" name="metalness_value" min="0" max="1" step="0.01"
+                value="{{metalness_value}}" required>
+        </p>
+        <div>
+            <lable for="diffuse_map" class="menutitle">Diffuse Map</lable><br>
+            <div class="map-preview"><img width="100%" height="100%" id="diffuse_map_prev" /></div><input class="image-input" type="text" id="diffuse_map" name="diffuse_map" value="{{diffuse_map}}"><button
+                type="button" onclick="imageChoose('diffuse_map')">Choose</button>
+            <div>
+                <div>
+                    <lable for="normal_map" class="menutitle">Normal Map</lable><br>
+                   <div class="map-preview"><img width="100%" height="100%" id="normal_map_prev" /></div> <input class="image-input" type="text" id="normal_map" name="normal_map"
+                        value="{{normal_map}}"><button type="button" onclick="imageChoose('normal_map')">Choose</button>
+                </div>
+                <p>
+                    <lable for="normal_value" class="menutitle">Normal Amount</lable><br>
+                    <input type="range" id="normal_value" name="normal_value" min="0" max="1" step="0.01"
+                        value="{{normal_value}}">
+                </p>
+                <div>
+                    <lable for="bump_map" class="menutitle">Bump Map</lable><br>
+                    <div class="map-preview"><img width="100%" height="100%" id="bump_map_prev"/></div><input class="image-input" type="text" id="bump_map" name="bump_map" value="{{bump_map}}"><button
+                        type="button" onclick="imageChoose('bump_map')">Choose</button>
+                </div>
+                <div>
+                    <lable for="bump_value" class="menutitle">Bump Amount</lable><br>
+                    <input type="range" id="bump_value" name="bump_value" min="0" max="1" step="0.01"
+                        value="{{bump_value}}">
+                </div>
+                <div>
+                    <lable for="roughness_map" class="menutitle">Roughness Map</lable><br>
+                    <div class="map-preview"><img width="100%" height="100%" id="roughness_map_prev"/></div><input class="image-input" type="text" id="roughness_map" name="roughness_map"
+                        value="{{roughness_map}}"><button type="button"
+                        onclick="imageChoose('roughness_map')">Choose</button>
+                </div>
+                <div>
+                    <lable for="metalness_map" class="menutitle">Metalness Map</lable><br>
+                    <div class="map-preview"><img width="100%" height="100%" id="metalness_map_prev" /><input class="image-input" type="text" id="metalness_map" name="metalness_map"
+                        value="{{metalness_map}}"><button type="button"
+                        onclick="imageChoose('metalness_map')">Choose</button>
+                </div>
+                <div style="height: 50px;">
+
+                </div>
+
+
+                <div class="submit-bt">
+                    <button type="submit" name="submit" id="submit">
+                        Update
+                    </button>
+                </div>
+                <div style="height: 250px">
+
+                </div>
+
+    </form>
+</div>
+<div class="bottomButs" id='bb' style="position: fixed;bottom: 10px; right: 10px;">
+    <form id='material' action="/materials/delete/" method="POST"
         onsubmit="return confirm('Are you sure you want to permanently delete this material?')">
         <input type="hidden" id="id" name="id" value="{{id}}">
         <input type="hidden" id="texture" name="texture" value="{{texture}}">
         <button class="warn" type="submit">DELETE</button>
     </form>
     <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
-    <button onclick="window.location.href='/textures'">Cancel</button>
+    <button onclick="window.location.href='/materials'">Cancel</button>
 </div>
-
+<div id="images" class="image-chooser"></div>
 <script>
     function startup() {
-        renderTable();
+        loadModel('sphere.glb');
+    }
+    function updateMaterial() {
+
+    }
+    function imageChoose(field) {
+        console.log("changing", field);
+        fetch('/textures/all')
+            .then(response => response.json())
+            .then(data => {
+                let htmlstr = 'hello';
+                var i;
+                let thumb;
+                for (i = 0; i < data.length; i++) {
+                    thumb = data[i].texture;
+                    htmlstr += '<div class="thumb-img" onclick="updateField(\'' + field + '\',\'' + thumb + '\')"><img src="/thumbs/' + thumb + '"></div>';
+                }
+                var imgBrowse = document.getElementById('images');
+                imgBrowse.innerHTML = htmlstr;
+            });
+
+    }
+    function updateField(field, imagename) {
+        console.log("image", imagename)
+        let f = document.getElementById(field);
+        f.value = imagename;
+        let targ = document.getElementById( field + '_prev');
+        targ.src = '/thumbs/' + imagename;
+        var imgBrowse = document.getElementById('images');
+        imgBrowse.innerHTML = '';
+
     }
 </script>
+
+{{>preview3d}}

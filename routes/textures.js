@@ -156,6 +156,14 @@ router.post('/delete', checkAuthenticated, (req, res) => {
     
 });
 
+router.get('/all', (req,res)=>{
+    let sql = 'SELECT * FROM ' + _table;
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    });
+});
+
 
 
 module.exports = router;
