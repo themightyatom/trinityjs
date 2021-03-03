@@ -238,12 +238,11 @@ color: white !important;
     width:220px !important;
 }
 .image-chooser{
-    width:500px;
-    height: 200px;
-    position: fixed;
-    right: 10px;
-    top:100px;
-    z-index: 100;
+    width: calc(100% - 930px);
+    /* height: 200px; */
+    position: absolute;
+    left: 900px;
+    top: 60px;
 }
 .map-preview{
     margin-top: 10px;
@@ -254,5 +253,18 @@ color: white !important;
 }
 .thumb-img{
     float: left;
-    padding: 7px;
+    padding: 3px;
+    /* border: gray; */
+    border: 1px solid #e6e3e3;
+    border-radius: 5px;
+    margin: 2px;
+}
+.model-select{
+    position: fixed;
+    z-index: 10;
+    width:200px;
+}
+.target-select{
+    top: 650px;
+    position: fixed;
 }

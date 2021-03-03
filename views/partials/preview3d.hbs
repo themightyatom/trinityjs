@@ -1,4 +1,3 @@
-
 <script type="module">
     import * as THREE from '/three/build/three.module.js';
     import { RoomEnvironment } from '/three/examples/jsm/environments/RoomEnvironment.js';
@@ -6,7 +5,9 @@
     import { GLTFLoader } from '/three/examples/jsm/loaders/GLTFLoader.js';
 
 
-    let camera, scene, renderer,preview,controls,width3d,height3d;;
+    let camera, scene, renderer, preview, controls, width3d, height3d;;
+    let targetMat;
+    let targets = [];
 
     init('container');
     render();
@@ -15,9 +16,8 @@
 
 
     function init(cont) {
-        
+
         const container = document.getElementById(cont);
-        console.log("width", container.offsetHeight)
 
         width3d = container.offsetWidth - 20;
         height3d = container.offsetHeight - 20;
@@ -30,7 +30,7 @@
         renderer.outputEncoding = THREE.sRGBEncoding;
         container.appendChild(renderer.domElement);
 
-       
+
 
         camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 30);
         camera.position.set(0, 1, 5);
@@ -72,71 +72,86 @@
         render();
 
     }
-    function loadModel(path){
-        const loader = new GLTFLoader().setPath('/glb/');;
-        loader.load(path, (gltf) =>{
+    function loadModel(path, cb) {
+        const loader = new GLTFLoader().setPath('/glb/');
+        loader.load(path, (gltf) => {
             analyzeModel(gltf);
+            if (cb) {
+                cb();
+            }
         })
 
     }
-    function analyzeModel(gltf){
+    function analyzeModel(gltf) {
         let snapPoints = [];
-                    
-                        gltf.scene.traverse( function ( child ) {
-                            if (child.name.substr(0, 3) == "_as" && !child.isMesh) snapPoints.push(child.name);
-                            if ( child.isMesh ) {
-                              switch(child.name.substr(0,4)){
-                                case 'wood':
-                                   
-                                   // child.material = SharedMaterials.getMaterialFromID('lightWood');
-                                   
-                                    break;
-                                case 'glas':
-                                    // child.material = SharedMaterials.getMaterialFromID('glass');
-                                    break;
-                                default:
-                                    break;
+        targets = [];
 
-                              }
+        gltf.scene.traverse(function (child) {
+            if (child.name.substr(0, 3) == "_as" && !child.isMesh) {
+                snapPoints.push(child.name)
+            } else {
 
-                              console.log("MATERIAL",child.name, child.material);
+            };
+            if (child.isMesh) {
+                switch (child.name.substr(0, 4)) {
+                    case 'wood':
+                        // child.material = SharedMaterials.getMaterialFromID('lightWood');
+                        targetMat = child.material;
+                      //  child.material.map.wrapS = THREE.RepeatWrapping;
+                      //  child.material.map.wrapT = THREE.RepeatWrapping;
+                        break;
+                    case 'glas':
+                        // child.material = SharedMaterials.getMaterialFromID('glass');
+                        break;
+                    case 'prev':
+                        targetMat = child.material;
+                      //  child.material.map.wrapS = THREE.RepeatWrapping;
+                      //  child.material.map.wrapT = THREE.RepeatWrapping;
+                        break;
+                    default:
+                        break;
 
-                            }
+                }
 
-                        } );
-                        //clear preview
-                        while(preview.children.length > 0){
-                            preview.remove(preview.children[0]);
-                        } 
-                        preview.add( gltf.scene);
-                        onWindowResize();
-                        render();
-                       // window.registerSnaps(snapPoints);
-                        adjustCamera(gltf.scene);
+
+            }
+
+        });
+        //clear preview
+        while (preview.children.length > 0) {
+            preview.remove(preview.children[0]);
+        }
+        preview.add(gltf.scene);
+        onWindowResize();
+        render();
+        //window.registerSnaps(snapPoints);
+        if (window.registerTargets) {
+            window.registerTargets(targets);
+        }
+        adjustCamera(gltf.scene);
 
     }
 
     function loadDataAsModel(data) {
         const loader = new GLTFLoader();
-        
-         loader.parse( data, '', function (gltf) {
-                    
-                analyzeModel(gltf);
-                    } );
+
+        loader.parse(data, '', function (gltf) {
+
+            analyzeModel(gltf);
+        });
     }
-    function adjustCamera(target){
-       let boundingBox = new THREE.Box3().setFromObject(target);
-       let size = new THREE.Vector3();
-       boundingBox.getSize(size) // Returns Vector3
-       console.log("size", size);
-       controls.target.set(target.position.x, size.y/2, target.position.z);
-       camera.position.y = size.y/2;
-       camera.position.x = target.position.x;
-       camera.position.z = Math.max(size.x,size.y) * 2;
-       camera.updateProjectionMatrix();
-       render();
-       camera.updateProjectionMatrix();
-       render();
+    function adjustCamera(target) {
+        let boundingBox = new THREE.Box3().setFromObject(target);
+        let size = new THREE.Vector3();
+        boundingBox.getSize(size) // Returns Vector3
+        controls.target.set(target.position.x, size.y / 2, target.position.z);
+        camera.position.y = size.y / 2;
+        camera.position.x = target.position.x;
+        camera.position.z = Math.max(size.x, size.y) * 2;
+        camera.updateProjectionMatrix();
+        render();
+        camera.updateProjectionMatrix();
+        render();
     }
 
 
@@ -147,17 +162,91 @@
         renderer.render(scene, camera);
 
     }
-    function setCamPos(cam){
-        console.log(cam.matrix);
-        camera.position.copy( cam.position );
-        camera.quaternion.copy( cam.quaternion );
+    function setCamPos(cam) {
+        camera.position.copy(cam.position);
+        camera.quaternion.copy(cam.quaternion);
         render();
     }
-    
+    function applyMaterialProperty(property, value) {
+
+        switch (property) {
+            case "diffuse_map":
+                var loader = new THREE.TextureLoader();
+                function onLoad(texture) {
+                    targetMat.map = texture;
+                    texture.flipY = false;
+                    targetMat.needsUpdate = true;
+                    targetMat.map.wrapS = THREE.RepeatWrapping;
+                    targetMat.map.wrapT = THREE.RepeatWrapping;
+                    render();
+                }
+
+                loader.load("/textures/" + value, onLoad);
+                break;
+            case "normal_map":
+                var loader = new THREE.TextureLoader();
+                function onnormLoad(texture) {
+                    targetMat.normalMap = texture;
+                    texture.flipY = false;
+                    targetMat.map.wrapS = THREE.RepeatWrapping;
+                    targetMat.map.wrapT = THREE.RepeatWrapping;
+                    targetMat.needsUpdate = true;
+                    render();
+                }
+
+                loader.load("/textures/" + value, onnormLoad);
+                break;
+            case "normal_value":
+                targetMat.normalScale = new THREE.Vector2(value, value);
+                render();
+                break;
+            case "color_hex":
+                var hx = value.substr(1);
+                targetMat.color.setHex('0x' + hx);
+                render();
+                break;
+            case "opacity_value":
+                targetMat.opacity = value;
+                if (value == 1) {
+                    targetMat.transparent = false;
+                } else {
+                    targetMat.transparent = true;
+                }
+                render();
+                break;
+            case "roughness_value":
+                targetMat.roughness = value;
+                render();
+                break;
+            case "metalness_value":
+                targetMat.metalness = value;
+                render();
+                break;
+            case "bump_map":
+                var loader = new THREE.TextureLoader();
+                function onmapLoad(texture) {
+                    targetMat.bumpMap = texture;
+                    texture.flipY = false;
+                    targetMat.needsUpdate = true;
+                    render();
+                }
+                loader.load("/textures/" + value, onmapLoad);
+                break;
+            case "bump_value":
+                targetMat.bumpScale = value;
+                render();
+                break;
+
+            default:
+                break;
+        }
+    }
+
     window.loadDataAsModel = loadDataAsModel;
     window.loadModel = loadModel;
     window.setCamPos = setCamPos;
     window.render = render;
-    
+    window.applyMaterialProperty = applyMaterialProperty;
+
 
 </script>

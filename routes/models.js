@@ -61,6 +61,29 @@ router.get('/all', (req,res) => {
     })
 });
 
+router.get('/:id', (req,res) => {
+    let _id = req.params.id;
+    let sql = "SELECT * from models WHERE ID ='" + _id + "'";
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        if(result.length >0){
+        res.send( result[0] );
+        }else{
+            res.send({message:'No model found with that id'});
+        }
+    })
+});
+
+router.get('/search/:term', (req,res) =>{
+    //let sql = 'SELECT * FROM models WHERE title LIKE ' + req.params.term;
+    let sql = "SELECT title, id FROM models WHERE title LIKE '%" + req.params.term + "%' OR sku LIKE '%" + req.params.term + "%'";
+    console.log(sql);
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        res.send( result );
+    })
+});
+
 
 router.get('/', checkAuthenticated, (req, res) => {
     let sql = 'SELECT * FROM models';
@@ -79,9 +102,7 @@ router.get('/editModel/:id', checkAuthenticated, (req, res) => {
     });
 });
 
-router.get('/', (req,res) =>{
-    res.render('dashboard');
- });
+
 
 
 router.get('/uploadModel', (req, res) => {

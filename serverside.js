@@ -9,7 +9,7 @@ app.set('port', process.env.PORT || 8080);
 /*const db = mysql.createConnection({
     host: 'localhost',
     user: 'customsh_ltvs',
-    password: 'm8s-}44!%9)r',
+    password: '(z&ibgw^=NfP',
     database: 'customsh_node'
 });
 

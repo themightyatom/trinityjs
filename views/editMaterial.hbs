@@ -1,5 +1,18 @@
-<h2 style="position: fixed;">{{title}}</h2>
+
+<div class='model-select'>
+    <h3>Select Model</h3>
+    <div class="allmodels">
+        <select style="display:none" name="models" id="models" placeholder="Select"> </select>
+    </div>
+</div>
+<div class='target-select'>
+    <h3>Select Target</h3>
+    <div class="alltargets">
+        <select style="display:none" name="targets" id="targets" placeholder="Select"> </select>
+    </div>
+</div>
 <div class='window3d' id="container" style="position: fixed; top:130px"></div>
+
 <div class='material-parameters'>
     <form action="/materials/edit" method="post">
 
@@ -11,85 +24,82 @@
         </p>
         <p>
             <lable for="color_hex" class="menutitle">Color</lable><br>
-            <input type="color" id="color_hex" name="color_hex" value="{{color_hex}}">
+            <input type="color" id="color_hex" name="color_hex" value="{{color_hex}}"
+                oninput="updateField(this.id,this.value)">
         </p>
         <div>
             <lable for="opacity_value" class="menutitle">Opacity</lable><br>
             <input type="range" id="opacity_value" name="opacity_value" min="0" max="1" step="0.01"
-                value="{{opacity_value}}">
-            <lable for="transparent_check" class="menutitle">Transparent</lable>
-            <input type="checkbox" id="transparent_check" name="transparent_check" value="1" {{checked
-                transparent_check}}>
+                value="{{opacity_value}}" oninput="updateField(this.id,this.value)">
         </div>
         <p>
             <lable for="emissive_hex" class="menutitle">Emissive Color</lable><br>
             <input type="color" id="emissive_hex" name="emissive_hex" value="{{emissive_hex}}">
         </p>
         <p>
-            <lable for="environment_value" class="menutitle">Reflectivity</lable><br>
-            <input type="range" id="environment_value" name="environment_value" min="0" max="1" step="0.01"
-                value="{{environment_value}}">
-        </p>
-        <p>
             <lable for="roughness_value" class="menutitle">Roughness</lable><br>
             <input type="range" id="roughness_value" name="roughness_value" min="0" max="1" step="0.01"
-                value="{{roughness_value}}">
+                value="{{roughness_value}}" oninput="updateField(this.id,this.value)">
         </p>
         <p>
             <lable for="metalness_value" class="menutitle">Metalness</lable><br>
             <input type="range" id="metalness_value" name="metalness_value" min="0" max="1" step="0.01"
-                value="{{metalness_value}}" required>
+                value="{{metalness_value}}" oninput="updateField(this.id,this.value)">
         </p>
         <div>
             <lable for="diffuse_map" class="menutitle">Diffuse Map</lable><br>
-            <div class="map-preview"><img width="100%" height="100%" id="diffuse_map_prev" /></div><input class="image-input" type="text" id="diffuse_map" name="diffuse_map" value="{{diffuse_map}}"><button
-                type="button" onclick="imageChoose('diffuse_map')">Choose</button>
-            <div>
-                <div>
-                    <lable for="normal_map" class="menutitle">Normal Map</lable><br>
-                   <div class="map-preview"><img width="100%" height="100%" id="normal_map_prev" /></div> <input class="image-input" type="text" id="normal_map" name="normal_map"
-                        value="{{normal_map}}"><button type="button" onclick="imageChoose('normal_map')">Choose</button>
-                </div>
-                <p>
-                    <lable for="normal_value" class="menutitle">Normal Amount</lable><br>
-                    <input type="range" id="normal_value" name="normal_value" min="0" max="1" step="0.01"
-                        value="{{normal_value}}">
-                </p>
-                <div>
-                    <lable for="bump_map" class="menutitle">Bump Map</lable><br>
-                    <div class="map-preview"><img width="100%" height="100%" id="bump_map_prev"/></div><input class="image-input" type="text" id="bump_map" name="bump_map" value="{{bump_map}}"><button
-                        type="button" onclick="imageChoose('bump_map')">Choose</button>
-                </div>
-                <div>
-                    <lable for="bump_value" class="menutitle">Bump Amount</lable><br>
-                    <input type="range" id="bump_value" name="bump_value" min="0" max="1" step="0.01"
-                        value="{{bump_value}}">
-                </div>
-                <div>
-                    <lable for="roughness_map" class="menutitle">Roughness Map</lable><br>
-                    <div class="map-preview"><img width="100%" height="100%" id="roughness_map_prev"/></div><input class="image-input" type="text" id="roughness_map" name="roughness_map"
-                        value="{{roughness_map}}"><button type="button"
-                        onclick="imageChoose('roughness_map')">Choose</button>
-                </div>
-                <div>
-                    <lable for="metalness_map" class="menutitle">Metalness Map</lable><br>
-                    <div class="map-preview"><img width="100%" height="100%" id="metalness_map_prev" /><input class="image-input" type="text" id="metalness_map" name="metalness_map"
-                        value="{{metalness_map}}"><button type="button"
-                        onclick="imageChoose('metalness_map')">Choose</button>
-                </div>
-                <div style="height: 50px;">
+            <div class="map-preview" onclick="imageChoose('diffuse_map')"><img width="100%" height="100%"
+                    id="diffuse_map_prev" /></div><input class="image-input" type="text" id="diffuse_map"
+                name="diffuse_map" value="{{diffuse_map}}">
+        </div>
+        <div>
+            <lable for="normal_map" class="menutitle">Normal Map</lable><br>
+            <div class="map-preview" onclick="imageChoose('normal_map')"><img width="100%" height="100%"
+                    id="normal_map_prev" /></div> <input class="image-input" type="text" id="normal_map"
+                name="normal_map" value="{{normal_map}}">
+        </div>
+        <p>
+            <lable for="normal_value" class="menutitle">Normal Amount</lable><br>
+            <input type="range" id="normal_value" name="normal_value" min="0" max="1" step="0.01"
+                value="{{normal_value}}" oninput="updateField(this.id,this.value)">
+        </p>
+        <div>
+            <lable for="bump_map" class="menutitle">Bump Map</lable><br>
+            <div class="map-preview" onclick="imageChoose('bump_map')"><img width="100%" height="100%"
+                    id="bump_map_prev" /></div><input class="image-input" type="text" id="bump_map" name="bump_map"
+                value="{{bump_map}}">
+        </div>
+        <div>
+            <lable for="bump_value" class="menutitle">Bump Amount</lable><br>
+            <input type="range" id="bump_value" name="bump_value" min="0" max="1" step="0.01" value="{{bump_value}}"
+                oninput="updateField(this.id,this.value)">
+        </div>
+        <div>
+            <lable for="roughness_map" class="menutitle">Roughness Map</lable><br>
+            <div class="map-preview" onclick="imageChoose('roughness_map')"><img width="100%" height="100%"
+                    id="roughness_map_prev" /></div><input class="image-input" type="text" id="roughness_map"
+                name="roughness_map" value="{{roughness_map}}">
+        </div>
+        <div>
+            <lable for="metalness_map" class="menutitle">Metalness Map</lable><br>
+            <div class="map-preview" onclick="imageChoose('metalness_map')"><img width="100%" height="100%"
+                    id="metalness_map_prev" /></div><input class="image-input" type="text" id="metalness_map"
+                name="metalness_map" value="{{metalness_map}}">
 
-                </div>
+        </div>
+        <div style="height: 50px;">
+
+        </div>
 
 
-                <div class="submit-bt">
-                    <button type="submit" name="submit" id="submit">
-                        Update
-                    </button>
-                </div>
-                <div style="height: 250px">
+        <div class="submit-bt">
+            <button type="submit" name="submit" id="submit">
+                Update
+            </button>
+        </div>
+        <div style="height: 250px">
 
-                </div>
+        </div>
 
     </form>
 </div>
@@ -106,17 +116,40 @@
 <div id="images" class="image-chooser"></div>
 <script>
     function startup() {
-        loadModel('sphere.glb');
+        loadModel('sphere.glb', updateMaterial);
+        loadModelList();
     }
     function updateMaterial() {
-
+        console.log("updating material");
+        applyMaterialProperty('color_hex', '{{color_hex}}');
+        applyMaterialProperty('opacity_value', '{{opacity_value}}');
+        applyMaterialProperty('roughness_value', '{{roughness_value}}');
+        applyMaterialProperty('metalness_value', '{{metalness_value}}');
+        applyMaterialProperty('normal_value', '{{normal_value}}');
+        var diffuse = '{{diffuse_map}}';
+        if (diffuse.length > 3) {
+            applyMaterialProperty('diffuse_map', diffuse);
+            loadThumb('diffuse_map', diffuse);
+        }
+        var normal = '{{normal_map}}';
+        if (normal.length > 3) {
+            applyMaterialProperty('normal_map', normal);
+            loadThumb('normal_map', normal);
+        }
+    }
+    function loadThumb(field, value) {
+        let targ = document.getElementById(field + '_prev');
+        targ.src = '/thumbs/' + value;
+    }
+    function registerTargets(targets){
+        console.log(targets);
     }
     function imageChoose(field) {
         console.log("changing", field);
         fetch('/textures/all')
             .then(response => response.json())
             .then(data => {
-                let htmlstr = 'hello';
+                let htmlstr = '';
                 var i;
                 let thumb;
                 for (i = 0; i < data.length; i++) {
@@ -125,18 +158,48 @@
                 }
                 var imgBrowse = document.getElementById('images');
                 imgBrowse.innerHTML = htmlstr;
+
             });
 
     }
-    function updateField(field, imagename) {
-        console.log("image", imagename)
-        let f = document.getElementById(field);
-        f.value = imagename;
-        let targ = document.getElementById( field + '_prev');
-        targ.src = '/thumbs/' + imagename;
-        var imgBrowse = document.getElementById('images');
-        imgBrowse.innerHTML = '';
+    function updateField(field, value) {
 
+        let f = document.getElementById(field);
+        f.value = value;
+        //for maps...
+        if (field.includes('_map')) {
+            loadThumb(field, value);
+            var imgBrowse = document.getElementById('images');
+            imgBrowse.innerHTML = '';
+        }
+        applyMaterialProperty(field, value);
+
+    }
+    function updateColor(target) {
+        console.log(target.value);
+        applyMaterialProperty('color', target.value);
+
+    }
+    function loadModelList(){
+        fetch('/models/all' )
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            var i;
+            for (i = 0; i < data.length; i++) {
+                data[i].name = data[i].title;
+                data[i].id = data[i].model;
+            }
+
+            $('.allmodels').dropdown({
+                data: data,
+                limitCount: 40,
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    loadModel(document.getElementById('models').value, updateMaterial);
+                }
+            });
+        });
     }
 </script>
 

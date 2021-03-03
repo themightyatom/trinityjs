@@ -14,7 +14,6 @@ const _table = 'standard_mat';
 const _fields = {
     title: 'New Material',
     color_hex: '0xCCCCCC',
-    transparent_check: 0,
     opacity_value: 1,
     emissive_hex: '0x00',
     roughness_value: 0.5,
@@ -27,7 +26,6 @@ const _fields = {
     alpha_map: '',
     metalness_map: '',
     roughness_map: '',
-    environment_value: 0,
     thumb:''
 }
 
