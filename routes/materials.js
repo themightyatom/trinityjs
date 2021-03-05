@@ -13,9 +13,9 @@ const thumbfolder = 'public/thumbs/';
 const _table = 'standard_mat';
 const _fields = {
     title: 'New Material',
-    color_hex: '0xCCCCCC',
+    color_hex: '#CCCCCC',
     opacity_value: 1,
-    emissive_hex: '0x00',
+    emissive_hex: '#000',
     roughness_value: 0.5,
     metalness_value: 0.5,
     diffuse_map: '',
@@ -25,8 +25,8 @@ const _fields = {
     bumb_value: 1,
     alpha_map: '',
     metalness_map: '',
-    roughness_map: '',
-    thumb:''
+    roughness_map: ''
+
 }
 
 const imagePath = path.join(path.resolve(__dirname, '..'), 'public/textures/');
@@ -71,7 +71,7 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
 
 
 router.post('/edit', checkAuthenticated, (req, res) => {
-    console.log("adding material", req.body );
+    console.log("adding material", req.body);
     if (req.body.id != 'new') {
         let sql = "UPDATE " + _table + " SET ? WHERE id = '" + req.body.id + "'";;
         let post = req.body;
@@ -80,8 +80,8 @@ router.post('/edit', checkAuthenticated, (req, res) => {
             if (err) throw err;
             res.redirect('/materials');
         });
-    }else{
-        let sql = 'INSERT INTO ' + _table +  ' SET ?';
+    } else {
+        let sql = 'INSERT INTO ' + _table + ' SET ?';
         let post = req.body;
         delete post.submit;
         delete post.id;
@@ -94,16 +94,29 @@ router.post('/edit', checkAuthenticated, (req, res) => {
 
 
 router.post('/delete', checkAuthenticated, (req, res) => {
-    
+
 
     // remove coresponding database entry
-    
+
     let sql = "DELETE FROM " + _table + " WHERE id = '" + req.body.id + "'";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         res.redirect('/materials');
     });
 
+});
+
+router.post('/thumb', function(req, res) {
+    var base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
+    var id = req.body.id;
+    fs.writeFile(thumbfolder + '/materials/' + id + '.png', base64Data, 'base64', function(err) {
+        if(err){
+           console.log(err);
+           
+         }else{
+            res.send("done");
+         }
+    });
 });
 
 

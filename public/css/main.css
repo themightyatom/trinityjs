@@ -187,11 +187,17 @@ input[type="submit" i]{
     cursor: pointer;
     color: #909b90;
 }
-.column{
+.column-3{
     width: 33%;
     position: relative;
     float: left;
-    margin-top: 3px;
+    margin: auto;
+}
+.column-2{
+    width: 50%;
+    position: relative;
+    float: left;
+    margin: auto;
 }
 .bottomButs{
     width: 80%;
@@ -251,6 +257,10 @@ color: white !important;
     background-color: #FFFFFF;
     float: left;
 }
+.list-preview{
+    width:55px;
+    height:55px;
+}
 .thumb-img{
     float: left;
     padding: 3px;
@@ -267,4 +277,23 @@ color: white !important;
 .target-select{
     top: 650px;
     position: fixed;
+}
+input[type="range" i] {
+
+    width:100%
+}
+.delete-bt{
+    color: #ffffff;
+    background-color: #efa1a1;
+    border-radius: 10px;
+    width: 20px;
+    height: 20px;
+    position: relative;
+    top: -45px;
+    left: -10px;
+    cursor: pointer;
+    display: none;
+}
+.delete-bt span{
+    margin:-2 !important;
 }

@@ -2,18 +2,25 @@
 
 
 
-<form action="/textures/edit" method="post">
-    
-        
-            <p>
-            <input type="hidden" id="id" name="id" value="{{id}}">
-            <lable for="title" class="menutitle">Title</lable><br>
-            <input type="text" id="title" name="title" value="{{title}}" required>
-            </p>  
-            <div id="container" class="textureBox" style="float: left;">
-                <img width="500px" id="preview" src="/textures/{{texture}}" />
-            </div>
-         
+<form action="/textures/edit" method="post" id="attributes">
+
+
+    <p>
+        <input type="hidden" id="id" name="id" value="{{id}}">
+        <lable for="title" class="menutitle">Title</lable><br>
+        <input type="text" id="title" name="title" value="{{title}}" required>
+    </p>
+    <p>
+        <lable for="type" class="menutitle">Map Type</lable><br>
+        <input type="radio" name="type" id="diffuse" value="diffuse" {{radioCheck type 'diffuse'}}> <label for="diffuse">Diffuse</label><br>
+        <input type="radio" name="type" id="normal" value="normal"  {{radioCheck type 'normal'}}> <label for="normal">Normal</label><br>
+        <input type="radio" name="type" id="bump" value="bump"  {{radioCheck type 'bump'}}> <label for="bump">Bump</label><br>
+   
+    </p>
+    <div id="container" class="textureBox" style="float: left;">
+        <img width="500px" id="preview" src="/textures/{{texture}}" />
+    </div>
+
     <div class="submit-bt">
         <button type="submit" name="submit" id="submit">
             Update
@@ -32,6 +39,6 @@
 </div>
 <script>
     function startup() {
-        
+
     }
 </script>

@@ -5,7 +5,7 @@
 
 </div>
 
-<form action="/models/updatemodel" method="post">
+<form action="/models/updatemodel" method="post" onsubmit="return addThumb()">
     <p>
         <lable for="model">Model id</lable><br>
         <input type="text" id="id" name="id" value="{{id}}" readonly>
@@ -21,13 +21,20 @@
     <p>
         <lable for="sku">SKU</lable><br>
         <input type="text" name="sku" id="sku" value="{{sku}}" required>
-    </p>
-    <p>
-        <label for="list">Choose categories:</label><br>
+    </p>  
+     <p>
+        <lable for="snap">Snap Target</lable><br>
+        <input type="text" name="snap" id="snap" value="{{snap}}" >
+    </p> 
     <div class="allcategories">
+        <label for="list">Choose categories:</label><br>
         <select style="display:none" name="categories" id="categories" multiple placeholder="Select"> </select>
     </div>
-    </p>
+    <div class="allaccessorygroups">
+        <label for="list">Compatible Accessory Groups:</label><br>
+        <select style="display:none" name="accessory_groups" id="accessory_groups" multiple placeholder="Select"> </select>
+    </div>
+    
     <div class="submit-bt">
     <button type="submit" name="submit">
         Update
@@ -53,8 +60,27 @@
     function registerTargets(targets){
         console.log(targets);
     }
-    const selected = '{{categories}}';
-    const selectedArray = selected.split('|');
+     function addThumb() {
+
+        var t = grabScreenshot();
+        var _id = '{{id}}';
+        console.log("save thumb");
+        $.ajax({
+            type: "POST",
+            url: "/models/thumb",
+            data: {
+                imgBase64: t,
+                id: _id
+            }
+        }).done(function (o) {
+            console.log('saved');
+            return true;
+        });
+
+    }
+   
+    const selectedArray = '{{categories}}';
+    const accessoryArray = '{{accessory_groups}}';
 
     fetch('/categories/all')
         .then(response => response.json())
@@ -80,7 +106,29 @@
         });
 
 
-  
+        fetch('/accessories/all')
+        .then(response => response.json())
+        .then(data => {
+            var i;
+            for (i = 0; i < data.length; i++) {
+                data[i].name = data[i].title;
+                data[i].value = data[i].id;
+                if (accessoryArray.includes(String(data[i].id))) {
+                    data[i].selected = true;
+                }
+            }
+
+            $('.allaccessorygroups').dropdown({
+                data: data,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    //getlist();
+                }
+            });
+        });
+
 </script>
 
 {{>preview3d}}

@@ -9,6 +9,7 @@ const pp = require('../utils/passport.js');
 
 
 const glbfolder = 'public/glb/';
+const thumbfolder = 'public/thumbs/';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -20,6 +21,7 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage: storage })
 
+/*
 router.get('/createtable', (req, res) => {
     let sql = 'CREATE TABLE models(id int AUTO_INCREMENT, title VARCHAR(255), sku VARCHAR(255), PRIMARY KEY (id))';
     db.query(sql, (err, result) => {
@@ -29,7 +31,7 @@ router.get('/createtable', (req, res) => {
     })
 
 });
-
+*/
 
 
 router.post('/addNewModel', (req, res) => {
@@ -61,18 +63,7 @@ router.get('/all', (req,res) => {
     })
 });
 
-router.get('/:id', (req,res) => {
-    let _id = req.params.id;
-    let sql = "SELECT * from models WHERE ID ='" + _id + "'";
-    let query = db.query(sql, (err, result) => {
-        if (err) throw err;
-        if(result.length >0){
-        res.send( result[0] );
-        }else{
-            res.send({message:'No model found with that id'});
-        }
-    })
-});
+
 
 router.get('/search/:term', (req,res) =>{
     //let sql = 'SELECT * FROM models WHERE title LIKE ' + req.params.term;
@@ -105,7 +96,7 @@ router.get('/editModel/:id', checkAuthenticated, (req, res) => {
 
 
 
-router.get('/uploadModel', (req, res) => {
+router.get('/uploadModel', checkAuthenticated, (req, res) => {
     res.render('itemupload', { title: 'UPLOAD NEW MODEL' });
 });
 
@@ -162,14 +153,18 @@ router.get('/glbexists/:name', (req, res) => {
 
 router.post('/updatemodel', checkAuthenticated,(req, res) => {
     console.log(req.body);
-    let cats;
-        if(Array.isArray(req.body.categories)){
+    let cats = JSON.stringify(req.body.categories);
+    let groups = JSON.stringify(req.body.accessory_groups);
+    req.body.categories = cats;
+    req.body.accessory_groups = groups;
+    delete req.body.submit;
+    /*    if(Array.isArray(req.body.categories)){
             cats = req.body.categories.join('|');
         }else{
             cats = req.body.categories;
-        }
+        }*/
     let sql = "UPDATE models SET ? WHERE id = '" + req.body.id + "'";
-    let post = { title: req.body.title, sku: req.body.sku, categories:cats };
+    let post = req.body;
     let query = db.query(sql, post, (err, result) => {
         if (err) throw err;
         res.redirect('/models');
@@ -196,6 +191,34 @@ router.post('/deletemodel', checkAuthenticated, (req, res) => {
         res.redirect('/models');
     });
     
+});
+
+// PUBLIC INTERFACE
+
+router.get('/:id', (req,res) => {
+    let _id = req.params.id;
+    let sql = "SELECT * from models WHERE ID ='" + _id + "'";
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        if(result.length >0){
+        res.send( result[0] );
+        }else{
+            res.send({message:'No model found with that id'});
+        }
+    })
+});
+
+router.post('/thumb', function(req, res) {
+    var base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
+    var id = req.body.id;
+    fs.writeFile(thumbfolder + '/models/' + id + '.png', base64Data, 'base64', function(err) {
+        if(err){
+           console.log(err);
+           
+         }else{
+            res.send("done");
+         }
+    });
 });
 
 module.exports = router;

@@ -2,10 +2,10 @@
 
 <div class="submit-bt"> <button onclick="window.location.href='/categories/edit/new'">Add New Category</button></div>
 
- <div class="item-row-top"><div class="column" ><span class="menutitle">ID</span></div><div class="column" ><span class="menutitle">TITLE</span></div></div>
+ <div class="item-row-top"><div class="column-2" ><span class="menutitle">ID</span></div><div class="column-2" ><span class="menutitle">TITLE</span></div></div>
 {{# each categories as |val key|}}
 
-   <div class="item-row" onclick="window.location.href='/categories/edit/{{val.id}}'"><div class="column" >{{val.id}}</div><div class="column" > {{ val.title }}</div></div>
+   <div class="item-row" onclick="window.location.href='/categories/edit/{{val.id}}'"><div class="column-2" >{{val.id}}</div><div class="column-2" > {{ val.title }}</div></div>
 {{/each}}
 
 <script>

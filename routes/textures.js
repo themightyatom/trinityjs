@@ -46,8 +46,10 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
 
 router.post('/edit', checkAuthenticated, (req,res) =>{
     
-    let sql = "UPDATE "+ _table +" SET ? WHERE id = '" + req.body.id + "'";;
-        let post = {title:req.body.title};
+    let sql = "UPDATE "+ _table +" SET ? WHERE id = '" + req.body.id + "'";
+     
+        let post = req.body;
+        delete post.submit;
         let query = db.query(sql, post, (err, result) => {
             if (err) throw err;
             res.redirect('/textures');

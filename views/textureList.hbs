@@ -3,14 +3,14 @@
 <div class="submit-bt"> <button onclick="window.location.href='/textures/upload'">Upload New Texture</button></div>
 
 <div class="item-row-top">
-   <div class="column"><span class="menutitle">TEXTURE</span></div>
-   <div class="column"><span class="menutitle">TITLE</span></div>
+   <div class="column-2"><span class="menutitle">TEXTURE</span></div>
+   <div class="column-2"><span class="menutitle">TITLE</span></div>
 </div>
 {{# each textures as |val key|}}
 
 <div class="item-row" onclick="window.location.href='/textures/edit/{{val.id}}'">
-   <div class="column"><img src="/thumbs/{{val.texture}}" /></div>
-   <div class="column"> {{ val.title }}</div>
+   <div class="column-2"><img src="/thumbs/{{val.texture}}" /></div>
+   <div class="column-2"> {{ val.title }}</div>
 </div>
 {{/each}}
 

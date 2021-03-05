@@ -2,10 +2,10 @@
 
 <div class="submit-bt"> <button onclick="window.location.href='/accessories/edit/new'">Add New Accessory Group</button></div>
 
- <div class="item-row-top"><div class="column" ><span class="menutitle">ID</span></div><div class="column" ><span class="menutitle">TITLE</span></div><div class="column" ><span class="menutitle">TYPE</span></div></div>
+ <div class="item-row-top"><div class="column-3" ><span class="menutitle">ID</span></div><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">TYPE</span></div></div>
 {{# each accessories as |val key|}}
 
-   <div class="item-row" onclick="window.location.href='/accessories/edit/{{val.id}}'"><div class="column" >{{val.id}}</div><div class="column" > {{ val.title }}</div> <div class="column" > {{val.type}}</div></div>
+   <div class="item-row" onclick="window.location.href='/accessories/edit/{{val.id}}'"><div class="column-3" >{{val.id}}</div><div class="column-3" > {{ val.title }}</div> <div class="column-3" > {{val.type}}</div></div>
 {{/each}}
 
 <script>

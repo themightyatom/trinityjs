@@ -3,14 +3,14 @@
 <div class="submit-bt"> <button onclick="window.location.href='/materials/edit/new '">Create New Material</button></div>
 
 <div class="item-row-top">
-   <div class="column"><span class="menutitle">TEXTURE</span></div>
-   <div class="column"><span class="menutitle">TITLE</span></div>
+   <div class="column-2"><span class="menutitle">TEXTURE</span></div>
+   <div class="column-2"><span class="menutitle">TITLE</span></div>
 </div>
 {{# each materials as |val key|}}
 
 <div class="item-row" onclick="window.location.href='/materials/edit/{{val.id}}'">
-   <div class="column"><img src="/thumbs/{{val.texture}}" /></div>
-   <div class="column"> {{ val.title }}</div>
+   <div class="column-2"><img class="list-preview" src="/thumbs/materials/{{val.id}}.png" /></div>
+   <div class="column-2"> {{ val.title }}</div>
 </div>
 {{/each}}
 

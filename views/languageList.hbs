@@ -2,10 +2,10 @@
 
 <div class="submit-bt"> <button onclick="window.location.href='/languages/edit/new'">Add New Language</button></div>
 
- <div class="item-row-top"><div class="column" ><span class="menutitle">ID</span></div><div class="column" ><span class="menutitle">TITLE</span></div><div class="column" ><span class="menutitle">STUB CODE</span></div></div>
+ <div class="item-row-top"><div class="column-3" ><span class="menutitle">ID</span></div><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">STUB CODE</span></div></div>
 {{# each languages as |val key|}}
 
-   <div class="item-row" onclick="window.location.href='/languages/edit/{{val.id}}'"><div class="column" >{{val.id}}</div><div class="column" > {{ val.title }}</div><div class="column" > {{ val.stub }}</div></div>
+   <div class="item-row" onclick="window.location.href='/languages/edit/{{val.id}}'"><div class="column-3" >{{val.id}}</div><div class="column-3" > {{ val.title }}</div><div class="column-3" > {{ val.stub }}</div></div>
 {{/each}}
 
 <script>
