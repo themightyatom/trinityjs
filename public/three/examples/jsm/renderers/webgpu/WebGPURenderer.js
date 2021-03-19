@@ -10,9 +10,6 @@ import WebGPUBindings from './WebGPUBindings.js';
 import WebGPURenderLists from './WebGPURenderLists.js';
 import WebGPUTextures from './WebGPUTextures.js';
 import WebGPUBackground from './WebGPUBackground.js';
-import WebGPUNodes from './nodes/WebGPUNodes.js';
-
-import glslang from '../../libs/glslang.js';
 
 import { Frustum, Matrix4, Vector3, Color } from '../../../../build/three.module.js';
 
@@ -100,7 +97,6 @@ class WebGPURenderer {
 		this._properties = null;
 		this._attributes = null;
 		this._geometries = null;
-		this._nodes = null;
 		this._bindings = null;
 		this._objects = null;
 		this._renderPipelines = null;
@@ -158,7 +154,8 @@ class WebGPURenderer {
 
 		const device = await adapter.requestDevice( deviceDescriptor );
 
-		const compiler = await glslang();
+		const glslang = await import( 'https://cdn.jsdelivr.net/npm/@webgpu/glslang@0.0.15/dist/web-devel/glslang.js' );
+		const compiler = await glslang.default();
 
 		const context = ( parameters.context !== undefined ) ? parameters.context : this.domElement.getContext( 'gpupresent' );
 
@@ -178,10 +175,9 @@ class WebGPURenderer {
 		this._geometries = new WebGPUGeometries( this._attributes, this._info );
 		this._textures = new WebGPUTextures( device, this._properties, this._info, compiler );
 		this._objects = new WebGPUObjects( this._geometries, this._info );
-		this._nodes = new WebGPUNodes( this );
-		this._renderPipelines = new WebGPURenderPipelines( this, this._properties, device, compiler, parameters.sampleCount, this._nodes );
+		this._renderPipelines = new WebGPURenderPipelines( this, this._properties, device, compiler, parameters.sampleCount );
 		this._computePipelines = new WebGPUComputePipelines( device, compiler );
-		this._bindings = new WebGPUBindings( device, this._info, this._properties, this._textures, this._renderPipelines, this._computePipelines, this._attributes, this._nodes );
+		this._bindings = new WebGPUBindings( device, this._info, this._properties, this._textures, this._renderPipelines, this._computePipelines, this._attributes );
 		this._renderLists = new WebGPURenderLists();
 		this._background = new WebGPUBackground( this );
 
@@ -204,12 +200,6 @@ class WebGPURenderer {
 	}
 
 	render( scene, camera ) {
-
-		// @TODO: move this to animation loop
-
-		this._nodes.updateFrame();
-
-		//
 
 		if ( scene.autoUpdate === true ) scene.updateMatrixWorld();
 
@@ -524,7 +514,6 @@ class WebGPURenderer {
 		this._properties.dispose();
 		this._renderPipelines.dispose();
 		this._computePipelines.dispose();
-		this._nodes.dispose();
 		this._bindings.dispose();
 		this._info.dispose();
 		this._renderLists.dispose();
@@ -731,7 +720,6 @@ class WebGPURenderer {
 
 						passEncoder.setViewport( vp.x, vp.y, vp.width, vp.height, minDepth, maxDepth );
 
-						this._nodes.update( object, camera2 );
 						this._bindings.update( object, camera2 );
 						this._renderObject( object, passEncoder );
 
@@ -741,7 +729,6 @@ class WebGPURenderer {
 
 			} else {
 
-				this._nodes.update( object, camera );
 				this._bindings.update( object, camera );
 				this._renderObject( object, passEncoder );
 

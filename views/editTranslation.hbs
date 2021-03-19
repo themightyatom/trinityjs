@@ -1,0 +1,24 @@
+<h1>{{params.title}}</h1>
+
+
+
+<form action="/translations/edit" method="post">
+    <p>
+        <input type="hidden" id="item_id" name="item_id" value="{{params.item_id}}">
+        <input type="hidden" id="item_type" name="item_type" value="{{params.item_type}}">
+    </p>
+    
+      {{>translations}} 
+    <div class="submit-bt">
+        <button type="submit" name="submit" id="submit">
+            Update
+        </button>
+    </div>
+</form>
+
+<script>
+    function startup() {
+       
+    }
+
+</script>

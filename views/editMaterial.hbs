@@ -22,6 +22,10 @@
             <input type="text" id="title" name="title" value="{{title}}" required>
         </p>
         <p>
+            <lable for="extension" class="menutitle">Extension (added to SKU by default)</lable><br>
+            <input type="text" id="extension" name="extension" value="{{extension}}" >
+        </p>
+        <p>
             <lable for="color_hex" class="menutitle">Color</lable><br>
             <input type="color" id="color_hex" name="color_hex" value="{{color_hex}}"
                 oninput="updateField(this.id,this.value)">
@@ -97,7 +101,8 @@
 
         </div> -->
         <div style="height: 50px;">
-
+            <br>
+               <a href="/translations/edit/materials/{{id}}/{{title}}">Edit Translations</a>
         </div>
 
         <div class="submit-bt">
@@ -161,7 +166,7 @@
             $(targ).attr('src', null);
             $(removeButton).css('display','none');
         }else{
-            targ.src = '/thumbs/' + value; 
+            targ.src = '/thumbs/textures/' + value; 
              $(removeButton).css('display','block');
         }
     }
@@ -178,7 +183,7 @@
                 let thumb;
                 for (i = 0; i < data.length; i++) {
                     thumb = data[i].texture;
-                    htmlstr += '<div class="thumb-img" onclick="updateField(\'' + field + '\',\'' + thumb + '\')"><img src="/thumbs/' + thumb + '"></div>';
+                    htmlstr += '<div class="thumb-img" onclick="updateField(\'' + field + '\',\'' + thumb + '\')"><img src="/thumbs/textures/' + thumb + '"></div>';
                 }
                 var imgBrowse = document.getElementById('images');
                 imgBrowse.innerHTML = htmlstr;

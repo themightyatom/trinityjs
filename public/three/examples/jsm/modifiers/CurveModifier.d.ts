@@ -1,13 +1,12 @@
+import { Geometry, Material, Mesh } from '../../../build/three.module';
 import {
 	DataTexture,
 	Curve,
 	Uniform,
 	Material,
-	InstancedMesh,
-	Geometry,
-	Mesh,
-	Vector3
+	InstancedMesh
 } from '../../../src/Three';
+import { Flow } from './CurveModifier';
 
 interface SplineUniform {
 	spineTexture: Uniform,
@@ -19,7 +18,7 @@ interface SplineUniform {
 }
 export function initSplineTexture( size?: number ): DataTexture;
 
-export function updateSplineTexture( texture: DataTexture, splineCurve: Curve<Vector3>, offset?: number );
+export function updateSplineTexture( texture: DataTexture, splineCurve: Curve, offset?: number );
 
 export function getUniforms( splineTexture: DataTexture ): SplineUniform;
 
@@ -33,7 +32,7 @@ export class Flow {
 	object3D: Mesh;
 	splineTexure: DataTexture;
 	uniforms: SplineUniform;
-	updateCurve( index: number, curve: Curve<Vector3> );
+	updateCurve( index: number, curve: Curve );
 	moveAlongCurve( amount: number );
 
 }

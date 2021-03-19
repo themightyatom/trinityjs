@@ -1,4 +1,4 @@
-<h1>Attributes for {{model}}</h1>
+<h1>Attributes for {{params.model}}</h1>
 
 
 <div id="container" class="window3d">
@@ -8,62 +8,76 @@
 <form action="/models/updatemodel" method="post" onsubmit="return addThumb()">
     <p>
         <lable for="model">Model id</lable><br>
-        <input type="text" id="id" name="id" value="{{id}}" readonly>
+        <input type="text" id="id" name="id" value="{{params.id}}" readonly>
     </p>
     <p>
         <lable for="model">Model</lable><br>
-        <input type="text" id="model" name="model" value="{{model}}" readonly>
+        <input type="text" id="model" name="model" value="{{params.model}}" readonly>
     </p>
     <p>
         <lable for="title">Title</lable><br>
-        <input type="text" id="title" name="title" value="{{title}}" required>
+        <input type="text" id="title" name="title" value="{{params.title}}" required>
     </p>
     <p>
         <lable for="sku">SKU</lable><br>
-        <input type="text" name="sku" id="sku" value="{{sku}}" required>
-    </p>  
-     <p>
+        <input type="text" name="sku" id="sku" value="{{params.sku}}" required>
+    </p>
+    <div>
         <lable for="snap">Snap Target</lable><br>
-        <input type="text" name="snap" id="snap" value="{{snap}}" >
-    </p> 
+        <input type="text" name="snap" id="snap" value="{{params.snap}}">
+        <input type="radio" name="snap_type" id="single" value="single" {{radioCheck params.snap_type 'single' }}>
+        <label for="single">Single</label>
+        <input type="radio" name="snap_type" id="all" value="all" {{radioCheck params.snap_type 'all' }}> <label
+            for="all">All</label>
+
+    </div>
     <div class="allcategories">
-        <label for="list">Choose categories:</label><br>
+        <label for="categories">Choose categories:</label><br>
         <select style="display:none" name="categories" id="categories" multiple placeholder="Select"> </select>
     </div>
+    <br>
     <div class="allaccessorygroups">
-        <label for="list">Compatible Accessory Groups:</label><br>
-        <select style="display:none" name="accessory_groups" id="accessory_groups" multiple placeholder="Select"> </select>
+        <label for="accessory_groups">Compatible Accessory Groups:</label><br>
+        <select style="display:none" name="accessory_groups" id="accessory_groups" multiple placeholder="Select">
+        </select>
     </div>
-    
+    <br>
+    <div class="allmaterials">
+        <label for="materials">Material Variations:</label><br>
+        <select style="display:none" name="materials" id="materials" multiple placeholder="Select">
+        </select>
+    </div>
+    {{>translations}}
     <div class="submit-bt">
-    <button type="submit" name="submit">
-        Update
-    </button>
+        <button type="submit" name="submit">
+            Update
+        </button>
     </div>
 </form>
 <div class="bottomButs">
-    <form action="/models/deletemodel/" method="POST" onsubmit="return confirm('Are you sure you want to permanently delte this model?')">
-    <input type="hidden" id="id" name="id" value="{{id}}">
-    <input type="hidden" id="model" name="model" value="{{model}}">
-    <button class="warn" type="submit">DELETE</button>
+    <form action="/models/deletemodel/" method="POST"
+        onsubmit="return confirm('Are you sure you want to permanently delte this model?')">
+        <input type="hidden" id="id" name="id" value="{{params.id}}">
+        <input type="hidden" id="model" name="model" value="{{params.model}}">
+        <button class="warn" type="submit">DELETE</button>
     </form>
-<!--<button class="warn" onclick="deletemodel()">Delete</button>-->
+    <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
     <button onclick="window.location.href='/models'">Cancel</button>
 </div>
 <script>
     function startup() {
-        loadModel('{{model}}');
+        loadModel('{{params.model}}');
     }
     function registerSnaps(points) {
 
     }
-    function registerTargets(targets){
+    function registerTargets(targets) {
         console.log(targets);
     }
-     function addThumb() {
+    function addThumb() {
 
         var t = grabScreenshot();
-        var _id = '{{id}}';
+        var _id = '{{params.id}}';
         console.log("save thumb");
         $.ajax({
             type: "POST",
@@ -78,9 +92,10 @@
         });
 
     }
-   
-    const selectedArray = '{{categories}}';
-    const accessoryArray = '{{accessory_groups}}';
+
+    const selectedArray = [{{params.categories}}];
+    const accessoryArray = [{{params.accessory_groups}}];
+    const materialArray = [{{params.materials}}];
 
     fetch('/categories/all')
         .then(response => response.json())
@@ -89,7 +104,7 @@
             for (i = 0; i < data.length; i++) {
                 data[i].name = data[i].title;
                 data[i].value = data[i].id;
-                if (selectedArray.includes(String(data[i].id))) {
+                if (selectedArray.includes(data[i].id)) {
                     data[i].selected = true;
                 }
             }
@@ -106,19 +121,41 @@
         });
 
 
-        fetch('/accessories/all')
+    fetch('/accessories/all')
         .then(response => response.json())
         .then(data => {
             var i;
             for (i = 0; i < data.length; i++) {
                 data[i].name = data[i].title;
                 data[i].value = data[i].id;
-                if (accessoryArray.includes(String(data[i].id))) {
+                if (accessoryArray.includes(data[i].id)) {
                     data[i].selected = true;
                 }
             }
 
             $('.allaccessorygroups').dropdown({
+                data: data,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    //getlist();
+                }
+            });
+        });
+    fetch('/materials/all')
+        .then(response => response.json())
+        .then(data => {
+            var i;
+            for (i = 0; i < data.length; i++) {
+                data[i].name = data[i].title;
+                data[i].value = data[i].id;
+                if (materialArray.includes(data[i].id)) {
+                    data[i].selected = true;
+                }
+            }
+
+            $('.allmaterials').dropdown({
                 data: data,
                 limitCount: 40,
                 multipleMode: 'label',

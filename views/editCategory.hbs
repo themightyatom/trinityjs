@@ -3,13 +3,14 @@
 
 
 <form action="/categories/edit" method="post">
-    
-        {{# each languages as |val key|}}
-            <p id="_{{key}}">
-            <lable for="{{key}}" class="menutitle">{{key}}</lable><br>
-            <input type="text" id="{{key}}" name="{{key}}" value="{{val}}" required>
-            </p>  
-        {{/each}}  
+    <p>
+        <input type="hidden" id="id" name="id" value="{{params.id}}">
+    </p>
+    <p>
+        <lable for="title">Title</lable><br>
+        <input type="text" id="title" name="title" value="{{params.title}}" required>
+    </p>
+    {{>translations}}
     <div class="submit-bt">
         <button type="submit" name="submit" id="submit">
             Update
@@ -19,7 +20,7 @@
 <div class="bottomButs" id='bb'>
     <form action="/categories/delete/" method="POST"
         onsubmit="return confirm('Are you sure you want to permanently delete this category?')">
-        <input type="hidden" id="id" name="id" value="{{languages.id}}">
+        <input type="hidden" id="id" name="id" value="{{params.id}}">
         <button class="warn" type="submit">DELETE</button>
     </form>
     <!--<button class="warn" onclick="deletemodel()">Delete</button>-->

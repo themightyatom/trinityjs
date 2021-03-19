@@ -171,21 +171,30 @@ input[type="submit" i]{
 .logout a:hover{
     color: #7a9ed8;
 }
-.item-row{
-    background-color: #dcdcdc;
+.item-row {
+    background-color: #f3f3f3;
     -webkit-font-smoothing: antialiased;
     margin: 5px;
     cursor: pointer;
     display: flex;
     min-height: 30px;
+    box-shadow: rgb(40 42 49 / 16%) 0px 1px 2px 0px;
 }
 .item-row-top{
     background-color: #b1b1b1;
     -webkit-font-smoothing: antialiased;
     margin: 5px;
-    height: 30px;
+    height: 20px;
     cursor: pointer;
     color: #909b90;
+}
+.item-row a{
+    text-decoration: none;
+    color:#017eff;
+}
+.item-row a:hover{
+    text-decoration: none;
+    color:#83b8ec;
 }
 .column-3{
     width: 33%;

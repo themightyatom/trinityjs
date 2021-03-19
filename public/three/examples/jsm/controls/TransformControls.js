@@ -146,9 +146,9 @@ var TransformControls = function ( camera, domElement ) {
 
 	{
 
-		domElement.addEventListener( 'pointerdown', onPointerDown );
-		domElement.addEventListener( 'pointermove', onPointerHover );
-		scope.domElement.ownerDocument.addEventListener( 'pointerup', onPointerUp );
+		domElement.addEventListener( 'pointerdown', onPointerDown, false );
+		domElement.addEventListener( 'pointermove', onPointerHover, false );
+		scope.domElement.ownerDocument.addEventListener( 'pointerup', onPointerUp, false );
 
 	}
 
@@ -650,7 +650,7 @@ var TransformControls = function ( camera, domElement ) {
 		if ( ! scope.enabled ) return;
 
 		scope.domElement.style.touchAction = 'none'; // disable touch scroll
-		scope.domElement.ownerDocument.addEventListener( 'pointermove', onPointerMove );
+		scope.domElement.ownerDocument.addEventListener( 'pointermove', onPointerMove, false );
 
 		scope.pointerHover( getPointer( event ) );
 		scope.pointerDown( getPointer( event ) );
@@ -670,7 +670,7 @@ var TransformControls = function ( camera, domElement ) {
 		if ( ! scope.enabled ) return;
 
 		scope.domElement.style.touchAction = '';
-		scope.domElement.ownerDocument.removeEventListener( 'pointermove', onPointerMove );
+		scope.domElement.ownerDocument.removeEventListener( 'pointermove', onPointerMove, false );
 
 		scope.pointerUp( getPointer( event ) );
 

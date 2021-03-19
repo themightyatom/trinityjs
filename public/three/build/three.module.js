@@ -1,5 +1,5 @@
 // threejs.org/license
-const REVISION = '125';
+const REVISION = '125dev';
 const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
 const TOUCH = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
 const CullFaceNone = 0;
@@ -346,14 +346,6 @@ const MathUtils = {
 	lerp: function ( x, y, t ) {
 
 		return ( 1 - t ) * x + t * y;
-
-	},
-
-	// http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
-
-	damp: function ( x, y, lambda, dt ) {
-
-		return MathUtils.lerp( x, y, 1 - Math.exp( - lambda * dt ) );
 
 	},
 
@@ -7966,7 +7958,7 @@ class Color {
 
 		let m;
 
-		if ( m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec( style ) ) {
+		if ( m = /^((?:rgb|hsl)a?)\(\s*([^\)]*)\)/.exec( style ) ) {
 
 			// rgb / hsl
 
@@ -7979,7 +7971,7 @@ class Color {
 				case 'rgb':
 				case 'rgba':
 
-					if ( color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
+					if ( color = /^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
 
 						// rgb(255,0,0) rgba(255,0,0,0.5)
 						this.r = Math.min( 255, parseInt( color[ 1 ], 10 ) ) / 255;
@@ -7992,7 +7984,7 @@ class Color {
 
 					}
 
-					if ( color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
+					if ( color = /^(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
 
 						// rgb(100%,0%,0%) rgba(100%,0%,0%,0.5)
 						this.r = Math.min( 100, parseInt( color[ 1 ], 10 ) ) / 100;
@@ -8010,7 +8002,7 @@ class Color {
 				case 'hsl':
 				case 'hsla':
 
-					if ( color = /^\s*(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
+					if ( color = /^(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
 
 						// hsl(120,50%,50%) hsla(120,50%,50%,0.5)
 						const h = parseFloat( color[ 1 ] ) / 360;
@@ -21536,8 +21528,24 @@ Object.assign( WebXRController.prototype, {
 			this._hand.matrixAutoUpdate = false;
 			this._hand.visible = false;
 
-			this._hand.joints = {};
+			this._hand.joints = [];
 			this._hand.inputState = { pinching: false };
+
+			if ( window.XRHand ) {
+
+				for ( let i = 0; i <= window.XRHand.LITTLE_PHALANX_TIP; i ++ ) {
+
+					// The transform of this joint will be updated with the joint pose on each frame
+					const joint = new Group();
+					joint.matrixAutoUpdate = false;
+					joint.visible = false;
+					this._hand.joints.push( joint );
+					// ??
+					this._hand.add( joint );
+
+				}
+
+			}
 
 		}
 
@@ -21639,64 +21647,55 @@ Object.assign( WebXRController.prototype, {
 
 				handPose = true;
 
-				for ( const inputjoint of inputSource.hand.values() ) {
+				for ( let i = 0; i <= window.XRHand.LITTLE_PHALANX_TIP; i ++ ) {
 
-					// Update the joints groups with the XRJoint poses
-					const jointPose = frame.getJointPose( inputjoint, referenceSpace );
+					if ( inputSource.hand[ i ] ) {
 
-					if ( hand.joints[ inputjoint.jointName ] === undefined ) {
+						// Update the joints groups with the XRJoint poses
+						const jointPose = frame.getJointPose( inputSource.hand[ i ], referenceSpace );
+						const joint = hand.joints[ i ];
 
-						// The transform of this joint will be updated with the joint pose on each frame
-						const joint = new Group();
-						joint.matrixAutoUpdate = false;
-						joint.visible = false;
-						hand.joints[ inputjoint.jointName ] = joint;
-						// ??
-						hand.add( joint );
+						if ( jointPose !== null ) {
+
+							joint.matrix.fromArray( jointPose.transform.matrix );
+							joint.matrix.decompose( joint.position, joint.rotation, joint.scale );
+							joint.jointRadius = jointPose.radius;
+
+						}
+
+						joint.visible = jointPose !== null;
+
+						// Custom events
+
+						// Check pinch
+						const indexTip = hand.joints[ window.XRHand.INDEX_PHALANX_TIP ];
+						const thumbTip = hand.joints[ window.XRHand.THUMB_PHALANX_TIP ];
+						const distance = indexTip.position.distanceTo( thumbTip.position );
+
+						const distanceToPinch = 0.02;
+						const threshold = 0.005;
+
+						if ( hand.inputState.pinching && distance > distanceToPinch + threshold ) {
+
+							hand.inputState.pinching = false;
+							this.dispatchEvent( {
+								type: 'pinchend',
+								handedness: inputSource.handedness,
+								target: this
+							} );
+
+						} else if ( ! hand.inputState.pinching && distance <= distanceToPinch - threshold ) {
+
+							hand.inputState.pinching = true;
+							this.dispatchEvent( {
+								type: 'pinchstart',
+								handedness: inputSource.handedness,
+								target: this
+							} );
+
+						}
 
 					}
-
-					const joint = hand.joints[ inputjoint.jointName ];
-
-					if ( jointPose !== null ) {
-
-						joint.matrix.fromArray( jointPose.transform.matrix );
-						joint.matrix.decompose( joint.position, joint.rotation, joint.scale );
-						joint.jointRadius = jointPose.radius;
-
-					}
-
-					joint.visible = jointPose !== null;
-
-				}
-
-				// Custom events
-
-				// Check pinchz
-				const indexTip = hand.joints[ 'index-finger-tip' ];
-				const thumbTip = hand.joints[ 'thumb-tip' ];
-				const distance = indexTip.position.distanceTo( thumbTip.position );
-
-				const distanceToPinch = 0.02;
-				const threshold = 0.005;
-
-				if ( hand.inputState.pinching && distance > distanceToPinch + threshold ) {
-
-					hand.inputState.pinching = false;
-					this.dispatchEvent( {
-						type: 'pinchend',
-						handedness: inputSource.handedness,
-						target: this
-					} );
-
-				} else if ( ! hand.inputState.pinching && distance <= distanceToPinch - threshold ) {
-
-					hand.inputState.pinching = true;
-					this.dispatchEvent( {
-						type: 'pinchstart',
-						handedness: inputSource.handedness,
-						target: this
-					} );
 
 				}
 
@@ -21865,9 +21864,6 @@ function WebXRManager( renderer, gl ) {
 		} );
 
 		inputSourcesMap.clear();
-
-		_currentDepthNear = null;
-		_currentDepthFar = null;
 
 		//
 
@@ -22120,8 +22116,6 @@ function WebXRManager( renderer, gl ) {
 		// update camera and its children
 
 		camera.matrixWorld.copy( cameraVR.matrixWorld );
-		camera.matrix.copy( cameraVR.matrix );
-		camera.matrix.decompose( camera.position, camera.quaternion, camera.scale );
 
 		const children = camera.children;
 
@@ -34819,18 +34813,6 @@ DataTextureLoader.prototype = Object.assign( Object.create( Loader.prototype ), 
 
 			texture.anisotropy = texData.anisotropy !== undefined ? texData.anisotropy : 1;
 
-			if ( texData.encoding !== undefined ) {
-
-				texture.encoding = texData.encoding;
-
-			}
-
-			if ( texData.flipY !== undefined ) {
-
-				texture.flipY = texData.flipY;
-
-			}
-
 			if ( texData.format !== undefined ) {
 
 				texture.format = texData.format;
@@ -45977,16 +45959,10 @@ const ENCODINGS = {
 	[ GammaEncoding ]: 6
 };
 
-const backgroundMaterial = new MeshBasicMaterial( {
-	side: BackSide,
-	depthWrite: false,
-	depthTest: false,
-} );
-const backgroundBox = new Mesh( new BoxGeometry(), backgroundMaterial );
-
 const _flatCamera = /*@__PURE__*/ new OrthographicCamera();
 const { _lodPlanes, _sizeLods, _sigmas } = /*@__PURE__*/ _createPlanes();
 const _clearColor = /*@__PURE__*/ new Color();
+const _backgroundColor = /*@__PURE__*/ new Color();
 let _oldTarget = null;
 
 // Golden Ratio
@@ -46201,37 +46177,36 @@ class PMREMGenerator {
 		const forwardSign = [ 1, 1, 1, - 1, - 1, - 1 ];
 		const renderer = this._renderer;
 
-		const originalAutoClear = renderer.autoClear;
 		const outputEncoding = renderer.outputEncoding;
 		const toneMapping = renderer.toneMapping;
 		renderer.getClearColor( _clearColor );
+		const clearAlpha = renderer.getClearAlpha();
+		const originalBackground = scene.background;
 
 		renderer.toneMapping = NoToneMapping;
 		renderer.outputEncoding = LinearEncoding;
-		renderer.autoClear = false;
 
-		let useSolidColor = false;
 		const background = scene.background;
 		if ( background ) {
 
 			if ( background.isColor ) {
 
-				backgroundMaterial.color.copy( background ).convertSRGBToLinear();
+				_backgroundColor.copy( background ).convertSRGBToLinear();
 				scene.background = null;
 
-				const alpha = convertLinearToRGBE( backgroundMaterial.color );
-				backgroundMaterial.opacity = alpha;
-				useSolidColor = true;
+				const alpha = convertLinearToRGBE( _backgroundColor );
+				renderer.setClearColor( _backgroundColor );
+				renderer.setClearAlpha( alpha );
 
 			}
 
 		} else {
 
-			backgroundMaterial.color.copy( _clearColor ).convertSRGBToLinear();
+			_backgroundColor.copy( _clearColor ).convertSRGBToLinear();
 
-			const alpha = convertLinearToRGBE( backgroundMaterial.color );
-			backgroundMaterial.opacity = alpha;
-			useSolidColor = true;
+			const alpha = convertLinearToRGBE( _backgroundColor );
+			renderer.setClearColor( _backgroundColor );
+			renderer.setClearAlpha( alpha );
 
 		}
 
@@ -46259,20 +46234,14 @@ class PMREMGenerator {
 			_setViewport( cubeUVRenderTarget,
 				col * SIZE_MAX, i > 2 ? SIZE_MAX : 0, SIZE_MAX, SIZE_MAX );
 			renderer.setRenderTarget( cubeUVRenderTarget );
-
-			if ( useSolidColor ) {
-
-				renderer.render( backgroundBox, cubeCamera );
-
-			}
-
 			renderer.render( scene, cubeCamera );
 
 		}
 
 		renderer.toneMapping = toneMapping;
 		renderer.outputEncoding = outputEncoding;
-		renderer.autoClear = originalAutoClear;
+		renderer.setClearColor( _clearColor, clearAlpha );
+		scene.background = originalBackground;
 
 	}
 
@@ -49020,20 +48989,6 @@ if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
 		revision: REVISION,
 	} } ) );
 	/* eslint-enable no-undef */
-
-}
-
-if ( typeof window !== 'undefined' ) {
-
-	if ( window.__THREE__ ) {
-
-		console.warn( 'WARNING: Multiple instances of Three.js being imported.' );
-
-	} else {
-
-		window.__THREE__ = REVISION;
-
-	}
 
 }
 

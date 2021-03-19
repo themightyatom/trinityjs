@@ -106,17 +106,24 @@ router.post('/delete', checkAuthenticated, (req, res) => {
 
 });
 
-router.post('/thumb', function(req, res) {
+
+router.post('/thumb', async function(req, res) {
     var base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
     var id = req.body.id;
-    fs.writeFile(thumbfolder + '/materials/' + id + '.png', base64Data, 'base64', function(err) {
-        if(err){
-           console.log(err);
-           
-         }else{
-            res.send("done");
-         }
-    });
+    var img = Buffer.from(base64Data, 'base64');
+    await sharp(img)
+    .resize({ width:80, height:80})
+    .toFile(thumbfolder + '/materials/' + id + '.png')
+    res.send('done');
+});
+
+router.get('/all', (req, res) => {
+    let sql = 'SELECT * FROM ' + _table;
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    })
+
 });
 
 

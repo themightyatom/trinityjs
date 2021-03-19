@@ -9,10 +9,12 @@ const path = require('path');
 const { Recoverable } = require('repl');
 
 const texfolder = 'public/textures/';
-const thumbfolder = 'public/thumbs/';
+const thumbfolder = 'public/thumbs/textures/';
 const _table = 'textures';
 
 const imagePath = path.join(path.resolve(__dirname, '..'), 'public/textures/');
+
+
 
 
 
@@ -98,7 +100,7 @@ function createThumb(folder,name){
   // create thumbnail
   sharp(folder + name)
   .resize(80, 80, {
-    kernel: sharp.kernel.nearest,
+    //kernel: sharp.kernel.nearest,
     fit: 'contain',
     position: 'center',
     background: { r: 255, g: 255, b: 255, alpha: 1.0 }

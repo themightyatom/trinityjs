@@ -1,0 +1,62 @@
+<div id="container">
+
+
+</div>
+<div id="accordion" class="itempalette">
+    {{#if materials.list}}
+    <h3>{{materials.title}}</h3>
+    <div class="optiondiv">
+        {{#each materials.list}}
+        <div class='pallet-item-container' onmousedown="changeMaterial('wood',{title:'{{title}}', id:'{{id}}', extension:'{{extension}}', color_hex:'{{color_hex}}', opacity_value:{{opacity_value}},emissive_hex:'{{emissive_hex}}', roughness_value:{{roughness_value}}, metalness_value:{{metalness_value}}, diffuse_map:'{{diffuse_map}}', normal_map:'{{normal_map}}',bump_map:'{{bump_map}}',normal_value:{{normal_value}}, bump_value:{{bump_value}} })">
+            <img width="80" height="80" src="/thumbs/materials/{{id}}.png">
+            <div class='itempalette-label'>{{title}}</div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+
+
+{{#each accessories}}
+<h3>{{title}}</h3>
+<div class="optiondiv">
+    {{#each list}}
+    <div class='pallet-item-container' onmousedown="addAccessory('{{snap}}','{{model}}','{{sku}}','{{snap_type}}')">
+        <img width="80" height="80" src="/thumbs/models/{{id}}.png">
+        <div class='itempalette-label'>{{title}}</div>
+    </div>
+    {{/each}}
+</div>
+
+{{/each}}
+</div>
+
+{{>window3d}}
+
+{{>ar}}
+
+
+
+
+<script>
+    function startup() {
+        loadModel('{{params.model}}');
+        $(function () {
+            $("#accordion").accordion({
+                collapsible: true,
+                heightStyle: "content"
+            });
+            $("#accordion").on("accordionbeforeactivate", function (event, ui) { changeCameraAngle(event, ui) });
+        });
+    };
+
+    function changeCameraAngle(event, ui) {
+        console.log("pallet change");
+    }
+    function launchAR(){
+        $('#ar-launch').css('visibility','visible');
+    }
+    function hideLaunch(){
+         $('#ar-launch').css('visibility','hidden');
+    }
+  
+</script>

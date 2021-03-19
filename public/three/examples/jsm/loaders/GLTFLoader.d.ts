@@ -67,7 +67,6 @@ export class GLTFParser {
 
 	getDependency: ( type: string, index: number ) => Promise<any>;
 	getDependencies: ( type: string ) => Promise<any[]>;
-	assignFinalMaterial: ( object: Mesh ) => void;
 
 }
 

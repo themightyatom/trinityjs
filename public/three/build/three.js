@@ -785,7 +785,7 @@
 		Function("r", "regeneratorRuntime = r")(runtime);
 	}
 
-	var REVISION = '125';
+	var REVISION = '125dev';
 	var MOUSE = {
 		LEFT: 0,
 		MIDDLE: 1,
@@ -1058,48 +1058,6 @@
 		return self;
 	}
 
-	function _unsupportedIterableToArray(o, minLen) {
-		if (!o) return;
-		if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-		var n = Object.prototype.toString.call(o).slice(8, -1);
-		if (n === "Object" && o.constructor) n = o.constructor.name;
-		if (n === "Map" || n === "Set") return Array.from(o);
-		if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-	}
-
-	function _arrayLikeToArray(arr, len) {
-		if (len == null || len > arr.length) len = arr.length;
-
-		for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-		return arr2;
-	}
-
-	function _createForOfIteratorHelperLoose(o, allowArrayLike) {
-		var it;
-
-		if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-			if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-				if (it) o = it;
-				var i = 0;
-				return function () {
-					if (i >= o.length) return {
-						done: true
-					};
-					return {
-						done: false,
-						value: o[i++]
-					};
-				};
-			}
-
-			throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-		}
-
-		it = o[Symbol.iterator]();
-		return it.next.bind(it);
-	}
-
 	/**
 	 * https://github.com/mrdoob/eventdispatcher.js/
 	 */
@@ -1188,10 +1146,6 @@
 		// https://en.wikipedia.org/wiki/Linear_interpolation
 		lerp: function lerp(x, y, t) {
 			return (1 - t) * x + t * y;
-		},
-		// http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
-		damp: function damp(x, y, lambda, dt) {
-			return MathUtils.lerp(x, y, 1 - Math.exp(-lambda * dt));
 		},
 		// https://www.desmos.com/calculator/vcsjnyz7x4
 		pingpong: function pingpong(x, length) {
@@ -7267,7 +7221,7 @@
 
 			var m;
 
-			if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(style)) {
+			if (m = /^((?:rgb|hsl)a?)\(\s*([^\)]*)\)/.exec(style)) {
 				// rgb / hsl
 				var color;
 				var name = m[1];
@@ -7276,7 +7230,7 @@
 				switch (name) {
 					case 'rgb':
 					case 'rgba':
-						if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+						if (color = /^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
 							// rgb(255,0,0) rgba(255,0,0,0.5)
 							this.r = Math.min(255, parseInt(color[1], 10)) / 255;
 							this.g = Math.min(255, parseInt(color[2], 10)) / 255;
@@ -7285,7 +7239,7 @@
 							return this;
 						}
 
-						if (color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+						if (color = /^(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
 							// rgb(100%,0%,0%) rgba(100%,0%,0%,0.5)
 							this.r = Math.min(100, parseInt(color[1], 10)) / 100;
 							this.g = Math.min(100, parseInt(color[2], 10)) / 100;
@@ -7298,7 +7252,7 @@
 
 					case 'hsl':
 					case 'hsla':
-						if (color = /^\s*(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+						if (color = /^(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
 							// hsl(120,50%,50%) hsla(120,50%,50%,0.5)
 							var h = parseFloat(color[1]) / 360;
 							var s = parseInt(color[2], 10) / 100;
@@ -17114,10 +17068,24 @@
 				this._hand = new Group();
 				this._hand.matrixAutoUpdate = false;
 				this._hand.visible = false;
-				this._hand.joints = {};
+				this._hand.joints = [];
 				this._hand.inputState = {
 					pinching: false
 				};
+
+				if (window.XRHand) {
+					for (var i = 0; i <= window.XRHand.LITTLE_PHALANX_TIP; i++) {
+						// The transform of this joint will be updated with the joint pose on each frame
+						var joint = new Group();
+						joint.matrixAutoUpdate = false;
+						joint.visible = false;
+
+						this._hand.joints.push(joint); // ??
+
+
+						this._hand.add(joint);
+					}
+				}
 			}
 
 			return this._hand;
@@ -17187,55 +17155,43 @@
 				if (hand && inputSource.hand) {
 					handPose = true;
 
-					for (var _iterator = _createForOfIteratorHelperLoose(inputSource.hand.values()), _step; !(_step = _iterator()).done;) {
-						var inputjoint = _step.value;
-						// Update the joints groups with the XRJoint poses
-						var jointPose = frame.getJointPose(inputjoint, referenceSpace);
+					for (var i = 0; i <= window.XRHand.LITTLE_PHALANX_TIP; i++) {
+						if (inputSource.hand[i]) {
+							// Update the joints groups with the XRJoint poses
+							var jointPose = frame.getJointPose(inputSource.hand[i], referenceSpace);
+							var joint = hand.joints[i];
 
-						if (hand.joints[inputjoint.jointName] === undefined) {
-							// The transform of this joint will be updated with the joint pose on each frame
-							var _joint = new Group();
+							if (jointPose !== null) {
+								joint.matrix.fromArray(jointPose.transform.matrix);
+								joint.matrix.decompose(joint.position, joint.rotation, joint.scale);
+								joint.jointRadius = jointPose.radius;
+							}
 
-							_joint.matrixAutoUpdate = false;
-							_joint.visible = false;
-							hand.joints[inputjoint.jointName] = _joint; // ??
+							joint.visible = jointPose !== null; // Custom events
+							// Check pinch
 
-							hand.add(_joint);
+							var indexTip = hand.joints[window.XRHand.INDEX_PHALANX_TIP];
+							var thumbTip = hand.joints[window.XRHand.THUMB_PHALANX_TIP];
+							var distance = indexTip.position.distanceTo(thumbTip.position);
+							var distanceToPinch = 0.02;
+							var threshold = 0.005;
+
+							if (hand.inputState.pinching && distance > distanceToPinch + threshold) {
+								hand.inputState.pinching = false;
+								this.dispatchEvent({
+									type: 'pinchend',
+									handedness: inputSource.handedness,
+									target: this
+								});
+							} else if (!hand.inputState.pinching && distance <= distanceToPinch - threshold) {
+								hand.inputState.pinching = true;
+								this.dispatchEvent({
+									type: 'pinchstart',
+									handedness: inputSource.handedness,
+									target: this
+								});
+							}
 						}
-
-						var joint = hand.joints[inputjoint.jointName];
-
-						if (jointPose !== null) {
-							joint.matrix.fromArray(jointPose.transform.matrix);
-							joint.matrix.decompose(joint.position, joint.rotation, joint.scale);
-							joint.jointRadius = jointPose.radius;
-						}
-
-						joint.visible = jointPose !== null;
-					} // Custom events
-					// Check pinchz
-
-
-					var indexTip = hand.joints['index-finger-tip'];
-					var thumbTip = hand.joints['thumb-tip'];
-					var distance = indexTip.position.distanceTo(thumbTip.position);
-					var distanceToPinch = 0.02;
-					var threshold = 0.005;
-
-					if (hand.inputState.pinching && distance > distanceToPinch + threshold) {
-						hand.inputState.pinching = false;
-						this.dispatchEvent({
-							type: 'pinchend',
-							handedness: inputSource.handedness,
-							target: this
-						});
-					} else if (!hand.inputState.pinching && distance <= distanceToPinch - threshold) {
-						hand.inputState.pinching = true;
-						this.dispatchEvent({
-							type: 'pinchstart',
-							handedness: inputSource.handedness,
-							target: this
-						});
 					}
 				} else {
 					if (targetRay !== null) {
@@ -17349,9 +17305,7 @@
 			inputSourcesMap.forEach(function (controller, inputSource) {
 				controller.disconnect(inputSource);
 			});
-			inputSourcesMap.clear();
-			_currentDepthNear = null;
-			_currentDepthFar = null; //
+			inputSourcesMap.clear(); //
 
 			renderer.setFramebuffer(null);
 			renderer.setRenderTarget(renderer.getRenderTarget()); // Hack #15830
@@ -17576,8 +17530,6 @@
 
 
 			camera.matrixWorld.copy(cameraVR.matrixWorld);
-			camera.matrix.copy(cameraVR.matrix);
-			camera.matrix.decompose(camera.position, camera.quaternion, camera.scale);
 			var children = camera.children;
 
 			for (var _i3 = 0, l = children.length; _i3 < l; _i3++) {
@@ -26808,14 +26760,6 @@
 				texture.minFilter = texData.minFilter !== undefined ? texData.minFilter : LinearFilter;
 				texture.anisotropy = texData.anisotropy !== undefined ? texData.anisotropy : 1;
 
-				if (texData.encoding !== undefined) {
-					texture.encoding = texData.encoding;
-				}
-
-				if (texData.flipY !== undefined) {
-					texture.flipY = texData.flipY;
-				}
-
 				if (texData.format !== undefined) {
 					texture.format = texData.format;
 				}
@@ -34906,12 +34850,6 @@
 
 	var MAX_SAMPLES = 20;
 	var ENCODINGS = (_ENCODINGS = {}, _ENCODINGS[LinearEncoding] = 0, _ENCODINGS[sRGBEncoding] = 1, _ENCODINGS[RGBEEncoding] = 2, _ENCODINGS[RGBM7Encoding] = 3, _ENCODINGS[RGBM16Encoding] = 4, _ENCODINGS[RGBDEncoding] = 5, _ENCODINGS[GammaEncoding] = 6, _ENCODINGS);
-	var backgroundMaterial = new MeshBasicMaterial({
-		side: BackSide,
-		depthWrite: false,
-		depthTest: false
-	});
-	var backgroundBox = new Mesh(new BoxGeometry(), backgroundMaterial);
 
 	var _flatCamera = /*@__PURE__*/new OrthographicCamera();
 
@@ -34921,6 +34859,8 @@
 			_sigmas = _createPlanes2._sigmas;
 
 	var _clearColor = /*@__PURE__*/new Color();
+
+	var _backgroundColor = /*@__PURE__*/new Color();
 
 	var _oldTarget = null; // Golden Ratio
 
@@ -35120,31 +35060,31 @@
 			var upSign = [1, -1, 1, 1, 1, 1];
 			var forwardSign = [1, 1, 1, -1, -1, -1];
 			var renderer = this._renderer;
-			var originalAutoClear = renderer.autoClear;
 			var outputEncoding = renderer.outputEncoding;
 			var toneMapping = renderer.toneMapping;
 			renderer.getClearColor(_clearColor);
+			var clearAlpha = renderer.getClearAlpha();
+			var originalBackground = scene.background;
 			renderer.toneMapping = NoToneMapping;
 			renderer.outputEncoding = LinearEncoding;
-			renderer.autoClear = false;
-			var useSolidColor = false;
 			var background = scene.background;
 
 			if (background) {
 				if (background.isColor) {
-					backgroundMaterial.color.copy(background).convertSRGBToLinear();
+					_backgroundColor.copy(background).convertSRGBToLinear();
+
 					scene.background = null;
-					var alpha = convertLinearToRGBE(backgroundMaterial.color);
-					backgroundMaterial.opacity = alpha;
-					useSolidColor = true;
+					var alpha = convertLinearToRGBE(_backgroundColor);
+					renderer.setClearColor(_backgroundColor);
+					renderer.setClearAlpha(alpha);
 				}
 			} else {
-				backgroundMaterial.color.copy(_clearColor).convertSRGBToLinear();
+				_backgroundColor.copy(_clearColor).convertSRGBToLinear();
 
-				var _alpha = convertLinearToRGBE(backgroundMaterial.color);
+				var _alpha = convertLinearToRGBE(_backgroundColor);
 
-				backgroundMaterial.opacity = _alpha;
-				useSolidColor = true;
+				renderer.setClearColor(_backgroundColor);
+				renderer.setClearAlpha(_alpha);
 			}
 
 			for (var i = 0; i < 6; i++) {
@@ -35164,17 +35104,13 @@
 				_setViewport(cubeUVRenderTarget, col * SIZE_MAX, i > 2 ? SIZE_MAX : 0, SIZE_MAX, SIZE_MAX);
 
 				renderer.setRenderTarget(cubeUVRenderTarget);
-
-				if (useSolidColor) {
-					renderer.render(backgroundBox, cubeCamera);
-				}
-
 				renderer.render(scene, cubeCamera);
 			}
 
 			renderer.toneMapping = toneMapping;
 			renderer.outputEncoding = outputEncoding;
-			renderer.autoClear = originalAutoClear;
+			renderer.setClearColor(_clearColor, clearAlpha);
+			scene.background = originalBackground;
 		};
 
 		_proto._textureToCubeUV = function _textureToCubeUV(texture, cubeUVRenderTarget) {
@@ -36878,14 +36814,6 @@
 		}));
 		/* eslint-enable no-undef */
 
-	}
-
-	if (typeof window !== 'undefined') {
-		if (window.__THREE__) {
-			console.warn('WARNING: Multiple instances of Three.js being imported.');
-		} else {
-			window.__THREE__ = REVISION;
-		}
 	}
 
 	exports.ACESFilmicToneMapping = ACESFilmicToneMapping;

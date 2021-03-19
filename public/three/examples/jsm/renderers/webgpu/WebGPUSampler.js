@@ -3,11 +3,9 @@ import { GPUBindingType } from './constants.js';
 
 class WebGPUSampler extends WebGPUBinding {
 
-	constructor( name, texture ) {
+	constructor( name ) {
 
 		super( name );
-
-		this.texture = texture;
 
 		this.type = GPUBindingType.Sampler;
 		this.visibility = GPUShaderStage.FRAGMENT;

@@ -5,6 +5,7 @@
 <form action="/languages/edit" method="post">
     <p>
         <input type="hidden" id="id" name="id" value="{{id}}">
+        <input type="hidden" id="original_stub" name="original_stub" value="{{stub}}">
     </p>
     <p>
         <lable for="title">Title</lable><br>
@@ -13,7 +14,8 @@
      <p>
         <lable for="title">Stub Code (example 'dk')</lable><br>
         <input type="text" id="stub" name="stub" value="{{stub}}" required><br>
-        <div style="max-width:80%">The stub code is used to show the correct language. Different systems use different codes, so choose one that is compatible with your other systems, e.g. web shop</div>
+        <div style="max-width:80%">The stub code is used to show the correct language. Different systems use different codes, so choose one that is compatible with your other systems, e.g. web shop<br>
+        </div>
     </p>
     <div class="submit-bt">
         <button type="submit" name="submit" id="submit">
@@ -37,6 +39,8 @@
         if (id == 'new') {
             document.getElementById('bb').style.display = 'none';
             document.getElementById('submit').innerHTML = 'Create';
+        }else{
+            //document.getElementById('stub').setAttribute('readonly', true); 
         }
     }
 

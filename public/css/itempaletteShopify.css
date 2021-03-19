@@ -1,0 +1,162 @@
+@font-face {font-family: 'Maven Pro';src: url('mavenpro.woff2') format('woff2');}
+.itempalette{
+    width: 205px;
+    /*height: 100%;
+    height: -webkit-calc(100% - 12px);
+    height:    -moz-calc(100% - 12px);
+    height:         calc(100% - 12px);*/
+    position: absolute;
+    right:10px;
+    top:10px;
+    background-color:#f9f9f9;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #999999;
+    padding: 5px;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+-webkit-user-drag: none;
+}
+.itempalette h3 {
+    font-family: 'Maven Pro',sans-serif;
+    font-size: 14px;
+    color: #202432;
+    line-height: 16px;
+}
+.itempalette img {
+    margin: 5px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+-webkit-user-drag: none;
+    box-shadow: 0 0 0 1px #dfdfdf;
+}
+.itempalette img:hover{
+box-shadow: 0 0 0 1px #6f6f6f;
+}
+.itempaletteclose{
+    position: fixed;
+   left:10px;
+}
+.itempalettecancel{
+    position: fixed;
+   left:100px;
+}
+.itempaletteremove{
+    position: fixed;
+    left:10px;
+    bottom: 10px;
+
+}
+.remove-button{
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: lightcoral;
+    outline: none;
+}
+.pallet-item-container{
+    float: left;
+    text-align: center;
+}
+.itempalette-label{
+    background: #ffffff9c;
+    font-family: 'Maven Pro',sans-serif;
+    font-weight: 100;
+    font-size: 10px;
+    color: #202432;
+    line-height: 10px;
+    position: relative;
+    max-width: 80px;
+
+    /* bottom: 1px; */
+    transform: translate(-0%, -1px);
+}
+.item-selected{
+    width:25px;
+    height: 25px;
+    /* background-image: url('../icons/check_circle.png'); */
+    position: relative;
+    left: 0px;
+    top: 0px;
+    visibility: hidden;
+    margin:0 !important;
+    padding:0 !important;
+}
+/* @font-face {
+    font-family: 'gentonalight';
+    src: url("../fonts/gentona-light.otf") format("woff2");
+    font-weight: normal;
+    font-style: normal
+} */
+#accordion .ui-accordion-header {
+    background-color: #ffffff;
+    margin: 0px;
+    color: #000000;
+    font-size: small;
+    border-radius: 0;
+    border: 0;
+    outline: 0;
+    padding:10px;
+  }
+  #accordion .ui-accordion-header-icon {
+    display: none;
+  }
+
+
+  #accordion .ui-accordion-content {
+    padding:0px;
+    font-size: 0;
+    border: 0;
+  }
+
+    #itemlisttable{
+        border:0px;
+    }
+  
+    #itemlisttable td, #itemlisttable th {
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: top;
+      }
+      
+      #itemlisttable tr:nth-child(even){background-color: #f2f2f2;}
+      
+      #itemlisttable tr:hover {background-color: #ddd;}
+      
+      #itemlisttable th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #212432;
+        color: white;
+      } 
+
+    #itemlistcontainer{
+        width:500px;
+        height: 500px;
+        overflow: scroll;
+        left:0px;
+        top:0px;
+    }
+
+    .personaliseInput{
+        font-size: 12px;
+        padding: 5px;
+    }
+
+    
+    #accordion .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+        background: #f8f8f8;
+     
+    }
+  

@@ -71,6 +71,8 @@ app.use('/categories', require('./routes/categories'));
 app.use('/languages', require('./routes/languages'));
 app.use('/materials', require('./routes/materials'));
 app.use('/textures', require('./routes/textures'));
+app.use('/translations', require('./routes/translations'));
+app.use('/clients', require('./routes/clients'));
 
 
 

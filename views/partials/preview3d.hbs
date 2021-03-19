@@ -12,9 +12,6 @@
     init('container');
     render();
 
-
-
-
     function init(cont) {
 
         const container = document.getElementById(cont);
@@ -39,7 +36,7 @@
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xCCCCCC);
+        scene.background = new THREE.Color(0xf3f3f3);
         scene.environment = pmremGenerator.fromScene(environment).texture;
 
         const grid = new THREE.GridHelper(20, 20, 0xffffff, 0xffffff);
@@ -87,8 +84,9 @@
         targets = [];
 
         gltf.scene.traverse(function (child) {
-            if (child.name.substr(0, 3) == "_as" && !child.isMesh) {
-                snapPoints.push(child.name)
+            if (child.name.substr(0, 3) == "_as") {
+                snapPoints.push(child.name);
+                child.visible = false;
             } else {
 
             };

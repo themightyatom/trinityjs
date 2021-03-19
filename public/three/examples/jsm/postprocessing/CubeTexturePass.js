@@ -5,8 +5,7 @@ import {
 	PerspectiveCamera,
 	Scene,
 	ShaderLib,
-	ShaderMaterial,
-	UniformsUtils
+	ShaderMaterial
 } from '../../../build/three.module.js';
 import { Pass } from '../postprocessing/Pass.js';
 
@@ -22,7 +21,7 @@ var CubeTexturePass = function ( camera, envMap, opacity ) {
 	this.cubeMesh = new Mesh(
 		new BoxGeometry( 10, 10, 10 ),
 		new ShaderMaterial( {
-			uniforms: UniformsUtils.clone( this.cubeShader.uniforms ),
+			uniforms: this.cubeShader.uniforms,
 			vertexShader: this.cubeShader.vertexShader,
 			fragmentShader: this.cubeShader.fragmentShader,
 			depthTest: false,
@@ -63,7 +62,6 @@ CubeTexturePass.prototype = Object.assign( Object.create( Pass.prototype ), {
 		this.cubeCamera.quaternion.setFromRotationMatrix( this.camera.matrixWorld );
 
 		this.cubeMesh.material.uniforms.envMap.value = this.envMap;
-		this.cubeMesh.material.uniforms.flipEnvMap.value = ( this.envMap.isCubeTexture && this.envMap._needsFlipEnvMap ) ? - 1 : 1;
 		this.cubeMesh.material.uniforms.opacity.value = this.opacity;
 		this.cubeMesh.material.transparent = ( this.opacity < 1.0 );
 

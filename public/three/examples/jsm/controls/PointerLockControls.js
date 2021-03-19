@@ -83,17 +83,17 @@ var PointerLockControls = function ( camera, domElement ) {
 
 	this.connect = function () {
 
-		scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove );
-		scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange );
-		scope.domElement.ownerDocument.addEventListener( 'pointerlockerror', onPointerlockError );
+		scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange, false );
+		scope.domElement.ownerDocument.addEventListener( 'pointerlockerror', onPointerlockError, false );
 
 	};
 
 	this.disconnect = function () {
 
-		scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove );
-		scope.domElement.ownerDocument.removeEventListener( 'pointerlockchange', onPointerlockChange );
-		scope.domElement.ownerDocument.removeEventListener( 'pointerlockerror', onPointerlockError );
+		scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.ownerDocument.removeEventListener( 'pointerlockchange', onPointerlockChange, false );
+		scope.domElement.ownerDocument.removeEventListener( 'pointerlockerror', onPointerlockError, false );
 
 	};
 

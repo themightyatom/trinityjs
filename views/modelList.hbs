@@ -1,9 +1,9 @@
 <h2>{{ title }}</h2>
 <div class="submit-bt"> <button onclick="window.location.href='models/uploadModel/'">Upload New Model</button></div>
- <div class="item-row-top"><div class="column-3" ><span class="menutitle">PREVIEW</span></div><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">SKU </span></div></div>
+ <div class="item-row-top"><div class="column-3" ><span class="menutitle">PREVIEW</span></div><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">OPEN DESIGNER</span></div></div>
 {{# each models as |val key|}}
 
-   <div class="item-row" onclick="window.location.href='/models/editModel/{{val.id}}'"><div class="column-3" ><img class="list-preview"  src="/thumbs/models/{{val.id}}.png" /></div><div class="column-3" > {{ val.title }}</div> <div class="column-3" > {{val.sku}}</div></div>
+   <div class="item-row" onclick="window.location.href='/models/editModel/{{val.id}}'"><div class="column-3" ><img class="list-preview"  src="/thumbs/models/{{val.id}}.png" /></div><div class="column-3" > {{ val.title }}</div> <div class="column-3" ><a href="/clients/designer/{{val.id}}">OPEN</a></div></div>
 {{/each}}
 
 <script>

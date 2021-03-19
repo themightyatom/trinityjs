@@ -1,0 +1,9 @@
+<div id="translations">
+        Translations
+        {{# each languages as |val key|}}
+            <p id="_{{val.stub}}">
+            <lable for="{{value.stub}}" class="menutitle">{{val.title}}</lable><br>
+            <input type="text" id="{{val.stub}}" name="{{val.stub}}" value="{{val.value}}" >
+            </p>  
+        {{/each}} 
+    </div> 

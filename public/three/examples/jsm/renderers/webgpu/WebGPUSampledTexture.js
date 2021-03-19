@@ -3,11 +3,9 @@ import { GPUBindingType, GPUTextureViewDimension } from './constants.js';
 
 class WebGPUSampledTexture extends WebGPUBinding {
 
-	constructor( name, texture ) {
+	constructor( name ) {
 
 		super( name );
-
-		this.texture = texture;
 
 		this.dimension = GPUTextureViewDimension.TwoD;
 

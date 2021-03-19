@@ -6,6 +6,8 @@ const fs = require('fs');
 const db = require('../utils/db.js');
 const pp = require('../utils/passport.js');
 //const pp = require('../utils/controller.js');
+const translationTools = require('../utils/translationTools');
+const sharp = require('sharp');
 
 
 const glbfolder = 'public/glb/';
@@ -33,27 +35,6 @@ router.get('/createtable', (req, res) => {
 });
 */
 
-
-router.post('/addNewModel', (req, res) => {
-    let sql = 'INSERT INTO models SET ?';
-    console.log('Got body:', req.body);
-    let title = req.body.title;
-    let sku = req.body.sku;
-    let model = req.body.model;
-    let post = { title: title, sku: sku, model: model };
-    console.log("posting", post);
-    let query = db.query(sql, post, (err, result) => {
-        if (err) throw err;
-
-        let sql = 'SELECT * FROM models';
-        let query = db.query(sql, (err, result) => {
-            if (err) throw err;
-            console.log(result);
-            res.render('list', { models: result, title: 'all posts' });
-        });
-
-    });
-});
 
 router.get('/all', (req,res) => {
     let sql = 'SELECT * FROM models';
@@ -89,7 +70,23 @@ router.get('/editModel/:id', checkAuthenticated, (req, res) => {
     let sql = "SELECT * from models WHERE ID ='" + _id + "'";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
-        res.render('editModel', result[0]);
+        var knownParameters = result[0];
+        // parse arrays
+        if(knownParameters.accessory_groups.length > 1){
+            let groups = JSON.parse(knownParameters.accessory_groups); 
+            knownParameters.accessory_groups = groups;
+        }
+        if(knownParameters.materials.length > 1){
+            let mats = JSON.parse(knownParameters.materials);
+            knownParameters.materials = mats;
+        }
+        if(knownParameters.categories.length > 1){
+            let cats = JSON.parse(knownParameters.categories);
+            knownParameters.categories = cats;
+        }
+        translationTools.getTranslations(knownParameters,'models')
+        .then((response) => res.render('editModel', { params: knownParameters, languages: response }));
+        
     });
 });
 
@@ -152,22 +149,35 @@ router.get('/glbexists/:name', (req, res) => {
 });
 
 router.post('/updatemodel', checkAuthenticated,(req, res) => {
+    //save any translations
+    let translations = Object.assign({}, req.body);
+    delete translations.submit;
+    delete translations.categories;
+    delete translations.accessory_groups;
+    delete translations.id;
+    delete translations.sku;
+    delete translations.snap;
+    delete translations.title;
+    delete translations.model;
+    delete translations.snap_type;
+    delete translations.materials;
+    translations.item_id = req.body.id;
+    translations.item_type = 'models';
+
     console.log(req.body);
     let cats = JSON.stringify(req.body.categories);
     let groups = JSON.stringify(req.body.accessory_groups);
+    let mats = JSON.stringify(req.body.materials);
     req.body.categories = cats;
     req.body.accessory_groups = groups;
     delete req.body.submit;
-    /*    if(Array.isArray(req.body.categories)){
-            cats = req.body.categories.join('|');
-        }else{
-            cats = req.body.categories;
-        }*/
     let sql = "UPDATE models SET ? WHERE id = '" + req.body.id + "'";
-    let post = req.body;
+    let post = {materials:mats,categories:cats, accessory_groups:groups, model:req.body.model, snap:req.body.snap, snap_type:req.body.snap_type, sku:req.body.sku, title:req.body.title};
     let query = db.query(sql, post, (err, result) => {
         if (err) throw err;
-        res.redirect('/models');
+         // update translations
+         translationTools.saveTranslations(translations)
+         .then(res.redirect('/models'));
     });
 
 })
@@ -208,17 +218,14 @@ router.get('/:id', (req,res) => {
     })
 });
 
-router.post('/thumb', function(req, res) {
+router.post('/thumb', async function(req, res) {
     var base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
     var id = req.body.id;
-    fs.writeFile(thumbfolder + '/models/' + id + '.png', base64Data, 'base64', function(err) {
-        if(err){
-           console.log(err);
-           
-         }else{
-            res.send("done");
-         }
-    });
+    var img = Buffer.from(base64Data, 'base64');
+    await sharp(img)
+    .resize({ width:80, height:80})
+    .toFile(thumbfolder + '/models/' + id + '.png')
+    res.send('done');
 });
 
 module.exports = router;
