@@ -141,6 +141,45 @@ var DecorManager = (function () {
         link.href = URL.createObjectURL(blob);
 
     }
+    function exportSingle() {
+
+        var exporter = new THREE.GLTFExporter();
+        //var target = furnitureLayer;
+        var target = focusGroup;
+        render();
+        var filename = 'model';
+        if (productid != undefined) {
+            filename = productid;
+        }
+        if(defaultFinish && defaultFinish.length > 1){
+            filename = filename + "-" + defaultFinish.substr(4);
+        }
+    
+    
+        if (target != null) {
+            exporter.parse(target, function (result) {
+    
+                saveArrayBuffer(result, filename + '.glb');
+                // forceIndices: true, forcePowerOfTwoTextures: true
+                // to allow compatibility with facebook
+            }, { binary: true, forceIndices: false, forcePowerOfTwoTextures: true });
+        }
+    }
+    
+    
+    function saveArrayBuffer(buffer, filename) {
+    
+        saveFile(new Blob([buffer], { type: 'application/octet-stream' }), filename);
+    
+    }
+    function saveFile(blob, filename) {
+    
+        link.href = URL.createObjectURL(blob);
+        link.download = filename || 'data.json';
+        link.click();
+    
+        // URL.revokeObjectURL( url ); breaks Firefox...
+    }
 
     return {
 
@@ -240,8 +279,10 @@ var DecorManager = (function () {
             focusGroup.changeMaterial(key, mat);
         },
         createAR(){
-            exportAR();
-        }
+            //exportAR();
+            console.log("Create");
+            exportSingle();
+        },
     }
 
 })();
