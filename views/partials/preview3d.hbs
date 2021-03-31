@@ -1,11 +1,11 @@
 <script type="module">
     import * as THREE from '/three/build/three.module.js';
-    import { RoomEnvironment } from '/three/examples/jsm/environments/RoomEnvironment.js';
+  //  import { RoomEnvironment } from '/three/examples/jsm/environments/RoomEnvironment.js';
     import { OrbitControls } from '/three/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from '/three/examples/jsm/loaders/GLTFLoader.js';
+import { RGBELoader } from '/three/examples/jsm/loaders/RGBELoader.js';
 
-
-    let camera, scene, renderer, preview, controls, width3d, height3d;;
+    let camera, scene, renderer, preview, controls, width3d, height3d,sunLight;;
     let targetMat;
     let targets = [];
 
@@ -23,21 +23,23 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(width3d, height3d);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1;
+        renderer.toneMappingExposure = 1.3;
         renderer.outputEncoding = THREE.sRGBEncoding;
         container.appendChild(renderer.domElement);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-
+        renderer.gammaFactor = 2.2;
 
         camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 30);
         camera.position.set(0, 1, 5);
 
-        const environment = new RoomEnvironment();
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        //const environment = new RoomEnvironment();
+        //const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf3f3f3);
-        scene.environment = pmremGenerator.fromScene(environment).texture;
+        //scene.environment = pmremGenerator.fromScene(environment).texture;
 
         const grid = new THREE.GridHelper(20, 20, 0xffffff, 0xffffff);
         grid.material.opacity = 0.5;
@@ -48,12 +50,59 @@
         preview = new THREE.Object3D();
         scene.add(preview);
 
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+
         controls = new OrbitControls(camera, renderer.domElement);
         controls.addEventListener('change', render); // use if there is no animation loop
         controls.minDistance = .1;
         controls.maxDistance = 10;
         controls.target.set(0, 1, 0);
         controls.update();
+
+        new RGBELoader()
+            .setDataType(THREE.UnsignedByteType)
+            .setPath('/env/')
+            .load('material1k.hdr', function (texture) {
+
+                const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+
+                //scene.background = envMap;
+                scene.environment = envMap;
+
+                texture.dispose();
+                pmremGenerator.dispose();
+            });
+        
+        //Lighting
+        sunLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
+        scene.add(sunLight);
+        sunLight.name = "directionalLight1";
+        sunLight.position.x = 1;
+        sunLight.position.y = 2;
+        sunLight.position.z = 5;
+
+        let sunsize = 5;
+        let lightDistance = 10;
+
+        sunLight.castShadow = true;
+        let directionalHelper = new THREE.DirectionalLightHelper(sunLight);
+        //scene.add(directionalHelper);
+        scene.add(sunLight.target);
+        var lightTarget = new THREE.Object3D();
+        scene.add(lightTarget);
+        sunLight.target = lightTarget;
+        //Set up shadow properties for the light
+        sunLight.shadow.mapSize.width = 2048;  // default
+        sunLight.shadow.mapSize.height = 2048; // default
+        sunLight.shadow.camera.near = 0.0;    // default
+        sunLight.shadow.camera.far = 10;     // default
+        sunLight.shadow.camera.left = -sunsize;
+        sunLight.shadow.camera.right = sunsize;
+        sunLight.shadow.camera.top = sunsize;
+        sunLight.shadow.camera.bottom = -sunsize;
+        sunLight.shadow.bias = 0.0001;
+        sunLight.shadow.radius = 2;
 
         window.addEventListener('resize', onWindowResize, false);
 
@@ -87,9 +136,10 @@
             if (child.name.substr(0, 3) == "_as") {
                 snapPoints.push(child.name);
                 child.visible = false;
-            } else {
-
-            };
+            }
+            if (child.name.substr(0, 3) == "_af") {
+                child.visible = false;
+            }
             if (child.isMesh) {
                 switch (child.name.substr(0, 4)) {
                     case 'wood':
@@ -110,7 +160,7 @@
                         break;
 
                 }
-
+                targets.push(child);
 
             }
 
@@ -166,47 +216,10 @@
         render();
     }
     function grabScreenshot() {
-
-
-        // open in new window like this
-        //
-       // var w = window.open('', '');
-        //w.document.title = "Screenshot";
-        //w.document.body.style.backgroundColor = "red";
-       // var img = new Image();
-        // Without 'preserveDrawingBuffer' set to true, we must render now
         renderer.render(scene, camera);
-        //img.src = renderer.domElement.toDataURL();
-        //w.document.body.appendChild(img);
         return renderer.domElement.toDataURL();
-        /*
-            // download file like this.
-            //
-            var a = document.createElement('a');
-            // Without 'preserveDrawingBuffer' set to true, we must render now
-            renderer.render(scene, camera);
-            a.href = renderer.domElement.toDataURL().replace("image/png", "image/octet-stream");
-            a.download = 'canvas.png'
-            a.click();
-        */
-
-        /*
-            // New version of file download using toBlob.
-            // toBlob should be faster than toDataUrl.
-            // But maybe not because also calling createOjectURL.
-            //
-            renderer.render(scene, camera);
-            renderer.domElement.toBlob(function(blob){
-                var a = document.createElement('a');
-              var url = URL.createObjectURL(blob);
-              a.href = url;
-              a.download = 'canvas.png';
-              a.click();
-            }, 'image/png', 1.0);
-        */
-
     }
-    
+
     function applyMaterialProperty(property, value) {
 
         switch (property) {
@@ -215,17 +228,18 @@
                 function onLoad(texture) {
                     targetMat.map = texture;
                     texture.flipY = false;
+                    texture.encoding = THREE.sRGBEncoding;
                     targetMat.needsUpdate = true;
                     targetMat.map.wrapS = THREE.RepeatWrapping;
                     targetMat.map.wrapT = THREE.RepeatWrapping;
                     render();
                 }
-                 if(value == null){
+                if (value == null) {
                     targetMat.map = null;
                     targetMat.needsUpdate = true;
                     render();
-                }else{
-                       loader.load("/textures/" + value, onLoad);
+                } else {
+                    loader.load("/textures/" + value, onLoad);
                 }
                 break;
             case "normal_map":
@@ -238,16 +252,16 @@
                     targetMat.needsUpdate = true;
                     render();
                 }
-                 if(value == null){
+                if (value == null) {
                     targetMat.normalMap = null;
                     targetMat.needsUpdate = true;
                     render();
-                }else{
+                } else {
                     loader.load("/textures/" + value, onnormLoad);
                 }
-                
+
                 break;
-             case "normal_value":
+            case "normal_value":
                 targetMat.normalScale = new THREE.Vector2(value, value);
                 render();
                 break;
@@ -261,11 +275,11 @@
                     targetMat.needsUpdate = true;
                     render();
                 }
-                if(value == null){
+                if (value == null) {
                     targetMat.bumpMap = null;
                     targetMat.needsUpdate = true;
                     render();
-                }else{
+                } else {
                     loader.load("/textures/" + value, onbumpLoad);
                 }
                 break;
@@ -319,12 +333,32 @@
                 break;
         }
     }
+    function assignMaterial(targetPrefix, material) {
+        console.log("applying", targetPrefix, material, targets);
+        targetMat = new THREE.MeshStandardMaterial();
+        
+            Object.entries(material).forEach(entry => {
+                const [key, value] = entry;
+                if(value != ''){
+                    applyMaterialProperty(key,value);
+                }
+            });
+            
+        
+        targets.forEach(function (obj) {
+            if (obj.name.substr(0, 4) == targetPrefix) {
+                obj.material = targetMat;
+            }
+
+        });
+    }
 
     window.loadDataAsModel = loadDataAsModel;
     window.loadModel = loadModel;
     window.setCamPos = setCamPos;
     window.render = render;
     window.applyMaterialProperty = applyMaterialProperty;
+    window.assignMaterial = assignMaterial;
     window.grabScreenshot = grabScreenshot;
 
 

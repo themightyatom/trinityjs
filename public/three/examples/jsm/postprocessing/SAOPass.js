@@ -49,14 +49,14 @@ var SAOPass = function ( scene, camera, depthTexture, useNormals, resolution ) {
 
 	this.params = {
 		output: 0,
-		saoBias: 0.5,
-		saoIntensity: 0.18,
-		saoScale: 1,
-		saoKernelRadius: 100,
+		saoBias: 1,
+		saoIntensity: 0.02,
+		saoScale: 2,
+		saoKernelRadius: 36,
 		saoMinResolution: 0,
 		saoBlur: true,
 		saoBlurRadius: 8,
-		saoBlurStdDev: 4,
+		saoBlurStdDev: 12,
 		saoBlurDepthCutoff: 0.01
 	};
 

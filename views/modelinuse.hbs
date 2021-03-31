@@ -1,0 +1,11 @@
+<h3>The model, {{model}} has not been removed from the server as it is in use in the following variations</h3>
+    {{#each variations as |val key|}}
+  <div class="item-row" onclick="window.location.href='/models/editModel/{{val.id}}'">
+   <div class="column-3"><img class="list-preview" src="/thumbs/models/{{val.id}}.png" /></div>
+   <div class="column-3"> {{ val.title }}</div>
+   <div class="column-3"></div>
+</div>
+
+
+   {{/each}}
+<p>Delete all variations and the 3D model will be removed</p>

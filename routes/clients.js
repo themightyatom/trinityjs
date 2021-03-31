@@ -31,7 +31,8 @@ router.get('/designer/:id', (req, res) => {
                    materials.list = response;
                 });
         }
-        res.render('designer',{ layout: 'design.hbs', title: 'Designer', accessories:accessories, materials:materials, params:params });
+        console.log("ORDERED ACCESSORIES", accessories );
+        res.render('designer21',{ layout: 'design.hbs', title: 'Designer', accessories:accessories, materials:materials, params:params });
 
 
         // params.accessory_groups = accessories;
@@ -44,12 +45,12 @@ router.get('/designer/:id', (req, res) => {
 
 async function getAccessories(groups) {
     return new Promise(function (resolve, reject) {
-        sql = "SELECT * from accessories WHERE id IN(" + groups + ")";
+        sql = "SELECT * from accessories WHERE id IN(" + groups + ") ORDER BY `accessories`.`priority` ASC";
         query = db.query(sql, async (err, accessories) => {
             if (err) throw err;
             // replace model id's with their full properties
             for (var g = 0; g < accessories.length; g++) {
-                if (accessories[g].list != null) {
+                if (accessories[g].list != null && accessories[g].list.length > 0) {
                     let models = JSON.parse(accessories[g].list);
                     await getModels(models)
                         .then((response) => {
@@ -66,10 +67,9 @@ async function getAccessories(groups) {
 
 async function getModels(models) {
     return new Promise(function (resolve, reject) {
-        sql = "SELECT * FROM models WHERE id IN(" + models + ")";
+        sql = "SELECT * FROM models WHERE id IN(" + models + ") ORDER BY `models`.`priority` ASC";
         query = db.query(sql, (err, result) => {
             if (err) throw err;
-            console.log("looking");
             resolve(result);
 
         });

@@ -4,10 +4,101 @@
 
  <div class="item-row-top"><div class="column-3" ><span class="menutitle">ID</span></div><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">TYPE</span></div></div>
 {{# each accessories as |val key|}}
-
-   <div class="item-row" onclick="window.location.href='/accessories/edit/{{val.id}}'"><div class="column-3" >{{val.id}}</div><div class="column-3" > {{ val.title }}</div> <div class="column-3" > {{val.type}}</div></div>
+<div class="dragger" draggable="true">
+   <div class="item-row"  onclick="window.location.href='/accessories/edit/{{val.id}}'"><div id="id_holder" class="column-3" >{{val.id}}</div><div class="column-3" > {{ val.title }}</div> <div class="column-3" > {{val.type}}</div></div>
+</div>
 {{/each}}
 
 <script>
-   function startup(){};
+   function startup(){
+      assignDraggable();
+   };
+</script>
+<script>
+let items;
+function assignDraggable(e) {
+    console.log("make draggable");
+    items = document.querySelectorAll('.dragger');
+    
+  items.forEach(function(item) {
+    item.draggable = true;
+    item.addEventListener('dragstart', handleDragStart, false);
+    item.addEventListener('dragenter', handleDragEnter, false);
+    item.addEventListener('dragover', handleDragOver, false);
+    item.addEventListener('dragleave', handleDragLeave, false);
+    item.addEventListener('drop', handleDrop, false);
+    item.addEventListener('dragend', handleDragEnd, false);
+  });
+}
+var dragSrcEl = null;
+  
+  function handleDragStart(e) {
+    this.style.opacity = '0.4';
+    
+    dragSrcEl = this;
+
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+  }
+
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+
+    e.dataTransfer.dropEffect = 'move';
+    
+    return false;
+  }
+
+  function handleDragEnter(e) {
+    this.classList.add('over');
+  }
+
+  function handleDragLeave(e) {
+    this.classList.remove('over');
+  }
+
+  function handleDrop(e) {
+    if (e.stopPropagation) {
+      e.stopPropagation(); // stops the browser from redirecting.
+    }
+    
+    if (dragSrcEl != this) {
+      dragSrcEl.innerHTML = this.innerHTML;
+      this.innerHTML = e.dataTransfer.getData('text/html');
+    }
+    reorderList();
+    return false;
+  }
+
+  function handleDragEnd(e) {
+    this.style.opacity = '1';
+    
+    items.forEach(function (item) {
+      item.classList.remove('over');
+    });
+  }
+  function reorderList(){
+     console.log("reorder list");
+     //get newest postions
+     let orderList = [];
+     let ids = document.querySelectorAll('#id_holder');
+     ids.forEach(function (item) {
+        orderList.push(item.innerHTML);
+     })
+     console.log("list", orderList);
+        $.ajax({
+            type: "POST",
+            url: "/accessories/reorder",
+            data: {
+                list:orderList
+            }
+        }).done(function (o) {
+            console.log('saved', o);
+            return true;
+        });
+
+    }
+
 </script>

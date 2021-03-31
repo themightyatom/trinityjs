@@ -70,6 +70,8 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
 
 
 
+
+
 router.post('/edit', checkAuthenticated, (req, res) => {
     console.log("adding material", req.body);
     if (req.body.id != 'new') {
@@ -117,6 +119,8 @@ router.post('/thumb', async function(req, res) {
     res.send('done');
 });
 
+//PUBLIC INTERFACE
+
 router.get('/all', (req, res) => {
     let sql = 'SELECT * FROM ' + _table;
     let query = db.query(sql, (err, result) => {
@@ -124,6 +128,21 @@ router.get('/all', (req, res) => {
         res.send(result);
     })
 
+});
+
+router.get('/:id',(req, res) => {
+
+    let _id = req.params.id;
+    
+        let sql = "SELECT * from " + _table + " WHERE ID ='" + _id + "'";
+        let query = db.query(sql, (err, result) => {
+            if (err) throw err;
+            if(result.length > 0){
+            res.send(result[0]);
+            } else{
+                res.send({message:'no material found with this id:' + _id});  
+            }
+        });
 });
 
 

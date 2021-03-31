@@ -55,7 +55,8 @@ router.post('/edit', checkAuthenticated, (req, res) => {
 
 
 router.get('/', checkAuthenticated, (req, res) => {
-    let sql = 'SELECT * FROM ' + _table;
+   // let sql = 'SELECT * FROM ' + _table;
+    let sql = "SELECT * FROM `accessories` ORDER BY `accessories`.`priority` ASC";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         res.render('accessoryList', { accessories: result, title: 'Accessory Groups' });
@@ -70,7 +71,7 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
         let query = db.query(sql, (err, result) => {
             if (err) throw err;
             var knownParameters = result[0];
-            if(knownParameters.list.length > 1){
+            if(knownParameters.list != null && knownParameters.list.length > 1){
                 let list = JSON.parse(knownParameters.list);
                 knownParameters.list = list;
             }
@@ -107,11 +108,29 @@ router.post('/delete', checkAuthenticated, (req, res) => {
 });
 
 router.get('/all', (req, res) => {
-    let sql = 'SELECT * FROM ' + _table;
+    let sql = "SELECT * FROM `accessories` ORDER BY `accessories`.`priority` ASC";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         res.send(result);
     });
+});
+router.post('/reorder', (req,res) =>{
+    let list = req.body.list;
+    console.log("incoming", list);
+    let ind = 0;
+        
+          for(var i=0;i<list.length;i++) {
+            var _id = list[i];
+            var sql = "UPDATE accessories SET priority = ? WHERE id = ?";
+            db.query(sql, [i, _id], function(err, result) {
+              if(err) { console.log(err); return; }
+            });
+          };
+  
+
+    res.send('ok');
+
+
 });
 
 module.exports = router;

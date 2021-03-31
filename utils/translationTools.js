@@ -72,6 +72,25 @@ tt.getTranslations = async function (item, type) {
     });
 
 }
+tt.duplicateTranslations = async function (from_id,to_id,type){
+    let sql = "SELECT * FROM translations WHERE item_id ='" + from_id + "' AND item_type='" + type + "'";
+    let query = db.query(sql, (err, trans) =>{
+        if(err) throw err;
+        translations = trans[0];
+        translations.item_id = to_id;
+        delete translations.id;
+        sql = "INSERT INTO translations SET ?";
+        query = db.query(sql, translations, (err, result) => {
+            if (err) {
+                throw(err);
+            } else {
+                return result;
+            };
+        });
+    })
+   
+
+}
 
 
 

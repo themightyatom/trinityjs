@@ -1,11 +1,14 @@
-<h1>Attributes for {{params.model}}</h1>
+
 
 
 <div id="container" class="window3d">
 
 </div>
-
-<form action="/models/updatemodel" method="post" onsubmit="return addThumb()">
+<div id="parameter-column" class="parameter-column">
+<h1>Attributes for {{params.title}}</h1>
+<button onclick="window.location.href='/models/variation/{{params.id}}'">Create Variation</button>
+<button onclick="addThumb()">Save Thumbnail</button><span id="saving"></span>
+<form action="/models/updatemodel" method="post">
     <p>
         <lable for="model">Model id</lable><br>
         <input type="text" id="id" name="id" value="{{params.id}}" readonly>
@@ -27,10 +30,15 @@
         <input type="text" name="snap" id="snap" value="{{params.snap}}">
         <input type="radio" name="snap_type" id="single" value="single" {{radioCheck params.snap_type 'single' }}>
         <label for="single">Single</label>
+        <input type="radio" name="snap_type" id="extreme" value="extreme" {{radioCheck params.snap_type 'extreme' }}>
+        <label for="extreme">Extreme</label>
         <input type="radio" name="snap_type" id="all" value="all" {{radioCheck params.snap_type 'all' }}> <label
             for="all">All</label>
+        <input type="radio" name="snap_type" id="environment" value="environment" {{radioCheck params.snap_type 'environment' }}> <label
+            for="environment">Environment</label>
 
     </div>
+     <hr>
     <div class="allcategories">
         <label for="categories">Choose categories:</label><br>
         <select style="display:none" name="categories" id="categories" multiple placeholder="Select"> </select>
@@ -43,10 +51,22 @@
     </div>
     <br>
     <div class="allmaterials">
-        <label for="materials">Material Variations:</label><br>
+        <label for="materials">Material Variations: (these are variations you will be able to choose between in the designer)</label><br>
         <select style="display:none" name="materials" id="materials" multiple placeholder="Select">
         </select>
     </div>
+    <br>
+     <hr>
+    <div class="default_material">
+        <label for="default_material">Default Material: (the material automatically assigned to this model)</label><br>
+        <select  oninput="applyMaterial()" style="display:none" name="default_material" id="default_material" placeholder="Select">
+        </select>
+    </div>
+    <p>
+        <lable for="default_material_key">Default Material Key: (the first four letters of the name of the object(s) to recieve the default material)</lable><br>
+        <input oninput="applyMaterial()" type="text" id="default_material_key" name="default_material_key" maxlength="4" value="{{params.default_material_key}}">
+    </p>
+     <hr>
     {{>translations}}
     <div class="submit-bt">
         <button type="submit" name="submit">
@@ -64,9 +84,10 @@
     <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
     <button onclick="window.location.href='/models'">Cancel</button>
 </div>
+</div>
 <script>
     function startup() {
-        loadModel('{{params.model}}');
+        loadModel('{{params.model}}','{{params.default_material}}','{{params.default_material_key}}');
     }
     function registerSnaps(points) {
 
@@ -74,8 +95,14 @@
     function registerTargets(targets) {
         console.log(targets);
     }
+    function applyMaterial(){
+        var matid = document.getElementById("default_material").value;
+        var assignTo = document.getElementById("default_material_key").value;
+        assignMaterial(matid,assignTo);
+        
+    }
     function addThumb() {
-
+        document.getElementById("saving").innerHTML = " Saving....";
         var t = grabScreenshot();
         var _id = '{{params.id}}';
         console.log("save thumb");
@@ -88,14 +115,18 @@
             }
         }).done(function (o) {
             console.log('saved');
+            document.getElementById("saving").innerHTML = " Thumbnail saved";
             return true;
         });
 
     }
 
+    
+
     const selectedArray = [{{params.categories}}];
     const accessoryArray = [{{params.accessory_groups}}];
     const materialArray = [{{params.materials}}];
+    const defaultMaterial = {{params.default_material}}; 
 
     fetch('/categories/all')
         .then(response => response.json())
@@ -128,6 +159,7 @@
             for (i = 0; i < data.length; i++) {
                 data[i].name = data[i].title;
                 data[i].value = data[i].id;
+               
                 if (accessoryArray.includes(data[i].id)) {
                     data[i].selected = true;
                 }
@@ -139,13 +171,15 @@
                 multipleMode: 'label',
                 input: '<input type="text" maxLength="20" placeholder="Search">',
                 choice: function () {
-                    //getlist();
+                  //  assignDraggable();
                 }
             });
         });
     fetch('/materials/all')
         .then(response => response.json())
         .then(data => {
+            let dataCopy = data;
+            // assign to material chooser
             var i;
             for (i = 0; i < data.length; i++) {
                 data[i].name = data[i].title;
@@ -154,7 +188,6 @@
                     data[i].selected = true;
                 }
             }
-
             $('.allmaterials').dropdown({
                 data: data,
                 limitCount: 40,
@@ -164,8 +197,26 @@
                     //getlist();
                 }
             });
+            // assign to default material
+            for (i = 0; i < dataCopy.length; i++) {
+            
+                if (defaultMaterial == (data[i].id)) {
+                    dataCopy[i].selected = true;
+                }
+            }
+            $('.default_material').dropdown({
+                data: dataCopy,
+                limitCount: 40,
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    applyMaterial();
+                }
+            });
+
         });
 
 </script>
 
-{{>preview3d}}
+
+
+{{>window3d}}

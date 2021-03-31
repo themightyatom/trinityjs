@@ -1,0 +1,173 @@
+<div id="container">
+
+
+</div>
+<div id="dialogboxholder" class="dialogboxholder">
+
+    <div class="itempalette" id="itempalette">
+        <button id="panel-toggle" class="panel-toggle" onclick="togglePanel()"></button>
+        {{#if materials.list}}
+        <button class="accordion-bt">
+            {{materials.title}}
+        </button>
+        <div class="panel">
+            {{#each materials.list}}
+            <div class='pallet-item-container'
+                onmousedown="changeMaterial('wood',{title:'{{title}}', id:'{{id}}', extension:'{{extension}}', color_hex:'{{color_hex}}', opacity_value:{{opacity_value}},emissive_hex:'{{emissive_hex}}', roughness_value:{{roughness_value}}, metalness_value:{{metalness_value}}, diffuse_map:'{{diffuse_map}}', normal_map:'{{normal_map}}',bump_map:'{{bump_map}}',normal_value:{{normal_value}}, bump_value:{{bump_value}} })">
+                <img width="30" height="30" src="/thumbs/materials/{{id}}.png">
+                <div class='itempalette-label'>{{title}}</div>
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+
+
+        {{#each accessories}}
+        <button class="accordion-bt">
+            {{title}}
+        </button>
+        <div class="panel">
+            {{#each list}}
+            <div id="node_{{sku}}" class='pallet-item-container'
+                onmousedown="addAccessory('{{snap}}','{{model}}','{{sku}}','{{snap_type}}','{{default_material}}','{{default_material_key}}')">
+                <img id="img_{{sku}}" width="80" height="80" src="/thumbs/models/{{id}}.png">
+                <div id="tit_{{sku}}" class='itempalette-label'>{{title}}</div>
+            </div>
+            {{/each}}
+        </div>
+
+        {{/each}}
+        <button class="accordion-bt lister">
+            <svg class="svg-icon" height="50px" viewBox="0 0 50 50">
+                <g id="Icon_Cart" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <g id="shopping-cart" stroke="#292929" stroke-width="1.55">
+                        <circle id="Oval" cx="19.3636364" cy="33.1818182" r="1.81818182"></circle>
+                        <circle id="Oval" cx="30.2727273" cy="33.1818182" r="1.81818182"></circle>
+                        <path
+                            d="M17.2454545,19.5454545 L33,19.5454545 L31.4727273,27.1727273 C31.3011482,28.0365741 30.5351055,28.6532385 29.6545455,28.6363636 L20.0454545,28.6363636 C19.1268013,28.6441553 18.3466689,27.9654401 18.2272727,27.0545455 L16.8454545,16.5818182 C16.7269293,15.6778144 15.9571942,15.0013805 15.0454545,15 L13,15"
+                            id="Shape"></path>
+                    </g>
+                </g>
+            </svg>
+        </button>
+        <div class="panel" id="list-of-items">
+
+        </div>
+    </div>
+</div>
+
+{{>window3d}}
+
+{{>ar}}
+
+
+
+
+<script>
+    function startup() {
+        loadModel('{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}');
+        /*$(function () {
+            $("#accordion").accordion({
+                collapsible: true,
+                heightStyle: "content"
+            });
+            $("#accordion").on("accordionbeforeactivate", function (event, ui) { changeCameraAngle(event, ui) });
+        });*/
+        var acc = document.getElementsByClassName("accordion-bt");
+        var i;
+
+        for (i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                closeOtherPanels(this);
+                var panel = this.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+                clearPreview();
+            });
+        }
+    };
+
+    function closeOtherPanels(exempt) {
+        var acc = document.getElementsByClassName("accordion-bt");
+        var i;
+        for (i = 0; i < acc.length; i++) {
+            var but = acc[i];
+            if (but != exempt) {
+                but.classList.remove('active');
+                var panel = but.nextElementSibling;
+                panel.style.maxHeight = null;
+            }
+        }
+    }
+    function togglePanel() {
+        let pan = document.getElementById('itempalette');
+        pan.classList.toggle('panel-close');
+        //pan.style.maxHeight = '20px';
+        let tog = document.getElementById('panel-toggle');
+        tog.classList.toggle('panel-closed');
+        closeOtherPanels(null);
+
+    }
+
+
+    function changeCameraAngle(event, ui) {
+        console.log("pallet change");
+        clearPreview();
+    }
+    function launchAR() {
+        $('#ar-launch').css('visibility', 'visible');
+        createAR();
+
+    }
+    function hideLaunch() {
+        $('#ar-launch').css('visibility', 'hidden');
+    }
+    function createList(arr) {
+        console.log("adding to list", arr);
+        let i, ac;
+        dev__array = arr;
+        let htmlStr = "";
+        let cln, sku
+        let rem = '';
+        for (i = 0; i < arr.length; i++) {
+            sku = arr[i].sku;
+            htmlStr += "<div class='pallet-list-item-container' >";
+            cln = document.getElementById('node_' + sku).innerHTML;
+            if (i > 0) rem = "<div class='removal-bt' onclick='removeItem(" + i + ", null)'>x</div>";
+            htmlStr += cln + rem + "</div>";
+            let accessories = arr[i].getAccessories();
+            //reorder as they appear on the object
+           // accessories.sort((a, b) => (a.position.y < b.position.y) ? 1 : -1);
+            for (ac = 0; ac < accessories.length; ac++) {
+                sku = accessories[ac].sku;
+                htmlStr += "<div class='pallet-list-item-container subitem' >";
+                cln = document.getElementById('node_' + sku).innerHTML;
+                rem = "<div class='removal-bt' onclick='removeItem("+ i +","+ ac + ")'>x</div>";
+                htmlStr += cln + rem + "</div>";
+            }
+        }
+        console.log("listhtml", htmlStr);
+        document.getElementById('list-of-items').innerHTML = htmlStr;
+    }
+    function removeItem(objInd,accInd) {
+       
+            let item = dev__array[objInd];
+            if(accInd != null){
+                item.removeAccessory(item.getAccessories()[accInd]);
+                 createList(dev__removeItem());
+            }else{
+               createList(dev__removeItem(item)); 
+            }
+        
+        //remove html element
+       // $(element.parentNode).remove();
+    };
+
+    let dev__array;
+
+</script>

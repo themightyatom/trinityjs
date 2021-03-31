@@ -37,7 +37,7 @@ body{
 
   #container{
     overflow:hidden; 
-    width:calc(100% - 185px); 
+    width:calc(100% - 200px); 
     height:100%; 
     position: fixed; 
     left: 0px; 
@@ -46,11 +46,7 @@ body{
   }
 
   #accordion{
-    width:185px;
-    position: fixed;
-    right:0px;
-    top: 0px;
-    height: 100px;
+    width: 185px;
   }
 
   @font-face {font-family: 'Maven Pro';src: url('mavenpro.woff2') format('woff2');}
@@ -159,7 +155,7 @@ box-shadow: 0 0 0 1px #6f6f6f;
 }
 .ar-button{
     z-index:5;
-    position: absolute;
+    position: fixed;
 }
 .arlaunch{
     position: relative;
@@ -181,6 +177,7 @@ box-shadow: 0 0 0 1px #6f6f6f;
     border: 0;
     outline: 0;
     padding:10px;
+    
   }
   #accordion .ui-accordion-header-icon {
     display: none;

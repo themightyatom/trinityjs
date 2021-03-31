@@ -78,7 +78,7 @@ body{
     
 }
 input[type=text] {
-    width: 80%;
+    width: 500px;
     padding: 7px;
     margin: 10px 5px;
     box-sizing: border-box;
@@ -133,11 +133,18 @@ input[type="submit" i]{
     position: relative;
 }
 .window3d{
-    min-width:500px;
-    min-height: 500px;
+    width:500px;
+    height: 500px;
     padding-right: 20px;
     padding-bottom: 20px;
     width:500px;
+    position: fixed;
+    left:260px;
+}
+.parameter-column{
+    position: absolute;
+    max-width: 500px;
+    right:0px
 }
 .textureBox{
     min-width:500px;
@@ -195,6 +202,12 @@ input[type="submit" i]{
 .item-row a:hover{
     text-decoration: none;
     color:#83b8ec;
+}
+.column-4{
+    width: 25%;
+    position: relative;
+    float: left;
+    margin: auto;
 }
 .column-3{
     width: 33%;
@@ -305,4 +318,7 @@ input[type="range" i] {
 }
 .delete-bt span{
     margin:-2 !important;
+}
+hr{
+margin: 30px;
 }
