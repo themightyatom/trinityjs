@@ -281,7 +281,7 @@ var DecorManager = (function () {
         createAR(){
             //exportAR();
             console.log("Create");
-            exportSingle();
+           // exportSingle();
         },
     }
 
