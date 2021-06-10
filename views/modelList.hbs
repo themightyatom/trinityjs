@@ -22,18 +22,23 @@
    <div class="column-4"><span class="menutitle">TITLE</span></div>
       <div class="column-4"><span class="menutitle">ID</span></div>
    <div class="column-4"><span class="menutitle">OPEN DESIGNER</span></div>
-</div>
+</div><br>
 {{# each models as |val key|}}
 <div class="dragger" draggable="true">
    <div class="item-row" onclick="window.location.href='/models/editModel/{{val.id}}'">
       <div class="column-4"><img class="list-preview" src="/thumbs/models/{{val.id}}.png" /></div>
       <div class="column-4"> {{ val.title }}</div>
        <div class="column-4" id="id_holder">{{val.id}}</div>
-      <div class="column-4"><a href="/clients/designer/{{val.id}}">OPEN</a></div>
+      <div class="column-4"><a href="/clients/preview/{{val.sku}}">OPEN</a></div>
      
    </div>
 </div>
 {{/each}}
+
+<div class="pagination">
+   <a href="/models/page/{{prevpage}}">PREVIOUS</a>
+   <a href="/models/page/{{nextpage}}">NEXT</a>
+</div>
 
 <script>
    function startup() {
@@ -89,10 +94,15 @@
       if (e.stopPropagation) {
          e.stopPropagation(); // stops the browser from redirecting.
       }
-
-      if (dragSrcEl != this) {
+      //SWAP
+      /*if (dragSrcEl != this) {
          dragSrcEl.innerHTML = this.innerHTML;
          this.innerHTML = e.dataTransfer.getData('text/html');
+      }*/
+      //INSERT ABOVE! :)
+      if (dragSrcEl != this){
+        let main = document.getElementById('main');
+        main.insertBefore(dragSrcEl, this);
       }
       reorderList();
       return false;

@@ -10,6 +10,10 @@
         <lable for="title">Title</lable><br>
         <input type="text" id="title" name="title" value="{{params.title}}" required>
     </p>
+    <div>
+        <input type="checkbox" id="menu" name="menu" value="{{params.menu}}" {{checked params.menu}}>
+<label for="menu">Show in Roomplanner menu</label><br>
+    </div><br>
     {{>translations}}
     <div class="submit-bt">
         <button type="submit" name="submit" id="submit">
@@ -34,11 +38,14 @@
             document.getElementById('submit').innerHTML = 'Create';
         }
     }
+    $('input[type="checkbox"]').change(function(){
+    this.value = (Number(this.checked));
+});
     // hide id 
     var idfield = document.getElementById("id");
     idfield.type = 'hidden';
     var _label = document.getElementById("_id");
     _label.style.display = 'none';
-
+ 
 
 </script>

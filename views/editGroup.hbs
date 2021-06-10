@@ -1,0 +1,79 @@
+<h1>{{title}}</h1>
+
+
+
+<form action="/groups/edit" method="post">
+    <p>
+        <input type="hidden" id="id" name="id" value="{{params.id}}">
+    </p>
+    <p>
+        <lable for="title">Title</lable><br>
+        <input type="text" id="title" name="title" value="{{params.title}}" required>
+    </p>
+    <p>
+        <lable for="sku">SKU</lable><br>
+        <input type="text" name="sku" id="sku" value="{{params.sku}}" required>
+    </p>
+    <p>
+        <label for="members">Choose models:</label><br>
+    <div class="allproducts">
+        <select style="display:none" name="members" id="members" multiple placeholder="Select"> </select>
+    </div>
+    </p>
+    {{>translations}}
+    <div class="submit-bt">
+        <button type="submit" name="submit" id="submit">
+            Update
+        </button>
+    </div>
+</form>
+<div class="bottomButs" id='bb'>
+    <form action="/groups/delete/" method="POST"
+        onsubmit="return confirm('Are you sure you want to permanently delete this model group?')">
+        <input type="hidden" id="id" name="id" value="{{params.id}}">
+        <button class="warn" type="submit">DELETE</button>
+    </form>
+    <!--<button class="warn" onclick="deletemodel()">Delete</button>-->
+    <button onclick="window.location.href='/groups'">Cancel</button>
+</div>
+<script>
+    function startup() {
+        var id = document.getElementById("id").value;
+        if (id == 'new') {
+            document.getElementById('bb').style.display = 'none';
+            document.getElementById('submit').innerHTML = 'Create';
+        }
+    }
+    // translations are hidden, unless this is a new catagory, in which case they are mandatory.
+    // Provide button for editing the translation of any item, if fields have not been sent.
+    
+
+    const selectedArray = [{{params.members}}];
+
+    fetch('/models/all')
+        .then(response => response.json())
+        .then(data => {
+            var i;
+            for (i = 0; i < data.length; i++) {
+                
+                data[i].name = data[i].title;
+                data[i].value = data[i].id;
+                if (selectedArray.includes(data[i].id)) {
+                    data[i].selected = true;
+                }
+                console.log("DATA", data);
+            }
+
+            $('.allproducts').dropdown({
+                data: data,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                   // getlist();
+                }
+            });
+        });
+
+
+</script>

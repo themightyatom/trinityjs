@@ -3,9 +3,18 @@ body{
   background-color:#f8f8f8;
 }
 
+#dialogboxholder {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  z-index: 101;
+
+}
+
 @media only screen and (max-width: 600px) {
     #dialogboxholder {
-        position: absolute;
+        position: fixed;
         width: 100%;
         bottom: 50px;
         top: 50%;
@@ -27,7 +36,7 @@ body{
     .cartbuttons button{
       margin-top: 10px;
     }
-    #container{
+    #ltvs_container{
         width:100% !important; 
         height:50% !important; 
     }
@@ -40,7 +49,7 @@ body{
    
   }
 
-  #container{
+  #ltvs_container{
     overflow:hidden; 
     /* width:calc(100% - 200px);  */
     width: 100%;
@@ -49,6 +58,7 @@ body{
     left: 0px; 
     top: 0px; 
     display: block;
+    z-index: 100;
   }
 
   #accordion{
@@ -57,7 +67,7 @@ body{
 
   @font-face {font-family: 'Maven Pro';src: url('mavenpro.woff2') format('woff2');}
 .itempalette{
-    width: 205px;
+    width: 210px;
     /*height: 100%;
     height: -webkit-calc(100% - 12px);
     height:    -moz-calc(100% - 12px);
@@ -164,6 +174,11 @@ box-shadow: 0 0 0 1px #6f6f6f;
 .ar-button{
     z-index:5;
     position: fixed;
+}
+.ar-button button{
+  width: 50px;
+    height: 50px;
+    border-radius: 0;
 }
 .arlaunch{
     position: relative;
@@ -295,11 +310,26 @@ box-shadow: 0 0 0 1px #6f6f6f;
         overflow: hidden;
         transition: 0.4s;
       }
+      .designer-close{
+      
+        height: 12px;
+        outline: none;
+        cursor: pointer;
+        border: none;
+        padding: 0px;
+        width: 16px;
+        margin-left: 2px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .designer-close img{
+        margin: 0px;
+      }
       .panel-toggle{
         background-color: rgb(255, 255, 255);
         color: #444;
         cursor: pointer;
-        width: 100%;
+        width: 90%;
         border: none;
         margin-top: 2px;
         text-align: right;
@@ -363,6 +393,29 @@ box-shadow: 0 0 0 1px #6f6f6f;
     .removal-bt:hover{
       color:#ff0000;
       font-weight: bold;
+    }
+    .cart-button{
+      background-color: #444;
+    border: 0px;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0.6180469716em 1.41575em;
+    text-decoration: none;
+    font-weight: 400;
+    font-family: 'Gentona-Light', sans-serif;
+    line-height: 1.618;
+    text-rendering: optimizeLegibility;
+    width:100%;
+    }
+    .cart-button:hover{
+      background-color:cadetblue;
+    }
+    .handle-count{
+      position: absolute;
+      right: 40px;
+      font-size: 12px;
+      padding-top: 3px;
+
     }
   /*  .svg-icon {
   width: 50px;

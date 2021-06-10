@@ -16,9 +16,15 @@ router.get('/', (req, res) => {
 
 
 
-router.get('/register', (req, res) => {
+router.get('/register', checkAuthenticated, (req, res) => {
+    // check role 
+    let user = req.user
+    .then((response) =>{
+       if(response.role == "admin") res.render('register', { layout: 'loginregister.hbs', title: 'Register' });;
+       if(response.role == "merchant")res.redirect('/users');
+    })
     console.log("register");
-    res.render('register', { layout: 'loginregister.hbs', title: 'Register' });
+   
 });
 
 router.get('/logout', (req, res) => {
@@ -26,7 +32,7 @@ router.get('/logout', (req, res) => {
     res.redirect('/login')
   })
 
-router.post('/register', async (req, res) => {
+router.post('/register', checkAuthenticated, async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         //add user to database 
@@ -34,8 +40,9 @@ router.post('/register', async (req, res) => {
         console.log('Got body:', req.body);
         let username = req.body.username;
         let email = req.body.email;
+        let role = req.body.role;
         let password = hashedPassword;
-        let post = { username: username, email: email, password: password };
+        let post = { username: username, email: email, password: password, role:role, merchant_id:req.body.merchant_id };
         console.log("posting", post);
         let query = db.query(sql, post, (err, result) => {
             if (err) throw err;

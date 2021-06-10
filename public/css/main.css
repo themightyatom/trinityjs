@@ -1,6 +1,6 @@
 body{
     font-family: 'Lato' , sans-serif;
-    background-color: #f7f7f7;
+    background-color: #f1f1f1;
     /* BSS-SPECIAL-10 */
 }
 .sidebar{
@@ -28,7 +28,9 @@ body{
     height: 60px;
     width: 240px;
     position: fixed;
-    z-index: 3;
+    z-index: 4;
+    display: flex;
+    justify-content: flex-end;
 }
 .topbar{
     background-color: #ffffff;
@@ -39,6 +41,14 @@ body{
     width: 100%;
     position: fixed;
     box-shadow: rgb(40 42 49 / 16%) 0px 1px 2px 0px;
+    z-index: 4;
+}
+.cover{
+    background-color: #f1f1f1;
+    height: 100px;
+    position: fixed;
+    top: 10px;
+    width: 100%;
     z-index: 1;
 }
 .menu{
@@ -78,7 +88,7 @@ body{
     
 }
 input[type=text] {
-    width: 500px;
+    width: 70%;
     padding: 7px;
     margin: 10px 5px;
     box-sizing: border-box;
@@ -138,13 +148,14 @@ input[type="submit" i]{
     padding-right: 20px;
     padding-bottom: 20px;
     width:500px;
-    position: fixed;
-    left:260px;
+    position: absolute;
+    left:0px;
+    z-index: 2;
 }
 .parameter-column{
     position: absolute;
     max-width: 500px;
-    right:0px
+    top:550px;
 }
 .textureBox{
     min-width:500px;
@@ -321,4 +332,63 @@ input[type="range" i] {
 }
 hr{
 margin: 30px;
+}
+.thumb-prev{
+    width:80px;
+    margin: 20px;
+
+}
+.msg-text{
+    font-style: italic;
+    font-size:10px;
+}
+.pagination{
+    padding: 30px;
+    display: flex;
+    justify-content: space-around;
+    max-width: 400px;
+    margin: auto;
+}
+.pagination a{
+    text-decoration: none;
+    color:#6f7071;
+}
+.pagination a:hover{
+    text-decoration: none;
+    color:#83b8ec;
+}
+
+@media only screen and (max-width: 600px) {
+  .logo{
+      width:30px;
+      width: 70px;
+    overflow: hidden;
+  }
+ .sidebar{
+    width: 0px;
+    overflow: hidden;
+    z-index: 10;
+ }
+ .main{
+    width: calc(100% - 20px);
+    left: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+ }
+ .openmenu{
+     width: 240px;
+ }
+ .window3d{
+    padding-right: 0px;
+    padding-bottom: 0px;
+    left:0px;
+    position: relative;
+    
+}
+
+
+
+
+
+
 }

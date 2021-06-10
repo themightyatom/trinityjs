@@ -1,0 +1,57 @@
+<h2>Edit {{code}} script for {{merchant}} </h2>
+
+<style>
+.CodeMirror {
+       width: 100% !important;
+       height: 100% !important;
+  }
+
+
+</style>
+
+<form action="/outputedit/savecode/{{code}}" method="post">
+    <textarea name="jscode" id="codearea">loading...</textarea>
+    <br>
+    <div style="text-align:right">
+        <button type="button" onclick="cancelEdit()">Cancel</button><button type="submit">Update</button>
+    </div>
+</form>
+
+<br>
+{{message}}
+<script>
+    function startup() {
+
+        //read javascript file into editor
+        let codearea = document.getElementById('codearea');
+
+
+        $.ajax({
+           url : "/js/{{merchant}}/{{code}}.js",
+           dataType: "text",
+           success : function (data) {
+               $('textarea#codearea').text(data);
+            // now init codemirror 
+            const codemirrorEditor = CodeMirror.fromTextArea(codearea, {
+                lineNumbers: true,
+                mode: "javascript",
+                theme: "base16-dark"
+            });
+           }
+       });
+
+       $('.codearea').resizable({
+  resize: function() {
+    editor.setSize($(this).width(), $(this).height());
+  }
+});
+
+
+
+    };
+
+    function cancelEdit() {
+
+        window.location.href = '/users';
+    }
+</script>

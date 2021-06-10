@@ -34,7 +34,6 @@ router.post('/edit', checkAuthenticated, (req, res) => {
         let sql = 'INSERT INTO ' + _table + ' SET ?';
         let title = req.body.title;
         let list = JSON.stringify(req.body.list);
-        console.log("new accessory", req.body);
         let type = req.body.type;
         let post = { title: title, list: list, type: type };
 
@@ -84,7 +83,6 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
         let sql = "SELECT stub,title from languages";
         let query = db.query(sql, (err, result) => {
             if (err) throw err;
-            console.log(result);
             let params = { id: 'new', title: 'New Accessory Group' }
             res.render('editAccessory', { params: params, languages: result });
         });
@@ -96,7 +94,6 @@ router.post('/delete', checkAuthenticated, (req, res) => {
 
     // remove coresponding database entry
     let sql = "DELETE FROM " + _table + " WHERE id = '" + req.body.id + "'";
-    console.log("REMOVING", req.body);
     //remove any associated translation
     let translations = {item_id:req.body.id, item_type:'accessories'};
     let query = db.query(sql, (err, result) => {
@@ -116,7 +113,6 @@ router.get('/all', (req, res) => {
 });
 router.post('/reorder', (req,res) =>{
     let list = req.body.list;
-    console.log("incoming", list);
     let ind = 0;
         
           for(var i=0;i<list.length;i++) {

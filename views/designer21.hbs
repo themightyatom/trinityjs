@@ -1,4 +1,4 @@
-<div id="container">
+<div id="ltvs_container">
 
 
 </div>
@@ -13,7 +13,7 @@
         <div class="panel">
             {{#each materials.list}}
             <div class='pallet-item-container'
-                onmousedown="changeMaterial('wood',{title:'{{title}}', id:'{{id}}', extension:'{{extension}}', color_hex:'{{color_hex}}', opacity_value:{{opacity_value}},emissive_hex:'{{emissive_hex}}', roughness_value:{{roughness_value}}, metalness_value:{{metalness_value}}, diffuse_map:'{{diffuse_map}}', normal_map:'{{normal_map}}',bump_map:'{{bump_map}}',normal_value:{{normal_value}}, bump_value:{{bump_value}} })">
+                onmousedown="changeMaterial('wood', '{{id}}')">
                 <img width="30" height="30" src="/thumbs/materials/{{id}}.png">
                 <div class='itempalette-label'>{{title}}</div>
             </div>
@@ -29,7 +29,7 @@
         <div class="panel">
             {{#each list}}
             <div id="node_{{sku}}" class='pallet-item-container'
-                onmousedown="addAccessory('{{snap}}','{{model}}','{{sku}}','{{snap_type}}','{{default_material}}','{{default_material_key}}')">
+                onmousedown="addAccessory('{{id}}','{{snap}}','{{model}}','{{sku}}','{{snap_type}}','{{default_material}}','{{default_material_key}}')">
                 <img id="img_{{sku}}" width="80" height="80" src="/thumbs/models/{{id}}.png">
                 <div id="tit_{{sku}}" class='itempalette-label'>{{title}}</div>
             </div>
@@ -53,121 +53,196 @@
         </button>
         <div class="panel" id="list-of-items">
 
+
         </div>
     </div>
 </div>
+<div style="display:none">
+
+    <div id="node_{{params.sku}}" class='pallet-item-container'>
+        <img id="img_{{params.sku}}" width="80" height="80" src="/thumbs/models/{{params.id}}.png">
+        <div id="tit_{{params.sku}}" class='itempalette-label'>{{params.title}}</div>
+    </div>
+    {{#each defaultAccesories }}
+     <div id="node_{{sku}}" class='pallet-item-container'>
+        <img id="img_{{sku}}" width="80" height="80" src="/thumbs/models/{{id}}.png">
+        <div id="tit_{{sku}}" class='itempalette-label'>{{title}}</div>
+    </div>  
+    {{/each}}
+
+</div>
+
 
 {{>window3d}}
 
 {{>ar}}
+
+{{>mirror}}
 
 
 
 
 <script>
     function startup() {
-        loadModel('{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}');
-        /*$(function () {
-            $("#accordion").accordion({
-                collapsible: true,
-                heightStyle: "content"
-            });
-            $("#accordion").on("accordionbeforeactivate", function (event, ui) { changeCameraAngle(event, ui) });
-        });*/
-        var acc = document.getElementsByClassName("accordion-bt");
-        var i;
+        let defaultAccs = [];// = JSON.parse({{defaultAccesories}});
 
-        for (i = 0; i < acc.length; i++) {
-            acc[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                closeOtherPanels(this);
-                var panel = this.nextElementSibling;
-                if (panel.style.maxHeight) {
-                    panel.style.maxHeight = null;
-                } else {
-                    panel.style.maxHeight = panel.scrollHeight + "px";
+        {{#each defaultAccesories }}
+        defaultAccs.push({ snap: '{{snap}}', model: '{{model}}', sku: '{{sku}}', snap_type: '{{snap_type}}', default_material: '{{default_material}}', default_material_key: '{{default_material_key}}' });
+        {{/each}}
+
+                loadGroup('{{params.id}}','{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
+
+                var acc = document.getElementsByClassName("accordion-bt");
+                var i;
+
+                for (i = 0; i < acc.length; i++) {
+                    acc[i].addEventListener("click", function () {
+                        this.classList.toggle("active");
+                        closeOtherPanels(this);
+                        var panel = this.nextElementSibling;
+                        if (panel.style.maxHeight) {
+                            panel.style.maxHeight = null;
+                        } else {
+                            panel.style.maxHeight = panel.scrollHeight + "px";
+                        }
+                        clearPreview();
+                    });
                 }
+            };
+
+
+
+            function closeOtherPanels(exempt) {
+                var acc = document.getElementsByClassName("accordion-bt");
+                var i;
+                for (i = 0; i < acc.length; i++) {
+                    var but = acc[i];
+                    if (but != exempt) {
+                        but.classList.remove('active');
+                        var panel = but.nextElementSibling;
+                        panel.style.maxHeight = null;
+                    }
+                }
+            }
+            function togglePanel() {
+                let pan = document.getElementById('itempalette');
+                pan.classList.toggle('panel-close');
+                //pan.style.maxHeight = '20px';
+                let tog = document.getElementById('panel-toggle');
+                tog.classList.toggle('panel-closed');
+                closeOtherPanels(null);
+
+            }
+
+
+            function changeCameraAngle(event, ui) {
+                console.log("pallet change");
                 clearPreview();
-            });
-        }
-    };
-
-    function closeOtherPanels(exempt) {
-        var acc = document.getElementsByClassName("accordion-bt");
-        var i;
-        for (i = 0; i < acc.length; i++) {
-            var but = acc[i];
-            if (but != exempt) {
-                but.classList.remove('active');
-                var panel = but.nextElementSibling;
-                panel.style.maxHeight = null;
             }
-        }
-    }
-    function togglePanel() {
-        let pan = document.getElementById('itempalette');
-        pan.classList.toggle('panel-close');
-        //pan.style.maxHeight = '20px';
-        let tog = document.getElementById('panel-toggle');
-        tog.classList.toggle('panel-closed');
-        closeOtherPanels(null);
-
-    }
-
-
-    function changeCameraAngle(event, ui) {
-        console.log("pallet change");
-        clearPreview();
-    }
-    function launchAR() {
-        $('#ar-launch').css('visibility', 'visible');
-        createAR();
-
-    }
-    function hideLaunch() {
-        $('#ar-launch').css('visibility', 'hidden');
-    }
-    function createList(arr) {
-        console.log("adding to list", arr);
-        let i, ac;
-        dev__array = arr;
-        let htmlStr = "";
-        let cln, sku
-        let rem = '';
-        for (i = 0; i < arr.length; i++) {
-            sku = arr[i].sku;
-            htmlStr += "<div class='pallet-list-item-container' >";
-            cln = document.getElementById('node_' + sku).innerHTML;
-            if (i > 0) rem = "<div class='removal-bt' onclick='removeItem(" + i + ", null)'>x</div>";
-            htmlStr += cln + rem + "</div>";
-            let accessories = arr[i].getAccessories();
-            //reorder as they appear on the object
-           // accessories.sort((a, b) => (a.position.y < b.position.y) ? 1 : -1);
-            for (ac = 0; ac < accessories.length; ac++) {
-                sku = accessories[ac].sku;
-                htmlStr += "<div class='pallet-list-item-container subitem' >";
-                cln = document.getElementById('node_' + sku).innerHTML;
-                rem = "<div class='removal-bt' onclick='removeItem("+ i +","+ ac + ")'>x</div>";
-                htmlStr += cln + rem + "</div>";
+           
+            function hideLaunch() {
+                $('#ar-launch').css('visibility', 'hidden');
             }
-        }
-        console.log("listhtml", htmlStr);
-        document.getElementById('list-of-items').innerHTML = htmlStr;
-    }
-    function removeItem(objInd,accInd) {
-       
-            let item = dev__array[objInd];
-            if(accInd != null){
-                item.removeAccessory(item.getAccessories()[accInd]);
-                 createList(dev__removeItem());
-            }else{
-               createList(dev__removeItem(item)); 
-            }
-        
-        //remove html element
-       // $(element.parentNode).remove();
-    };
+            function createList(arr) {
+                console.log("adding to list", arr);
+                let i, ac;
+                dev__array = arr;
+                let htmlStr = "";
+                let cln, sku
+                let rem = '';
+                let totalHandles = 0;
+                let handlesHandle;
+                let accessories;
+                let delux = false;
+                // for any group members, do not render, and add accesories to main object
+                let rootAccessories = [];
+                for(i = 0;i < arr.length; i++){
+                    if(arr[i].isGroupMember){
+                        console.log("member", arr[i].sku);
+                        rootAccessories = rootAccessories.concat(arr[i].getAccessories());
+                    }
+                    //assign indexes for later removal. Allows for change of graphic order and reassignment 
+                    let accs = arr[i].getAccessories();
+                    for(ac = 0;ac < accs.length; ac++){ 
+                        accs[ac].removalIndex = [i,ac];
+                    } 
+                  
+                } 
+                console.log("root", rootAccessories);
+                for (i = 0; i < arr.length; i++) {
+                    sku = arr[i].sku;
+                    cln = document.getElementById('node_' + sku);
+                    accessories = [];
+                    if (!arr[i].isGroupMember || i == 0) {
+                        cln = cln.innerHTML;
+                        htmlStr += "<div class='pallet-list-item-container' >";
+                        if (i > 0){
+                             rem = "<div class='removal-bt' onclick='removeItem(" + i + ", null)'>x</div>";
+                            accessories = accessories.concat( arr[i].getAccessories());
+                        }else{
+                            accessories = rootAccessories;
+                        }
+                        htmlStr += cln + rem + "</div>";
 
-    let dev__array;
+                        //reorder as they appear on the object
+                         accessories.sort((a, b) => (a.position.y < b.position.y) ? 1 : -1);
+                        for (ac = 0; ac < accessories.length; ac++) {
+                                if(!accessories[ac].isGroupMember){
+                                sku = accessories[ac].sku;
+                                cln = document.getElementById('node_' + sku);
+                                 
+                                if (cln != null) {
+                                    cln = cln.innerHTML;
+                                    htmlStr += "<div class='pallet-list-item-container subitem' >";
+
+                                    rem = "<div class='removal-bt' onclick='removeItem(" + accessories[ac].removalIndex[0] + "," + accessories[ac].removalIndex[1] + ")'>x</div>";
+                                    htmlStr += cln + rem + "</div>";
+                                }
+                            }
+                             if(accessories[ac].sku == '6101C') delux=true;
+                                    console.log("delux?", delux);
+                           let handles = accessories[ac].getAccessories();
+                            if (handles.length > 0) {
+                                handlesHandle = handles[0].sku;
+                            }
+                            totalHandles += handles.length; 
+                        }
+                    }
+                }
+                //add any handles found
+                if (totalHandles > 0) {
+                    htmlStr += "<div id='handles' class='pallet-list-item-container' >";
+                    cln = document.getElementById('node_' + handlesHandle).innerHTML;
+                    rem = "<div class='removal-bt' onclick='removeBySKU(" + handlesHandle + ", null)'>x</div>";
+                    let count = "<div class='handle-count'>(x" + totalHandles + ")</div>";
+                    htmlStr += cln + rem + count + "</div>";
+                }
+                htmlStr += "<button class='cart-button' onclick='AddAllToBasket()'>Add to basket</button>";
+                document.getElementById('list-of-items').innerHTML = htmlStr;
+                //add handle count 
+            }
+            function AddAllToBasket() {
+
+            }
+            function removeItem(objInd, accInd) {
+
+                let item = dev__array[objInd];
+                if (accInd != null) {
+                    item.removeAccessory(item.getAccessories()[accInd]);
+                    createList(dev__removeItem());
+                } else {
+                    createList(dev__removeItem(item));
+                }
+
+                //remove html element
+                // $(element.parentNode).remove();
+            };
+            function removeBySKU(sku) {
+                console.log("removing all ", sku);
+                dev__removeBySKU(sku);
+
+            }
+
+            let dev__array;
 
 </script>

@@ -1,0 +1,10 @@
+{
+    "ignore": [
+      "public/*.js",
+      "public/**/*.js"
+    ],
+    "watch": [
+      "routes/*",
+      "model.js"
+    ]
+  }

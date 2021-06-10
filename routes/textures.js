@@ -93,7 +93,6 @@ router.post('/upload', upload.single('file-to-upload'), (req,res) =>{
 
     });
   
-
 });
 
 function createThumb(folder,name){

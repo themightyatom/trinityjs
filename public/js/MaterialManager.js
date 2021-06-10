@@ -1,7 +1,8 @@
 import * as THREE from '/three/build/three.module.js';
 
 
-let loadedMaterials = [];
+let loadedMaterialObjects = [];
+let loadedMaterials = {};
 let targetMat = null;
 
 var MaterialManager = (function () {
@@ -26,7 +27,7 @@ var MaterialManager = (function () {
                     targetMat.needsUpdate = true;
                     render();
                 } else {
-                    loader.load("/textures/" + value, onLoad);
+                    loader.load(ltvs__source +"/textures/" + value, onLoad);
                 }
                 break;
             case "normal_map":
@@ -44,7 +45,7 @@ var MaterialManager = (function () {
                     targetMat.needsUpdate = true;
                     render();
                 } else {
-                    loader.load("/textures/" + value, onnormLoad);
+                    loader.load(ltvs__source +"/textures/" + value, onnormLoad);
                 }
 
                 break;
@@ -67,7 +68,7 @@ var MaterialManager = (function () {
                     targetMat.needsUpdate = true;
                     render();
                 } else {
-                    loader.load("/textures/" + value, onbumpLoad);
+                    loader.load(ltvs__source +"/textures/" + value, onbumpLoad);
                 }
                 break;
             case "bump_value":
@@ -109,7 +110,7 @@ var MaterialManager = (function () {
                     targetMat.needsUpdate = true;
                     render();
                 }
-                loader.load("/textures/" + value, onmapLoad);
+                loader.load(ltvs__source +"/textures/" + value, onmapLoad);
                 break;
             case "bump_value":
                 targetMat.bumpScale = value;
@@ -122,6 +123,8 @@ var MaterialManager = (function () {
         
     }
     function createMaterial(material) {
+       
+
         targetMat = new THREE.MeshStandardMaterial();
 
         Object.entries(material).forEach(entry => {
@@ -140,16 +143,35 @@ var MaterialManager = (function () {
 
     return {
 
-       assignMaterial(target,id,key) {
-            
-                fetch('/materials/' + id)
+       assignMaterial(target,id,key, extension) {
+                if(loadedMaterials[id] != undefined) {
+                    console.log("found material");
+                    target.assignDefaultMaterial(loadedMaterials[id],key,extension);
+                }else{
+                fetch(ltvs__source + '/materials/' + id)
                     .then(response => response.json())
                     .then(data => {
                         let material = createMaterial(data);
-                        target.assignDefaultMaterial(material,key);
+                        target.assignDefaultMaterial(material,key,extension);
+                        loadedMaterials[id] = material;
                         
                     });
+                }
 
+        },
+
+        getMaterial(id, callback) {
+            if(loadedMaterials[id] != undefined) {
+                callback(loadedMaterials[id]);
+            }else{
+                fetch(ltvs__source + '/materials/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    let material = createMaterial(data);
+                    loadedMaterials[id] = material;
+                    callback(material);                  
+                }); 
+            }
         }
 
 

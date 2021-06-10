@@ -1,0 +1,62 @@
+<h2>{{ title }}</h2>
+<div>
+   <h3>Choose Categrory</h3>
+   {{#each categories as |val key|}}
+   <button onclick="window.location.href='/merchant/category/{{val.id}}'">{{ val.title}}</button>
+
+
+   {{/each}}
+
+
+</div>
+<div class="search-box">
+   <form action="search" method="POST">
+      <input type="text" name="term" id="term"><button type="submit" name="submit">
+         Search
+      </button>
+   </form>
+</div>
+<div class="item-row-top">
+   <div class="column-4"><span class="menutitle">PREVIEW</span></div>
+   <div class="column-4"><span class="menutitle">LIFETIME SKU</span></div>
+      <div class="column-4"><span class="menutitle">WEBSHOP ID</span></div>
+   <div class="column-4"><span class="menutitle">OPEN DESIGNER</span></div>
+</div>
+{{# each models as |val key|}}
+
+   <div class="item-row">
+      <form class="idform" id="form{{val.id}}" style="width:100%">
+         <input type="hidden" name="id" value="{{val.id}}">
+         <input type="hidden" name="sku" value="{{val.sku}}">
+      <div class="column-4"><img class="list-preview" src="/thumbs/models/{{val.id}}.png" /></div>
+      <div class="column-4"> {{ val.sku }}</div>
+      <div class="column-4" id="id_holder"><input style="width:80%" name="webshop_id" type="text" value="{{val.webshop_id}}"/></div>
+      <div class="column-4"><button type="submit" name="submit">SAVE</button><span class="msg-text" id="saved{{val.id}}"></span></div>
+     </form>
+   </div>
+
+{{/each}}
+
+<script>
+   function startup() {
+     // assignDraggable();
+     $('.idform').on('submit', function(e){
+        e.preventDefault();
+        var _id = e.currentTarget.id.value;
+        $('#saved' + _id).html(" saving...");
+        var dataString = $(this).serialize();
+         $.ajax({
+      type: "POST",
+      url: "save-id",
+      data: dataString,
+      success: function (reply) {
+         if(reply == 'ok'){
+        $('#saved' + _id).html(" Saved successfully");
+         }else{
+          $('#saved' + _id).html(" NOT saved!");   
+         }
+      }
+    });
+     });
+   };
+</script>

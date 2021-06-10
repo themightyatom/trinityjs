@@ -10,13 +10,14 @@ router.post('/edit', checkAuthenticated, (req, res) => {
     let translations = Object.assign({}, req.body);
     delete translations.submit;
     delete translations.title;
+    delete translations.menu;
     delete translations.id;
     translations.item_id = req.body.id;
     translations.item_type = 'categories';
     // if id is new, create a new entry, otherwise update
     if (req.body.id != 'new') {
         let sql = "UPDATE categories SET ? WHERE id = '" + req.body.id + "'";
-        let post = {title:req.body.title};
+        let post = {title:req.body.title, menu:req.body.menu};
         let query = db.query(sql, post, (err, result) => {
             if (err) throw err;
             // update translations
@@ -26,7 +27,8 @@ router.post('/edit', checkAuthenticated, (req, res) => {
     } else {
         let sql = 'INSERT INTO categories SET ?';
         let title = req.body.title;
-        let post = {title:title};
+        let menu = req.body.menu;
+        let post = {title:title, menu:menu};
         let query = db.query(sql, post, (err, result) => {
             if (err) throw err;
             let _id = result.insertId;
@@ -64,7 +66,7 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
         let sql = "SELECT stub,title from languages";
         let query = db.query(sql, (err, result) => {
             if (err) throw err;
-            var params = {id:'new', title:'New Category'};
+            var params = {id:'new', title:'New Category', menu:'1'};
             res.render('editCategory',  { params: params, languages: result });
         });
     }
@@ -72,7 +74,7 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
 
 
 router.post('/delete', checkAuthenticated, (req, res) => {
-    console.log("deleting",req.body);
+ 
     // remove coresponding database entry
     let sql = "DELETE FROM categories WHERE id = '" + req.body.id + "'";
     let translations = {item_id:req.body.id, item_type:'categories'};

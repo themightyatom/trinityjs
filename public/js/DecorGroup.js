@@ -1,6 +1,5 @@
 import * as THREE from '/three/build/three.module.js';
-import { GLTFLoader } from '/three/examples/jsm/loaders/GLTFLoader.js';
-import DecorObject from '/js/DecorObject.js';
+import DecorObject from '/classes/DecorObject.js';
 
 
 var DecorGroup = function () {
@@ -11,8 +10,6 @@ var DecorGroup = function () {
     this.snapPoints = [];
     this.accessories = [];
     this.decorObjects = [];
-    this.wp1 = new THREE.Vector3();
-    this.wp = new THREE.Vector3();
 
 }
 
@@ -60,18 +57,33 @@ DecorGroup.prototype.loadAccesory = function(model,target) {
 DecorGroup.prototype.addMember = function(decorObj){
     this.decorObjects.push(decorObj);
 }
-DecorGroup.prototype.removeAccessoryAt = function(positionObj){
-    let wp1 = this.wp1;
-    let wp2 = this.wp2;
-    let targetArray = this.decorObjects;
-    this.decorObjects.forEach(function(item, index){
-        console.log();
+DecorGroup.prototype.getAccessoryAt = function(positionObj){
+    let worldPos = new THREE.Vector3();
+    let worldPos2 = new THREE.Vector3();
+    positionObj.getWorldPosition(worldPos);
+    let occupied = false;
+    this.decorObjects.forEach(function(item){
+        item.getWorldPosition(worldPos2);
+        console.log("comparing", worldPos, worldPos2);
+        if(worldPos2.distanceTo(worldPos) < 0.01){
+            console.log("match found");
+            occupied = true;
 
-        if(item.getWorldPosition(wp1).equals(positionObj.getWorldPosition(wp2))){
-            console.log("Found one");
-            item.parent.remove(item);
-            targetArray.splice(index, 1);
         }
+        /*let occupied = item.getAccessoryAt(positionObj);
+        if(occupied != false){
+            return occupied;
+        }*/
+    });
+    console.log("Returning...", occupied);
+    return occupied;
+}
+DecorGroup.prototype.removeAccessoryAt = function(positionObj){
+    
+    this.decorObjects.forEach(function(item, index){
+       // if(positionObj.decorObj == item){
+            item.removeAccessoryAt(positionObj);
+       // }
     })
 
 }
@@ -88,13 +100,47 @@ DecorGroup.prototype.removeItem = function(itemToRemove){
     return this.decorObjects;
 }
 
-DecorGroup.prototype.changeMaterial = function(key,material){
+DecorGroup.prototype.changeMaterial = function(key,material, extension){
     this.children.forEach(function(decorObj){
-        decorObj.changeMaterial(key,material);
+        decorObj.changeMaterial(key,material,extension);
     });
 }
 DecorGroup.prototype.getMembers = function(){
     return this.decorObjects;
+}
+DecorGroup.prototype.mirrorGroup = function(){
+    console.log("doing for all");
+    let i;
+    for(i=0;i<this.decorObjects.length;i++){
+        this.decorObjects[i].toggleFlip();
+       // this.applyMatrix(new THREE.Matrix4().makeScale(-1, 1, 1));
+    }
+}
+DecorGroup.prototype.drawBoundings = function(prefix, show=true){
+    let boxes = [];
+    this.decorObjects.forEach(function(item){
+        boxes = boxes.concat(item.drawBounding(prefix,show)); 
+    });
+    return boxes;
+}
+DecorGroup.prototype.drawOccupieds = function(exclude,snap, show=true){
+    let boxes = [];
+    //Allow over writes of existing?
+   /* this.decorObjects.forEach(function(item){
+        boxes = boxes.concat(item.drawOccupied(snap,show)); 
+    });*/
+    let decObjs = this.decorObjects;
+    if(exclude.length > 0){
+        let exclusionArray = exclude.split(',');
+         exclusionArray.forEach(function(snapid){
+            decObjs.forEach(function(item){
+                boxes = boxes.concat(item.drawOccupied(snapid,show)); 
+            });
+             
+        });
+     }
+    
+    return boxes;
 }
 
 export default DecorGroup;

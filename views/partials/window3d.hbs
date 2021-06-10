@@ -12,18 +12,18 @@
 
 
 
-    let camera, scene, renderer, preview, controls, width3d, height3d, sunLight;
-    let targetMat, decorLayer, envLayer;
+    let camera, scene, renderer, preview, controls, width3d, height3d, sunLight, fillLight;
+    let targetMat, decorLayer, envLayer, loadAni, container;
 
 
 
-    init('container');
+    init('ltvs_container');
     render();
     animate();
 
     function init(cont) {
 
-        const container = document.getElementById(cont);
+        container = document.getElementById(cont);
 
         width3d = container.offsetWidth;
         height3d = container.offsetHeight;
@@ -38,17 +38,19 @@
         container.appendChild(renderer.domElement);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+       // renderer.shadowMap.type = THREE.BasicShadowMap;
 
         renderer.gammaFactor = 2.2;
 
-        camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 30);
-        camera.position.set(0, 1, 5);
+        camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 10);
+        camera.position.set(0, 1, 10);
 
         // const environment = new RoomEnvironment();
         // const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf8f8f8);
+        scene.fog = new THREE.Fog(0xf8f8f8, 3, 8);
 
         scene.add(camera);
 
@@ -100,7 +102,7 @@
         DecorManager.setTargetWindow(container);
         DecorManager.setControls(controls);
 
-        //Lighting
+        //Lighting Sun
         sunLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
         scene.add(sunLight);
         sunLight.name = "directionalLight1";
@@ -108,7 +110,7 @@
         sunLight.position.y = 2;
         sunLight.position.z = 5;
 
-        let sunsize = 5;
+        let sunsize = 2;
         let lightDistance = 10;
 
         sunLight.castShadow = true;
@@ -119,8 +121,8 @@
         scene.add(lightTarget);
         sunLight.target = lightTarget;
         //Set up shadow properties for the light
-        sunLight.shadow.mapSize.width = 2048;  // default
-        sunLight.shadow.mapSize.height = 2048; // default
+        sunLight.shadow.mapSize.width = 128;  // default
+        sunLight.shadow.mapSize.height = 128; // default
         sunLight.shadow.camera.near = 0.0;    // default
         sunLight.shadow.camera.far = 10;     // default
         sunLight.shadow.camera.left = -sunsize;
@@ -130,25 +132,79 @@
         sunLight.shadow.bias = 0.0001;
         sunLight.shadow.radius = 2;
 
+        //Lighting Fill
+        fillLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
+        scene.add(fillLight);
+        fillLight.name = "directionalLight2";
+        fillLight.position.x = 0;
+        fillLight.position.y = 3;
+        fillLight.position.z = 0;
+
+  
+
+        fillLight.castShadow = true;
+        //let directionalHelper = new THREE.DirectionalLightHelper(fillLight);
+        //scene.add(directionalHelper);
+        scene.add(fillLight.target);
+        
+        fillLight.target = lightTarget;
+        //Set up shadow properties for the light
+        fillLight.shadow.mapSize.width = 128;  // default
+        fillLight.shadow.mapSize.height = 128; // default
+        fillLight.shadow.camera.near = 0.0;    // default
+        fillLight.shadow.camera.far = 10;     // default
+        fillLight.shadow.camera.left = -sunsize;
+        fillLight.shadow.camera.right = sunsize;
+        fillLight.shadow.camera.top = sunsize;
+        fillLight.shadow.camera.bottom = -sunsize;
+        fillLight.shadow.bias = 0.0001;
+        fillLight.shadow.radius = 2;
+
         /*var ambient = new THREE.AmbientLight(0xFFFFFF, 1);
         ambient.name = "ambient";
         scene.add(ambient);*/
+        const size = 0.02;
+        const widthSegments = 2;
+        const heightSegments = 2;
+        const depthSegments = 2;
+        const boxGeometry = new THREE.BoxGeometry(
+        size, size, size,
+        widthSegments, heightSegments, depthSegments);
+        const geometry = new THREE.EdgesGeometry(boxGeometry);
+        
+        const material = new THREE.LineBasicMaterial({color: 0x000000});
+        loadAni =  new THREE.LineSegments(geometry, material);
+        let tilter = new THREE.Object3D();
+        tilter.position.z = -1;
+        tilter.rotateX(-0.7);
+        tilter.add(loadAni);
+        camera.add(tilter);
 
 
         // Init gui
-        /*	const gui = new GUI();
+        	/*const gui = new GUI();
            
             gui.add( renderer, 'toneMappingExposure', 0, 5); 
             gui.add( sunLight, 'intensity', 0, 5); 
             gui.add( sunLight.position, 'x', -5, 5); 
             gui.add( sunLight.position, 'y', -5, 5); 
+            gui.add( sunLight.position, 'z', -5, 5); 
             gui.add(sunLight.shadow, 'bias', 0,0.1);
-            gui.add(sunLight.shadow, 'radius', 0,100);*/
+            gui.add(sunLight.shadow, 'radius', 0,100);
+            gui.add( renderer, 'toneMappingExposure', 0, 5); 
+            gui.add( fillLight, 'intensity', 0, 5); 
+            gui.add( fillLight.position, 'x', -5, 5); 
+            gui.add( fillLight.position, 'y', -5, 5); 
+            gui.add( fillLight.position, 'z', -5, 5); */
 
 
 
         onWindowResize();
 
+    }
+    function hideSpinner(){
+        loadAni.visible = false;
+        
     }
 
     function onWindowResize() {
@@ -164,6 +220,7 @@
     }
     function animate() {
         requestAnimationFrame(animate);
+        loadAni.rotateY(0.02);
         render();
     }
 
@@ -317,14 +374,20 @@
 
     window.applyMaterialProperty = applyMaterialProperty;
     window.addAccessory = DecorManager.addAccessory;
-    window.loadModel = DecorManager.addGroup;
+    window.loadGroup= DecorManager.addGroup;
     window.render = render;
     window.changeMaterial = DecorManager.changeMaterial;
-    window.createAR = DecorManager.createAR;
+    window.launchAR = DecorManager.createAR;
     window.clearPreview = DecorManager.clearPreview;
     window.grabScreenshot = grabScreenshot;
     window.assignMaterial = DecorManager.assignMaterial;
     window.dev__removeItem = DecorManager.removeItem;
+    window.dev__removeBySKU = DecorManager.removeBySKU;
+    window.dev__mirror = DecorManager.mirrorGroup;
+    window.dev__reset = DecorManager.reset;
+    window.dev__hidespinner = hideSpinner;
+    window.scene = scene;
+   
 
 
 </script>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html lang="en" xml:lang="en" xmlns= "http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{{title}}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="en">
+        <link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="/css/jquery.dropdown.min.css">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+
+      <script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css">
+<script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/mode/javascript/javascript.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/theme/base16-dark.css">
+      
+      <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+      <script src="/js/jquery.dropdown.min.js"></script>
+    </head>
+    <body onload="startup()">
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div class="topbar">
+            {{>topbar}}
+        </div>
+        <div id="logo" class="logo" onclick="toggleMenu()">
+        <img src="/imgs/logo3.png" />
+    </div>
+        <div id="sidebar" class='sidebar'>
+            {{>merchantmenu}}
+        </div>
+        <div class='main'>
+                {{{ body }}}
+        </div>
+    </body>
+    <script>
+    function toggleMenu() {
+        let logo = document.getElementById("logo");
+        if (hasClass(logo, 'openmenu')) {
+            document.getElementById("sidebar").classList.remove("openmenu");
+            logo.classList.remove("openmenu");
+        } else {
+            document.getElementById("sidebar").classList.add("openmenu");
+            logo.classList.add("openmenu");
+        }
+    }
+    function hasClass(element, className) {
+        return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
+    }
+</script>
+</html>

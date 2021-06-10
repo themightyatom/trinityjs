@@ -1,0 +1,17 @@
+<h2>{{ title }}</h2>
+
+<div class="submit-bt"> <button onclick="window.location.href='/groups/edit/new'">Add New Accessory Group</button></div>
+
+ <div class="item-row-top"><div class="column-3" ><span class="menutitle">ID</span></div><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">SKU</span></div></div>
+{{# each groups as |val key|}}
+<div class="dragger" draggable="true">
+   <div class="item-row"  onclick="window.location.href='/groups/edit/{{val.id}}'"><div id="id_holder" class="column-3" >{{val.id}}</div><div class="column-3" > {{ val.title }}</div> <div class="column-3" > {{val.sku}}</div></div>
+</div>
+{{/each}}
+
+<script>
+   function startup(){
+     
+   };
+</script>
+

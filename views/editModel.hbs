@@ -1,21 +1,47 @@
 
+<div class="cover">
+    
+</div>
 
-
-<div id="container" class="window3d">
+<div id="ltvs_container" class="window3d">
 
 </div>
 <div id="parameter-column" class="parameter-column">
 <h1>Attributes for {{params.title}}</h1>
+<a href="/clients/preview/{{params.sku}}"><img class="thumb-prev" id="thumbprev" src="/thumbs/models/{{params.id}}.png" /></a><br>
+<button onclick="addThumb()">Save Thumbnail from 3D</button><span id="saving"></span>
+<br><br><lable for="textupload">Upload Thumbnail (80 x 80 pixels)</lable><br>
+<form name="texupload" action="/models/uploadthumb" enctype="multipart/form-data" method="post" onsubmit="return validateUpload()" >
+    <input type="file" id="thumb-to-upload" name="file-to-upload" accept="image/png" onchange="setImageReady()" >
+    <input type="hidden" id="modelid" name="modelid" value="{{params.id}}"> 
+    <input type="submit" value="Upload">
+</form>
+<p>
 <button onclick="window.location.href='/models/variation/{{params.id}}'">Create Variation</button>
-<button onclick="addThumb()">Save Thumbnail</button><span id="saving"></span>
+</p>
 <form action="/models/updatemodel" method="post">
     <p>
         <lable for="model">Model id</lable><br>
         <input type="text" id="id" name="id" value="{{params.id}}" readonly>
     </p>
+    
+    
+
     <p>
         <lable for="model">Model</lable><br>
         <input type="text" id="model" name="model" value="{{params.model}}" readonly>
+    </p>
+    <p>
+        <label for="model_class">Model Class</label>
+
+        <select name="model_class" id="model_class">
+        
+          {{#each classList }}
+          
+          <option value="{{name}}" {{selected}}>{{name}}</option>
+     
+        {{/each}}
+        </select>
     </p>
     <p>
         <lable for="title">Title</lable><br>
@@ -27,17 +53,27 @@
     </p>
     <div>
         <lable for="snap">Snap Target</lable><br>
-        <input type="text" name="snap" id="snap" value="{{params.snap}}">
+        <input type="text" name="snap" id="snap" value="{{params.snap}}"><br>
         <input type="radio" name="snap_type" id="single" value="single" {{radioCheck params.snap_type 'single' }}>
         <label for="single">Single</label>
         <input type="radio" name="snap_type" id="extreme" value="extreme" {{radioCheck params.snap_type 'extreme' }}>
         <label for="extreme">Extreme</label>
+        <input type="radio" name="snap_type" id="entity" value="entity" {{radioCheck params.snap_type 'entity' }}>
+        <label for="extreme">Entity</label>
         <input type="radio" name="snap_type" id="all" value="all" {{radioCheck params.snap_type 'all' }}> <label
             for="all">All</label>
         <input type="radio" name="snap_type" id="environment" value="environment" {{radioCheck params.snap_type 'environment' }}> <label
             for="environment">Environment</label>
 
     </div>
+    <p>
+        <lable for="exclude">Exclude</lable><br>
+        <input type="text" name="exclude" id="exclude" value="{{params.exclude}}" >
+    </p>
+    <p>
+        <lable for="include">Include</lable><br>
+        <input type="text" name="include" id="include" value="{{params.include}}" >
+    </p>
      <hr>
     <div class="allcategories">
         <label for="categories">Choose categories:</label><br>
@@ -66,6 +102,17 @@
         <lable for="default_material_key">Default Material Key: (the first four letters of the name of the object(s) to recieve the default material)</lable><br>
         <input oninput="applyMaterial()" type="text" id="default_material_key" name="default_material_key" maxlength="4" value="{{params.default_material_key}}">
     </p>
+     <br>
+    <div class="default-accessories">
+        <label for="default_accessories">Start Up Accessories:</label><br>
+        <select style="display:none" name="default_accessories" id="default_accessories" multiple placeholder="Select">
+        </select>
+    </div>
+    <br>
+    <div>
+        <input type="checkbox" id="menu" name="menu" value="{{params.menu}}" {{checked params.menu}}>
+<label for="menu">Show in Roomplanner menu</label><br>
+    </div>
      <hr>
     {{>translations}}
     <div class="submit-bt">
@@ -86,39 +133,70 @@
 </div>
 </div>
 <script>
+    const ltvs__source = '';
     function startup() {
-        loadModel('{{params.model}}','{{params.default_material}}','{{params.default_material_key}}');
+        
+         let defaultAccs = [];// = JSON.parse({{defaultAccesories}});
+
+        {{#each defaultAccesories }}
+        defaultAccs.push({ snap: '{{snap}}', model: '{{model}}', sku: '{{sku}}', snap_type: '{{snap_type}}', exclude: '{{exclude}}', default_material: '{{default_material}}', default_material_key: '{{default_material_key}}' });
+        {{/each}}
+
+        loadGroup('{{params.id}}','{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
+       
     }
+    $('input[type="checkbox"]').change(function(){
+    this.value = (Number(this.checked));
+});
     function registerSnaps(points) {
 
     }
+    let previewLoaded = false;
+    function setImageReady(){
+        previewLoaded = true;
+    }
+     function validateUpload(event) {
+           
+
+            if(previewLoaded){
+                return true;
+                console.log("send");
+            } else{
+                  alert("Please select an image from your hard drive");
+                return false;
+            } 
+            
+    }
+    function createList(){};
     function registerTargets(targets) {
         console.log(targets);
     }
     function applyMaterial(){
         var matid = document.getElementById("default_material").value;
         var assignTo = document.getElementById("default_material_key").value;
-        assignMaterial(matid,assignTo);
+        assignMaterial(matid,assignTo,'00');
         
     }
     function addThumb() {
         document.getElementById("saving").innerHTML = " Saving....";
         var t = grabScreenshot();
+        $('#thumbprev').attr("src", t);
         var _id = '{{params.id}}';
-        console.log("save thumb");
+        var _sku = '{{params.sku}}';
+        console.log("save thumb", t);
         $.ajax({
             type: "POST",
             url: "/models/thumb",
             data: {
                 imgBase64: t,
-                id: _id
+                id: _id,
+                sku: _sku
             }
         }).done(function (o) {
             console.log('saved');
             document.getElementById("saving").innerHTML = " Thumbnail saved";
             return true;
         });
-
     }
 
     
@@ -127,6 +205,7 @@
     const accessoryArray = [{{params.accessory_groups}}];
     const materialArray = [{{params.materials}}];
     const defaultMaterial = {{params.default_material}}; 
+    const defaultAccessories = [{{params.default_accessories}}]; 
 
     fetch('/categories/all')
         .then(response => response.json())
@@ -178,7 +257,8 @@
     fetch('/materials/all')
         .then(response => response.json())
         .then(data => {
-            let dataCopy = data;
+            let dataCopy = JSON.parse(JSON.stringify(data));
+            console.log("original", data);
             // assign to material chooser
             var i;
             for (i = 0; i < data.length; i++) {
@@ -197,13 +277,16 @@
                     //getlist();
                 }
             });
+            
             // assign to default material
             for (i = 0; i < dataCopy.length; i++) {
-            
-                if (defaultMaterial == (data[i].id)) {
+                dataCopy[i].name = dataCopy[i].title;
+                dataCopy[i].value = dataCopy[i].id;
+                if (defaultMaterial == (dataCopy[i].id)) {
                     dataCopy[i].selected = true;
                 }
             }
+            console.log("COPY", dataCopy);
             $('.default_material').dropdown({
                 data: dataCopy,
                 limitCount: 40,
@@ -214,6 +297,44 @@
             });
 
         });
+    
+    fetch('/models/all')
+        .then(response => response.json())
+        .then(data => {
+            var i;
+            for (i = 0; i < data.length; i++) {
+                
+                data[i].name = data[i].title;
+                data[i].value = data[i].id;
+                if (defaultAccessories.includes(data[i].id)) {
+                    data[i].selected = true;
+                }
+               
+            }
+
+            $('.default-accessories').dropdown({
+                data: data,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    dev__reset();
+                    let defaultAccs = data.filter(itemIncludes);
+                    
+                     console.log(defaultAccs);
+                    
+                    loadGroup('{{params.id}}','{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
+                }
+            });
+        });
+
+        function itemIncludes(member){
+            var values = $('#default_accessories').val();
+            if(values.length < 1) return false;
+            var id = String(member.id);
+            return values.includes(id);
+        }
+
 
 </script>
 

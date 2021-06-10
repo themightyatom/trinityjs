@@ -4,17 +4,45 @@ const router = express.Router();
 const fs = require('fs');
 const db = require('../utils/db.js');
 const translationTools = require('../utils/translationTools');
+const multer = require("multer");
 
+var upload = multer();
+
+router.get('/preview/:sku', (req,res) =>{
+    res.render('designer',{ layout: 'design.hbs', title: 'Designer', sku:req.params.sku });
+});
+
+router.get('/previewpara', (req,res) =>{
+    res.render('parametric',{ layout: 'design.hbs', title: 'Designer', sku:req.params.sku });
+});
 
 router.get('/designer/:id', (req, res) => {
     //get the model
-    let sql = "SELECT * FROM models WHERE id='" + req.params.id + "'";
+    let fullid = req.params.id;
+    let split = fullid.indexOf('-');
+    let modelid;
+    let sql;
+    let merchant_id = null;
+    //specific merchant
+    if(split > 0) {
+        modelid = fullid.substr(split + 1);
+        merchant_id = fullid.substr(0,split);
+        sql = "SELECT mods.*, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + merchant_id + " AS merch ON merch.model_id = mods.id WHERE merch.webshop_id = '" + modelid + "'";
+
+    }else{
+        modelid = fullid;
+        sql = "SELECT * FROM models WHERE id='" + modelid + "'";
+    }
+    
     let query = db.query(sql, async (err, result) => {
         if (err) throw err;
         let params = result[0];
         //get the accessory groups, reformulate array for SQL
         let groups = [];
+        let defaccs = [];
         let accessories = {};
+        let defaultAccessories;
+        
         if (params.accessory_groups.length > 0) {
             groups = JSON.parse(params.accessory_groups);
             await getAccessories(groups)
@@ -31,14 +59,70 @@ router.get('/designer/:id', (req, res) => {
                    materials.list = response;
                 });
         }
-        console.log("ORDERED ACCESSORIES", accessories );
-        res.render('designer21',{ layout: 'design.hbs', title: 'Designer', accessories:accessories, materials:materials, params:params });
+        if (params.default_accessories.length > 0) {
+            defaccs = JSON.parse(params.default_accessories);
+            await getModels(defaccs)
+                .then((response) => {
+                   // res.render('designer',{ layout: 'design.hbs', title: 'Designer', accessories:response, params:params });
+                   defaultAccessories = response;
+                   
+                });
+        }
+        console.log("ORDERED ACCESSORIES", defaultAccessories );
+    
+        res.render('designer',{ layout: 'design.hbs', title: 'Designer', accessories:accessories, materials:materials, defaultAccesories:defaultAccessories, params:params });
 
 
-        // params.accessory_groups = accessories;
-        //  console.log("HI", accessories);
-        // res.render('designer',{ layout: 'design.hbs', title: 'Designer', accessories:accessories, params:params });
+        
 
+    });
+});
+
+router.get('/:sku', (req, res) => {
+    //get the model
+    
+    let modelid = req.params.sku;
+    
+    sql = "SELECT * FROM models WHERE sku ='" + modelid + "'";
+    
+    
+    let query = db.query(sql, async (err, result) => {
+        if (err) throw err;
+        let params = result[0];
+        //get the accessory groups, reformulate array for SQL
+        let groups = [];
+        let defaccs = [];
+        let accessories = {};
+        let defaultAccessories;
+        
+        if (params.accessory_groups.length > 0) {
+            groups = JSON.parse(params.accessory_groups);
+            await getAccessories(groups)
+                .then((response) => {
+                   // res.render('designer',{ layout: 'design.hbs', title: 'Designer', accessories:response, params:params });
+                 accessories = response;
+                });
+        }
+        let materials = {title:"Choose Wood finish"};
+        if (params.materials.length > 0) {
+           let mats = JSON.parse(params.materials);
+            await getMaterials(mats)
+                .then((response) => {
+                   materials.list = response;
+                });
+        }
+        if (params.default_accessories.length > 0) {
+            defaccs = JSON.parse(params.default_accessories);
+            await getModels(defaccs)
+                .then((response) => {
+                   // res.render('designer',{ layout: 'design.hbs', title: 'Designer', accessories:response, params:params });
+                   defaultAccessories = response;
+                   
+                });
+        }
+
+        res.json({accessories:accessories, materials:materials, defaultAccessories:defaultAccessories, params:params });
+   
     });
 });
 
@@ -86,5 +170,50 @@ async function getMaterials(materials) {
         });
     });
 }
+
+router.get('/accessory-group/:id', (req,res) =>{
+    let _id = ['\'' + req.params.id + '\''];
+    let accessories = {};
+    getAccessories(_id)
+    .then(response =>{
+        console.log("RESP", response);
+       
+        res.json({accessories:response});
+    })
+});
+
+router.post('/accessories', upload.none(), (req,res) =>{
+    console.log("SKU", req.body.list);
+    let strArray = "'" + req.body.list + "'";
+    let commaArray = strArray.replace(/,/g, "\',\'");
+    let sql = "SELECT accessory_groups FROM models WHERE sku IN (" + commaArray + ")";
+
+    console.log("sql", sql);
+    let query = db.query(sql, (err, result) =>{
+        if (err) throw err;
+        let completeList = [];
+        
+        result.forEach(function(arr){
+       
+            if(arr.accessory_groups.length){
+            var a = JSON.parse(arr.accessory_groups);
+                if(Array.isArray(a)){
+                a.forEach(function(acc){
+                    if(!completeList.includes(acc)){
+                        completeList.push(acc);
+                    }
+                });
+            }else{
+                if(!completeList.includes(a)){
+                    completeList.push(a);
+                }
+            }
+            }
+            
+        });
+       
+        res.json({msg:'ok ', result:completeList});    
+    })
+});
 
 module.exports = router;

@@ -34,6 +34,7 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(express.json());
 
 // deliver previously cached page version
 const cache = false;
@@ -47,7 +48,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
 
-var allowlist = ['https://lifetime2.unicaster.net', 'http://127.0.0.1:5500/']
+var allowlist = ['https://lifetime2.unicaster.net', 'http://127.0.0.1:5500/','https://lifetimekidsrooms.dk/']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (allowlist.indexOf(req.header('Origin')) !== -1) {
@@ -58,7 +59,8 @@ var corsOptionsDelegate = function (req, callback) {
   callback(null, corsOptions) // callback expects two parameters: error and options
 }
 
-app.use(cors(corsOptionsDelegate));
+//app.use(cors(corsOptionsDelegate)); //only certain domains
+app.use(cors()); // all domians/debug
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb'}));
 
 const PORT = process.env.PORT || 3000;
@@ -73,6 +75,8 @@ app.use('/materials', require('./routes/materials'));
 app.use('/textures', require('./routes/textures'));
 app.use('/translations', require('./routes/translations'));
 app.use('/clients', require('./routes/clients'));
+app.use('/merchant', require('./routes/merchant'));
+app.use('/outputedit', require('./routes/outputedit'));
 
 
 
@@ -100,7 +104,7 @@ global[checkNotAuthenticated] = (req, res, next) =>{
 }))*/
 
 app.post('/log-in', passport.authenticate('local', {
-    successRedirect: '/models',
+    successRedirect: '/users',
     failureRedirect: '/',
     failureFlash: true
   }))
