@@ -7,7 +7,6 @@ const tt = require('../utils/translationTools');
 
 
 router.post('/edit', checkAuthenticated, (req, res) => {
-    console.log("incoming", req.body);
     let transltations = req.body;
     delete transltations.submit;
     tt.saveTranslations(req.body)

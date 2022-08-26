@@ -319,4 +319,3 @@ class ProgressiveLightMap {
 }
 
 export { ProgressiveLightMap };
-

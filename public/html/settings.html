@@ -1,0 +1,38 @@
+<div style="padding:0px;">
+    <h3><span id="settings-title">Settings</span></h3>
+</div>
+<div style="display: flex;justify-content: space-between;">
+    <div>
+        <input type="radio" name="units" value="centimeters" id="centimeters">
+        <label for="metric">Centimeters</label>
+    </div>
+    <div>
+        <input type="radio" name="units" value="feet" id="feet">
+        <label for="s">Feet and Inches</label>
+    </div>
+
+</div>
+
+<script>
+    function applyFunctions() {
+        let radioButtons = document.querySelectorAll('input[name="units"]');
+        radioButtons.forEach(function(radioButton){
+            radioButton.addEventListener('change', setUnits);
+        });
+    }
+
+    function setUnits(e) {
+        console.log(e);
+        if (this.checked) {
+            DD2022.setUnits(this.value);
+        }
+    }
+
+
+
+    function getTranslations() {
+        document.getElementById("settings-title").innerHTML = DD2022.getTranslation('settings');
+    }
+    getTranslations();
+    applyFunctions();
+</script>

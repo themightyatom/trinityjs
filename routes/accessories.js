@@ -51,6 +51,25 @@ router.post('/edit', checkAuthenticated, (req, res) => {
     }
 });
 
+router.get('/clone/:id', checkAuthenticated, (req,res) =>{
+    //copy parameters the original model, while creating new row
+    let _id = req.params.id;
+    let sql = "INSERT INTO " + _table +"( title, list, type, priority ) SELECT title, list, type, priority FROM "+ _table +" WHERE id=" + _id;
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        translationTools.duplicateTranslations(_id ,result.insertId, 'accessories')
+            .then((response) => {
+                    //change name
+                    let newid = result.insertId;
+                    sql = "UPDATE " + _table +" SET title = CONCAT(title, ' (copy)') WHERE id =" + result.insertId;
+                    query = db.query(sql, (err,result) => {
+                    if (err) throw err;
+                    res.redirect('/accessories/edit/' + newid );
+                    });
+                    
+            });
+    });
+});
 
 
 router.get('/', checkAuthenticated, (req, res) => {
@@ -113,7 +132,6 @@ router.get('/all', (req, res) => {
 });
 router.post('/reorder', (req,res) =>{
     let list = req.body.list;
-    let ind = 0;
         
           for(var i=0;i<list.length;i++) {
             var _id = list[i];

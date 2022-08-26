@@ -21,6 +21,11 @@ body{
     .itempaletteclose{
         top:8px;
     }
+    .itempalette{
+        width:100% !important;  
+        left: 0px;
+        height: 50%;
+   }
     .itempalette img {
         max-width: 160px;
         max-height: 75px;
@@ -229,4 +234,12 @@ box-shadow: 0 0 0 1px #6f6f6f;
     #accordion .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
         background: #f8f8f8;
      
+    }
+
+    .login-close{
+        position: absolute;
+        top:0px;
+        right: 0px;
+        margin: 5px;
+        z-index: 301;
     }

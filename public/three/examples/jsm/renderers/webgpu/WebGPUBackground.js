@@ -1,5 +1,5 @@
 import { GPULoadOp } from './constants.js';
-import { Color } from '../../../../build/three.module.js';
+import { Color } from 'three';
 
 let _clearAlpha;
 const _clearColor = new Color();
@@ -77,7 +77,7 @@ class WebGPUBackground {
 
 			if ( renderer.autoClearStencil === true ) {
 
-				depthStencilAttachment.stencilLoadValue = renderer._clearDepth;
+				depthStencilAttachment.stencilLoadValue = renderer._clearStencil;
 
 			} else {
 

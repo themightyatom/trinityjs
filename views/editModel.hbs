@@ -2,31 +2,54 @@
 <div class="cover">
     
 </div>
-
+<h1>Attributes for {{params.title}}</h1>
+<div style="
+    position: absolute;
+    top: 38px;
+    right:100px;
+"><button onclick="window.location.href='/models/variation/{{params.id}}'">Create Copy</button></div>
 <div id="ltvs_container" class="window3d">
 
 </div>
 <div id="parameter-column" class="parameter-column">
-<h1>Attributes for {{params.title}}</h1>
-<a href="/clients/preview/{{params.sku}}"><img class="thumb-prev" id="thumbprev" src="/thumbs/models/{{params.id}}.png" /></a><br>
-<button onclick="addThumb()">Save Thumbnail from 3D</button><span id="saving"></span>
-<br><br><lable for="textupload">Upload Thumbnail (80 x 80 pixels)</lable><br>
+<table style="background-color: #FFFFFF;">
+    <tr>
+        <td style="
+    width: 122px;
+">
+<a href="/clients/preview/{{params.id}}"><img class="thumb-prev" id="thumbprev" src="/thumbs/models/{{params.id}}.png" /></a><br>
+</td>
+<td style="
+    padding-right: 10px;
+">
+<button onclick="addThumb()">Save Thumbnail</button><span id="saving"></span>
+</td>
+
+<td style="padding-left: 20px; 
+    background: #e4e4e4;
+">
+<lable for="textupload">Upload Thumbnail (80 x 80 pixels)</lable><br>
 <form name="texupload" action="/models/uploadthumb" enctype="multipart/form-data" method="post" onsubmit="return validateUpload()" >
     <input type="file" id="thumb-to-upload" name="file-to-upload" accept="image/png" onchange="setImageReady()" >
-    <input type="hidden" id="modelid" name="modelid" value="{{params.id}}"> 
+    <input type="hidden" id="modelid" name="modelid" value="{{params.id}}"> <br><br>
     <input type="submit" value="Upload">
 </form>
-<p>
-<button onclick="window.location.href='/models/variation/{{params.id}}'">Create Variation</button>
-</p>
+</td>
+</tr>
+</table>
+<br>
 <form action="/models/updatemodel" method="post">
+    <div class="default-accessories">
+        <label for="default_accessories">Start Up Accessories:</label><br>
+        <select style="display:none" name="default_accessories" id="default_accessories" multiple placeholder="Select">
+        </select>
+    </div>
+    <br>
     <p>
         <lable for="model">Model id</lable><br>
         <input type="text" id="id" name="id" value="{{params.id}}" readonly>
     </p>
     
-    
-
     <p>
         <lable for="model">Model</lable><br>
         <input type="text" id="model" name="model" value="{{params.model}}" readonly>
@@ -58,12 +81,12 @@
         <label for="single">Single</label>
         <input type="radio" name="snap_type" id="extreme" value="extreme" {{radioCheck params.snap_type 'extreme' }}>
         <label for="extreme">Extreme</label>
-        <input type="radio" name="snap_type" id="entity" value="entity" {{radioCheck params.snap_type 'entity' }}>
-        <label for="extreme">Entity</label>
+        <input type="radio" name="snap_type" id="environment" value="environment" {{radioCheck params.snap_type 'environment' }}>
+        <label for="extreme">Environment</label>
         <input type="radio" name="snap_type" id="all" value="all" {{radioCheck params.snap_type 'all' }}> <label
             for="all">All</label>
-        <input type="radio" name="snap_type" id="environment" value="environment" {{radioCheck params.snap_type 'environment' }}> <label
-            for="environment">Environment</label>
+        <input type="radio" name="snap_type" id="surface" value="surface" {{radioCheck params.snap_type 'surface' }}> <label
+            for="surface">Surface</label>
 
     </div>
     <p>
@@ -87,11 +110,16 @@
     </div>
     <br>
     <div class="allmaterials">
-        <label for="materials">Material Variations: (these are variations you will be able to choose between in the designer)</label><br>
+        <label for="materials">Material Variations: (material variations you will be able to choose between in the designer)</label><br>
         <select style="display:none" name="materials" id="materials" multiple placeholder="Select">
         </select>
     </div>
     <br>
+    <div class="variants">
+        <label for="variants">Physical Variants: (physical variations you will be able to choose between in the designer)</label><br>
+        <select style="display:none" name="variants" id="variants" multiple placeholder="Select">
+        </select>
+    </div>
      <hr>
     <div class="default_material">
         <label for="default_material">Default Material: (the material automatically assigned to this model)</label><br>
@@ -102,24 +130,34 @@
         <lable for="default_material_key">Default Material Key: (the first four letters of the name of the object(s) to recieve the default material)</lable><br>
         <input oninput="applyMaterial()" type="text" id="default_material_key" name="default_material_key" maxlength="4" value="{{params.default_material_key}}">
     </p>
-     <br>
-    <div class="default-accessories">
-        <label for="default_accessories">Start Up Accessories:</label><br>
-        <select style="display:none" name="default_accessories" id="default_accessories" multiple placeholder="Select">
-        </select>
+    <div>
+         <lable for="metadata">Metadata (string)</lable><br>
+        <input type="text" name="metadata" id="metadata" value="{{params.metadata}}" >
     </div>
-    <br>
+      <div>
+          
+        <input type="checkbox" id="mirror" name="mirror" value="{{params.mirror}}" {{checked params.mirror}}><label for="mirror">Can be mirrored</label><br>
+        <p></p>
+    </div>
+    
+    
+    
     <div>
         <input type="checkbox" id="menu" name="menu" value="{{params.menu}}" {{checked params.menu}}>
 <label for="menu">Show in Roomplanner menu</label><br>
     </div>
      <hr>
-    {{>translations}}
+    
+    <div>
+        <input type="checkbox" id="updatecopies" name="updatecopies" value="0">
+    <label for="updatecopies">Update all copies of same model</label><br>
+    </div>
     <div class="submit-bt">
         <button type="submit" name="submit">
             Update
         </button>
     </div>
+    {{>translations}}
 </form>
 <div class="bottomButs">
     <form action="/models/deletemodel/" method="POST"
@@ -134,15 +172,10 @@
 </div>
 <script>
     const ltvs__source = '';
+    const ltvs__lang = 'none';
     function startup() {
         
-         let defaultAccs = [];// = JSON.parse({{defaultAccesories}});
-
-        {{#each defaultAccesories }}
-        defaultAccs.push({ snap: '{{snap}}', model: '{{model}}', sku: '{{sku}}', snap_type: '{{snap_type}}', exclude: '{{exclude}}', default_material: '{{default_material}}', default_material_key: '{{default_material_key}}' });
-        {{/each}}
-
-        loadGroup('{{params.id}}','{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
+      DD2022.loadModel({{params.id}},"none", false);
        
     }
     $('input[type="checkbox"]').change(function(){
@@ -174,16 +207,15 @@
     function applyMaterial(){
         var matid = document.getElementById("default_material").value;
         var assignTo = document.getElementById("default_material_key").value;
-        assignMaterial(matid,assignTo,'00');
+        DD2022.assignMaterial(matid,assignTo,'00');
         
     }
     function addThumb() {
         document.getElementById("saving").innerHTML = " Saving....";
-        var t = grabScreenshot();
+        var t = DD2022.grabScreenshot();
         $('#thumbprev').attr("src", t);
         var _id = '{{params.id}}';
         var _sku = '{{params.sku}}';
-        console.log("save thumb", t);
         $.ajax({
             type: "POST",
             url: "/models/thumb",
@@ -206,6 +238,7 @@
     const materialArray = [{{params.materials}}];
     const defaultMaterial = {{params.default_material}}; 
     const defaultAccessories = [{{params.default_accessories}}]; 
+    const variants = [{{params.variants}}]; 
 
     fetch('/categories/all')
         .then(response => response.json())
@@ -301,6 +334,8 @@
     fetch('/models/all')
         .then(response => response.json())
         .then(data => {
+            let dataCopy = JSON.parse(JSON.stringify(data));
+            //startup accessories
             var i;
             for (i = 0; i < data.length; i++) {
                 
@@ -318,19 +353,37 @@
                 multipleMode: 'label',
                 input: '<input type="text" maxLength="20" placeholder="Search">',
                 choice: function () {
-                    dev__reset();
+                    //dev__reset();
                     let defaultAccs = data.filter(itemIncludes);
-                    
+                    var mc = $('#model_class').find(":selected").text();
                      console.log(defaultAccs);
                     
-                    loadGroup('{{params.id}}','{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
+                    DD2022.loadGroup( mc,'{{params.id}}','{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
+                }
+            });
+            // physical variants
+             for (i = 0; i < dataCopy.length; i++) {
+                
+                dataCopy[i].name = dataCopy[i].title;
+                dataCopy[i].value = dataCopy[i].id;
+                if (variants.includes(dataCopy[i].id)) {
+                    dataCopy[i].selected = true;
+                }  
+            }
+             $('.variants').dropdown({
+                data: dataCopy,
+                limitCount: 40,
+                multipleMode: 'label',
+                input: '<input type="text" maxLength="20" placeholder="Search">',
+                choice: function () {
+                    // do nothing
                 }
             });
         });
 
         function itemIncludes(member){
             var values = $('#default_accessories').val();
-            if(values.length < 1) return false;
+            if(values == null || values.length < 1) return false;
             var id = String(member.id);
             return values.includes(id);
         }
@@ -340,4 +393,4 @@
 
 
 
-{{>window3d}}
+{{>decorpreview}}

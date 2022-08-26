@@ -6,10 +6,13 @@ const express = require('express');
 const hbs = require('express-handlebars');
 const cors = require('cors');
 const path = require('path');
-const bodyParser = require('body-parser');
 const flash = require('express-flash');
 const session = require('express-session');
 const db = require('./utils/db');
+const fs = require('fs');
+//const key = fs.readFileSync('./https/key.pem');
+//const cert = fs.readFileSync('./https/cert.pem');
+//const https = require('https');
 
 
 
@@ -24,6 +27,9 @@ initializePassport(
 
 //var routes = require('./routes/index');
 const app = express();
+
+//const server = https.createServer({key: key, cert: cert }, app);
+//server.listen(5001, () => console.log(`HTTPS server listening: https://localhost`));
 
 app.use(flash())
 app.use(session({
@@ -61,7 +67,7 @@ var corsOptionsDelegate = function (req, callback) {
 
 //app.use(cors(corsOptionsDelegate)); //only certain domains
 app.use(cors()); // all domians/debug
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb'}));
+app.use(express.urlencoded({ extended: true, limit: '50mb'}));
 
 const PORT = process.env.PORT || 3000;
 
@@ -77,6 +83,8 @@ app.use('/translations', require('./routes/translations'));
 app.use('/clients', require('./routes/clients'));
 app.use('/merchant', require('./routes/merchant'));
 app.use('/outputedit', require('./routes/outputedit'));
+app.use('/designs', require('./routes/designs'));
+app.use('/ar', require('./routes/ar'));
 
 
 

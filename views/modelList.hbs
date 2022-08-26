@@ -20,7 +20,7 @@
 <div class="item-row-top">
    <div class="column-4"><span class="menutitle">PREVIEW</span></div>
    <div class="column-4"><span class="menutitle">TITLE</span></div>
-      <div class="column-4"><span class="menutitle">ID</span></div>
+      <div class="column-4"><span class="menutitle">SKU</span></div>
    <div class="column-4"><span class="menutitle">OPEN DESIGNER</span></div>
 </div><br>
 {{# each models as |val key|}}
@@ -28,8 +28,8 @@
    <div class="item-row" onclick="window.location.href='/models/editModel/{{val.id}}'">
       <div class="column-4"><img class="list-preview" src="/thumbs/models/{{val.id}}.png" /></div>
       <div class="column-4"> {{ val.title }}</div>
-       <div class="column-4" id="id_holder">{{val.id}}</div>
-      <div class="column-4"><a href="/clients/preview/{{val.sku}}">OPEN</a></div>
+       <div class="column-4" id="id_holder">{{val.sku}}</div>
+      <div class="column-4"><a href="/clients/preview/{{val.id}}">PREVIEW</a></div>
      
    </div>
 </div>

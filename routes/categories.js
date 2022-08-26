@@ -1,8 +1,40 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const fs = require('fs');
 const db = require('../utils/db.js');
 const translationTools = require('../utils/translationTools');
+
+
+
+const thumbfolder = 'public/thumbs/categories/';
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, glbfolder)
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+const upload = multer({ storage: storage });
+
+
+
+const thumbstorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, thumbfolder)
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+
+})
+
+const uploadthumb = multer({
+    storage:thumbstorage
+  });
 
 
 router.post('/edit', checkAuthenticated, (req, res) => {
@@ -28,6 +60,7 @@ router.post('/edit', checkAuthenticated, (req, res) => {
         let sql = 'INSERT INTO categories SET ?';
         let title = req.body.title;
         let menu = req.body.menu;
+        if(menu == null) menu = 0; // zero values are not sent to server
         let post = {title:title, menu:menu};
         let query = db.query(sql, post, (err, result) => {
             if (err) throw err;
@@ -43,7 +76,7 @@ router.post('/edit', checkAuthenticated, (req, res) => {
 
 
 router.get('/', checkAuthenticated, (req, res) => {
-    let sql = 'SELECT * FROM categories';
+    let sql = "SELECT * FROM `categories` ORDER BY `categories`.`priority` ASC";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         res.render('categoryList', { categories: result, title: 'Categories' });
@@ -64,6 +97,7 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
     } else {
         // make a field for each language
         let sql = "SELECT stub,title from languages";
+        
         let query = db.query(sql, (err, result) => {
             if (err) throw err;
             var params = {id:'new', title:'New Category', menu:'1'};
@@ -87,10 +121,42 @@ router.post('/delete', checkAuthenticated, (req, res) => {
 });
 
 router.get('/all', checkAuthenticated, (req, res) => {
-    let sql = 'SELECT * FROM categories';
+    let sql = "SELECT * FROM `categories` ORDER BY `categories`.`priority` ASC";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         res.send(result);
+    })
+});
+
+router.post('/reorder', (req,res) =>{
+    let list = req.body.list;
+        
+          for(var i=0;i<list.length;i++) {
+            var _id = list[i];
+            var sql = "UPDATE categories SET priority = ? WHERE id = ?";
+            db.query(sql, [i, _id], function(err, result) {
+              if(err) { console.log(err); return; }
+            });
+          };
+  
+
+    res.send('ok');
+
+
+});
+
+router.post('/uploadthumb/', uploadthumb.single('file-to-upload'), (req, res) => {
+    let modelid = req.body.modelid + '.png';
+    let thumb = req.file;
+    var file = path.join(thumbfolder, req.file.originalname);
+    var updated = path.join(thumbfolder, modelid);
+    fs.rename(file, updated, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect("back")
+        }
+
     })
 });
 

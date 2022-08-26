@@ -67,7 +67,6 @@ router.post('/upload', upload.single('file-to-upload'), (req,res) =>{
     let sql = "SELECT * from " + _table + " WHERE texture ='" + texture + "'";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
-        console.log(result.length);
         if (result.length > 0) {
             let id = result[0].id;
             res.render('editTexture', result[0]);
@@ -78,7 +77,6 @@ router.post('/upload', upload.single('file-to-upload'), (req,res) =>{
             let title = no_ext;
             let sql = 'INSERT INTO ' + _table + ' SET ? ';
             let post = { title: title, texture: texture };
-            console.log("posting", post);
             let query = db.query(sql, post, (err, result) => {
                 if (err) throw err;
                 let id = result.insertId;
@@ -150,7 +148,6 @@ router.post('/delete', checkAuthenticated, (req, res) => {
     })
 
     // remove coresponding database entry
-    console.log('delete', req.body);
     let sql = "DELETE FROM "+ _table +" WHERE id = '" + req.body.id + "'";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;

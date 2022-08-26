@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/login.css">
+    <title>Log in</title>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="top-logo"><svg xmlns='http://www.w3.org/2000/svg' height='48px' viewBox='0 0 24 24' width='48px' fill='#a7b7a9'><path d='M0 0h24v24H0z' fill='none'/><path d='M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z'/></svg></div>
+        <div class="login-box" id="login-box-container">
+            <div class="form-element">
+                <h1>Login</h1>
+            </div>
+            <form id="loginform">
+                <div class="form-element"><input type="email" id="ltvs__email" placeholder="email" required></div>
+                <div class="form-element"><input type="password" id="ltvs__password" placeholder="password" required></div>
+                <div class="form-element"><div onpointerup="forgottenPass()" class="forgot-link">forgot?</div></div>
+                
+                <div class="form-button"><button class="enter-button" type="submit"
+                        name="submit" id="submit">
+                        login
+                    </button></div>
+            </form>
+        </div>
+        <div id="ltvs__messages" class="ltvs-messages"></div>
+        <div class="register-link" id="register-link">
+            <div>Don't have an account?</div>
+            <div onpointerup="signup()" class="signup-link">Sign Up</div>
+        </div>
+        <div class="register-link" id="signin-link">
+            <div>Have an account?</div>
+            <div onpointerup="signin()" class="signup-link">Login</div>
+        </div>
+
+        
+            <div class="login-box" id="signup-container">
+                <div class="form-element">
+                    <h1>Sign up</h1>
+                </div>
+                <form id="signupform">
+                    <div class="form-element"><input type="email" id="ltvs_email" placeholder="email" required></div>
+                    <div class="form-element"><input type="password" id="ltvs_password" placeholder="password" required></div>
+                    <div class="form-element"><input type="password" id="ltvs_password2" placeholder="re-type password" required></div>
+                    
+                    <div class="form-button"><button class="enter-button" type="submit"
+                            name="submit">
+                            sign up
+                        </button></div>
+                </form>
+            </div>
+            
+        
+
+        <div class="login-box" id="forgot-container">
+            <div class="login-box">
+                <div class="form-element">
+                    <h1>Reset Password</h1>
+                </div>
+                <form id="resetform">
+                    <div class="form-element"><input type="email" id="ltvs_resetemail" placeholder="email" required></div>
+                    
+                    <div class="form-button"><button class="enter-button" type="submit"
+                            name="submit" id="submit_signup">
+                            send
+                        </button></div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+    
+   
+
+    <script>
+        var form = document.getElementById("loginform");
+        form.addEventListener('submit', collectToken);
+
+        var formsign = document.getElementById("signupform");
+        formsign.addEventListener('submit', register);
+
+        var formforgot = document.getElementById("resetform");
+        formforgot.addEventListener('submit', forgotten);
+
+        function collectToken(event) {
+            event.preventDefault(); 
+            let email = document.getElementById('ltvs__email').value;
+            let password = document.getElementById('ltvs__password').value;
+
+            /* const formData = new FormData();
+     
+             formData.append('email', email);
+             formData.append('password', password); */
+            const data = new URLSearchParams();
+            data.email = email;
+            data.password = password;
+            var str = 'password=' + password + '&email=' + email;
+            console.log("Collectiing token", email, password);
+            fetch('https://auth.customshop.online/auth/gettoken', {
+                method: 'POST',
+                body: new URLSearchParams(str)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById("ltvs__messages").innerHTML = data.message;
+                    //check status
+                    if(data.status == 1){
+                        let tf = document.getElementById("ltvs__token");
+                        tf.value = data.token;
+                        //tf.style.display = 'block';
+                        tf.dispatchEvent(new CustomEvent('ltvs__loggedIn', { bubbles: true, detail: { text:data.token  } }))
+                    }
+                })
+        }
+        function register(){
+            event.preventDefault(); 
+            console.log("register user");
+        }
+        function forgotten(){
+            event.preventDefault(); 
+            console.log("forgotten password");
+            document.getElementById("ltvs__messages").innerHTML = "Check your email :)";
+            signin();
+        }
+        function signup(){
+            console.log("signing up");
+            let su = document.getElementById('signup-container');
+            su.style.display = "block";
+            let rl = document.getElementById('register-link');
+            rl.style.display = "none";
+            let si = document.getElementById('signin-link');
+            si.style.display = "flex";
+            let fg = document.getElementById('forgot-container');
+            fg.style.display = "none";
+            let lbc = document.getElementById('login-box-container');
+            lbc.style.display = "none";
+            
+ 
+        }
+        function signin(){
+            console.log("signing in");
+            let su = document.getElementById('signup-container');
+            su.style.display = "none";
+            let rl = document.getElementById('register-link');
+            rl.style.display = "flex";
+            let si = document.getElementById('signin-link');
+            si.style.display = "none";
+            let fg = document.getElementById('forgot-container');
+            fg.style.display = "none"; 
+            let lbc = document.getElementById('login-box-container');
+            lbc.style.display = "block";
+  
+        }
+        function forgottenPass(){
+            console.log("forgot");
+            let su = document.getElementById('signup-container');
+            su.style.display = "none";
+            let rl = document.getElementById('register-link');
+            rl.style.display = "none";
+            let si = document.getElementById('signin-link');
+            si.style.display = "flex";
+            let fg = document.getElementById('forgot-container');
+            fg.style.display = "block"; 
+            let lbc = document.getElementById('login-box-container');
+            lbc.style.display = "none";
+          
+        }
+        function closeLogin(){
+            console.log("closing");
+            document.getElementsByTagName("BODY")[0].innerHTML = '';
+        }
+    </script>
+
+</body>
+
+</html>

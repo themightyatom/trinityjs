@@ -9,7 +9,6 @@ router.post('/edit', checkAuthenticated, (req, res) => {
     // if id is new, create a new entry, otherwise update
     if (req.body.id != 'new') {
         let sql = "UPDATE languages SET ? WHERE id = '" + req.body.id + "'";
-        console.log("lang", req.body);
         let stub = req.body.stub;
         let orig = req.body.original_stub;
         let post = { title: req.body.title, stub: req.body.stub }; 
@@ -45,7 +44,6 @@ router.post('/edit', checkAuthenticated, (req, res) => {
                         res.render('error', err);
                     } else {
                         // Add field to Translations
-                        console.log("ADDING COLUMN" + req.body.stub)
                         sql = 'ALTER TABLE translations ADD ' + req.body.stub + ' varchar(255)';
                         query = db.query(sql, (err, result) => {
                             if (err) throw err;

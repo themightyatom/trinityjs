@@ -1,6 +1,13 @@
 <h1>{{languages.title}}</h1>
 
+<lable for="textupload">Upload Thumbnail (153 x 153 pixels)</lable><br>
+<form name="texupload" action="/categories/uploadthumb" enctype="multipart/form-data" method="post" onsubmit="return validateUpload()" >
+    <input type="file" id="thumb-to-upload" name="file-to-upload" accept="image/png" onchange="setImageReady()" >
+    <input type="hidden" id="modelid" name="modelid" value="{{params.id}}"> <br><br>
+    <input type="submit" value="Upload">
+</form>
 
+<img class="thumb-prev" id="thumbprev" src="/thumbs/categories/{{params.id}}.png" />
 
 <form action="/categories/edit" method="post">
     <p>
@@ -44,8 +51,26 @@
     // hide id 
     var idfield = document.getElementById("id");
     idfield.type = 'hidden';
-    var _label = document.getElementById("_id");
-    _label.style.display = 'none';
+   /* var _label = document.getElementById("_id");
+    _label.style.display = 'none';*/
+     function addThumb() {
+        document.getElementById("saving").innerHTML = " Saving....";
+        var t = DD2022.grabScreenshot();
+        $('#thumbprev').attr("src", t);
+
+        $.ajax({
+            type: "POST",
+            url: "/categories/thumb",
+            data: {
+                imgBase64: t,
+                id: _id
+            }
+        }).done(function (o) {
+            console.log('saved');
+            document.getElementById("saving").innerHTML = " Thumbnail saved";
+            return true;
+        });
+    }
  
 
 </script>

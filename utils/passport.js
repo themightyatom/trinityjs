@@ -20,10 +20,8 @@ function initialize(passport) {
                   if (!user) {
                       return done(null, false, req.flash("errors", `This user email "${email}" doesn't exist`));
                   }
-                  if (user) {
-                    console.log("CHECKING PW:", password);
+                  if (user) { 
                       let match = await bcrypt.compare(password, user.password);
-                      console.log("AND?", match);
                       if (match === true) {
                           return done(null, user, null)
                       } else {
@@ -50,7 +48,6 @@ let getUserByEmail = (email) => {
                       reject(err)
                   }
                   let user = rows[0];
-                  console.log("USER", user);
                   resolve(user);
 
 

@@ -73,7 +73,6 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
 
 
 router.post('/edit', checkAuthenticated, (req, res) => {
-    console.log("adding material", req.body);
     if (req.body.id != 'new') {
         let sql = "UPDATE " + _table + " SET ? WHERE id = '" + req.body.id + "'";;
         let post = req.body;
@@ -123,6 +122,15 @@ router.post('/thumb', async function(req, res) {
 
 router.get('/all', (req, res) => {
     let sql = 'SELECT * FROM ' + _table;
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    })
+
+});
+
+router.get('/type/:category', (req, res) => {
+    let sql = "SELECT * FROM " + _table + " WHERE category = '" + req.params.category + "'";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         res.send(result);

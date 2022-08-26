@@ -1,17 +1,16 @@
 import { GPUTextureFormat, GPUAddressMode, GPUFilterMode, GPUTextureDimension } from './constants.js';
 import { CubeTexture, Texture, NearestFilter, NearestMipmapNearestFilter, NearestMipmapLinearFilter, LinearFilter, RepeatWrapping, MirroredRepeatWrapping,
 	RGBFormat, RGBAFormat, RedFormat, RGFormat, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, UnsignedByteType, FloatType, HalfFloatType, sRGBEncoding
-} from '../../../../build/three.module.js';
+} from 'three';
 import WebGPUTextureUtils from './WebGPUTextureUtils.js';
 
 class WebGPUTextures {
 
-	constructor( device, properties, info, glslang ) {
+	constructor( device, properties, info ) {
 
 		this.device = device;
 		this.properties = properties;
 		this.info = info;
-		this.glslang = glslang;
 
 		this.defaultTexture = null;
 		this.defaultCubeTexture = null;
@@ -42,7 +41,9 @@ class WebGPUTextures {
 			texture.minFilter = NearestFilter;
 			texture.magFilter = NearestFilter;
 
-			this.defaultTexture = this._createTexture( texture );
+			this._uploadTexture( texture );
+
+			this.defaultTexture = this.getTextureGPU( texture );
 
 		}
 
@@ -58,7 +59,9 @@ class WebGPUTextures {
 			texture.minFilter = NearestFilter;
 			texture.magFilter = NearestFilter;
 
-			this.defaultCubeTexture = this._createTexture( texture );
+			this._uploadTexture( texture );
+
+			this.defaultCubeTexture = this.getTextureGPU( texture );
 
 		}
 
@@ -84,7 +87,7 @@ class WebGPUTextures {
 
 	updateTexture( texture ) {
 
-		let forceUpdate = false;
+		let needsUpdate = false;
 
 		const textureProperties = this.properties.get( texture );
 
@@ -117,21 +120,9 @@ class WebGPUTextures {
 
 				}
 
-				// texture creation
+				//
 
-				if ( textureProperties.textureGPU !== undefined ) {
-
-					// @TODO: Avoid calling of destroy() in certain scenarios. When only the contents of a texture
-					// are updated, a buffer upload should be sufficient. However, if the user changes
-					// the dimensions of the texture, format or usage, a new instance of GPUTexture is required.
-
-					textureProperties.textureGPU.destroy();
-
-				}
-
-				textureProperties.textureGPU = this._createTexture( texture );
-				textureProperties.version = texture.version;
-				forceUpdate = true;
+				needsUpdate = this._uploadTexture( texture );
 
 			}
 
@@ -143,11 +134,11 @@ class WebGPUTextures {
 		if ( textureProperties.initializedRTT === false ) {
 
 			textureProperties.initializedRTT = true;
-			forceUpdate = true;
+			needsUpdate = true;
 
 		}
 
-		return forceUpdate;
+		return needsUpdate;
 
 	}
 
@@ -203,10 +194,10 @@ class WebGPUTextures {
 				size: {
 					width: width,
 					height: height,
-					depth: 1
+					depthOrArrayLayers: 1
 				},
 				format: colorTextureFormat,
-				usage: GPUTextureUsage.OUTPUT_ATTACHMENT | GPUTextureUsage.SAMPLED
+				usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING
 			} );
 
 			this.info.memory.textures ++;
@@ -231,10 +222,10 @@ class WebGPUTextures {
 					size: {
 						width: width,
 						height: height,
-						depth: 1
+						depthOrArrayLayers: 1
 					},
 					format: depthTextureFormat,
-					usage: GPUTextureUsage.OUTPUT_ATTACHMENT
+					usage: GPUTextureUsage.RENDER_ATTACHMENT
 				} );
 
 				this.info.memory.textures ++;
@@ -305,10 +296,14 @@ class WebGPUTextures {
 
 	}
 
-	_createTexture( texture ) {
+	_uploadTexture( texture ) {
+
+		let needsUpdate = false;
 
 		const device = this.device;
 		const image = texture.image;
+
+		const textureProperties = this.properties.get( texture );
 
 		const { width, height, depth } = this._getSize( texture );
 		const needsMipmaps = this._needsMipmaps( texture );
@@ -316,23 +311,21 @@ class WebGPUTextures {
 		const mipLevelCount = this._getMipLevelCount( texture, width, height, needsMipmaps );
 		const format = this._getFormat( texture );
 
-		let usage = GPUTextureUsage.SAMPLED | GPUTextureUsage.COPY_DST;
+		let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST;
 
 		if ( needsMipmaps === true ) {
 
-			// current mipmap generation requires OUTPUT_ATTACHMENT
+			// current mipmap generation requires RENDER_ATTACHMENT
 
-			usage |= GPUTextureUsage.OUTPUT_ATTACHMENT;
+			usage |= GPUTextureUsage.RENDER_ATTACHMENT;
 
 		}
-
-		// texture creation
 
 		const textureGPUDescriptor = {
 			size: {
 				width: width,
 				height: height,
-				depth: depth,
+				depthOrArrayLayers: depth,
 			},
 			mipLevelCount: mipLevelCount,
 			sampleCount: 1,
@@ -340,7 +333,19 @@ class WebGPUTextures {
 			format: format,
 			usage: usage
 		};
-		const textureGPU = device.createTexture( textureGPUDescriptor );
+
+		// texture creation
+
+		let textureGPU = textureProperties.textureGPU;
+
+		if ( textureGPU === undefined ) {
+
+			textureGPU = device.createTexture( textureGPUDescriptor );
+			textureProperties.textureGPU = textureGPU;
+
+			needsUpdate = true;
+
+		}
 
 		// transfer texture data
 
@@ -366,7 +371,7 @@ class WebGPUTextures {
 
 				this._getImageBitmap( image, texture ).then( imageBitmap => {
 
-					this._copyImageBitmapToTexture( imageBitmap, textureGPU );
+					this._copyExternalImageToTexture( imageBitmap, textureGPU );
 
 					if ( needsMipmaps === true ) this._generateMipmaps( textureGPU, textureGPUDescriptor );
 
@@ -376,7 +381,9 @@ class WebGPUTextures {
 
 		}
 
-		return textureGPU;
+		textureProperties.version = texture.version;
+
+		return needsUpdate;
 
 	}
 
@@ -390,7 +397,7 @@ class WebGPUTextures {
 		const bytesPerTexel = this._getBytesPerTexel( format );
 		const bytesPerRow = Math.ceil( image.width * bytesPerTexel / 256 ) * 256;
 
-		this.device.defaultQueue.writeTexture(
+		this.device.queue.writeTexture(
 			{
 				texture: textureGPU,
 				mipLevel: 0
@@ -403,7 +410,7 @@ class WebGPUTextures {
 			{
 				width: image.width,
 				height: image.height,
-				depth: ( image.depth !== undefined ) ? image.depth : 1
+				depthOrArrayLayers: ( image.depth !== undefined ) ? image.depth : 1
 			} );
 
 	}
@@ -416,7 +423,7 @@ class WebGPUTextures {
 
 			this._getImageBitmap( image, texture ).then( imageBitmap => {
 
-				this._copyImageBitmapToTexture( imageBitmap, textureGPU, { x: 0, y: 0, z: i } );
+				this._copyExternalImageToTexture( imageBitmap, textureGPU, { x: 0, y: 0, z: i } );
 
 			} );
 
@@ -424,11 +431,11 @@ class WebGPUTextures {
 
 	}
 
-	_copyImageBitmapToTexture( image, textureGPU, origin = { x: 0, y: 0, z: 0 } ) {
+	_copyExternalImageToTexture( image, textureGPU, origin = { x: 0, y: 0, z: 0 } ) {
 
-		this.device.defaultQueue.copyImageBitmapToTexture(
+		this.device.queue.copyExternalImageToTexture(
 			{
-				imageBitmap: image
+				source: image
 			}, {
 				texture: textureGPU,
 				mipLevel: 0,
@@ -436,7 +443,7 @@ class WebGPUTextures {
 			}, {
 				width: image.width,
 				height: image.height,
-				depth: 1
+				depthOrArrayLayers: 1
 			}
 		);
 
@@ -457,7 +464,7 @@ class WebGPUTextures {
 
 			const bytesPerRow = Math.ceil( width / blockData.width ) * blockData.byteLength;
 
-			this.device.defaultQueue.writeTexture(
+			this.device.queue.writeTexture(
 				{
 					texture: textureGPU,
 					mipLevel: i
@@ -470,7 +477,7 @@ class WebGPUTextures {
 				{
 					width: Math.ceil( width / blockData.width ) * blockData.width,
 					height: Math.ceil( height / blockData.width ) * blockData.width,
-					depth: 1,
+					depthOrArrayLayers: 1,
 				} );
 
 		}
@@ -481,7 +488,7 @@ class WebGPUTextures {
 
 		if ( this.utils === null ) {
 
-			this.utils = new WebGPUTextureUtils( this.device, this.glslang ); // only create this helper if necessary
+			this.utils = new WebGPUTextureUtils( this.device ); // only create this helper if necessary
 
 		}
 

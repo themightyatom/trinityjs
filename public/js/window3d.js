@@ -7,8 +7,10 @@
     import DecorManager from '/js/DecorManager.js';
 
     import DecorUI from '/js/DecorUI.js';
+    import DecorButtonMenu from '/js/DecorButtonMenu.js';
+    import DecorRoomPlanner from '/js/DecorRoomPlanner.js';
 
-    import { GUI } from '/three/examples/jsm/libs/dat.gui.module.js';
+    import { GUI } from '/three/examples/jsm/libs/lil-gui.module.js';
 
 
 
@@ -16,8 +18,10 @@
 
     let camera, scene, renderer, preview, controls, width3d, height3d, sunLight;
     let targetMat, decorLayer, envLayer, loadAni,container;
+    let repeatLoad = false;
 
-    const server_path = 'https://ltvs.customshop.online';
+    //const server_path = 'https://ltvs.customshop.online';
+    const server_path = ''; // for testing locally
 
     init('ltvs_container');
     render();
@@ -34,8 +38,8 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(width3d, height3d);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        // renderer.toneMapping = THREE.NoToneMapping;
-        renderer.toneMappingExposure = 1.3;
+        // renderer.toneMapping = THREE.CineonToneMapping;
+        renderer.toneMappingExposure = 1.2;
         renderer.outputEncoding = THREE.sRGBEncoding;
         container.appendChild(renderer.domElement);
         renderer.shadowMap.enabled = true;
@@ -44,7 +48,7 @@
 
         renderer.gammaFactor = 2.2;
 
-        camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 15);
+        camera = new THREE.PerspectiveCamera(45, width3d / height3d, 0.1, 20);
         camera.position.set(0, 1, 10);
 
         // const environment = new RoomEnvironment();
@@ -58,10 +62,12 @@
         scene.add(camera);
 
         decorLayer = new THREE.Object3D();
+        decorLayer.name = "decorLayer";
         scene.add(decorLayer);
 
         envLayer = new THREE.Object3D();
         scene.add(envLayer);
+        envLayer.name = "envLayer";
         //scene.environment = pmremGenerator.fromScene(environment).texture;
 
         /* const grid = new THREE.GridHelper(20, 20, 0xffffff, 0xffffff);
@@ -96,6 +102,7 @@
         controls.maxDistance = 10;
         controls.target.set(0, 1, 0);
         controls.update();
+       // controls.enabled = false;
 
         window.addEventListener('resize', onWindowResize, false);
 
@@ -133,7 +140,7 @@
         sunLight.shadow.camera.right = sunsize;
         sunLight.shadow.camera.top = sunsize;
         sunLight.shadow.camera.bottom = -sunsize;
-        sunLight.shadow.bias = 0.0001;
+        sunLight.shadow.bias = -0.0007;
         sunLight.shadow.radius = 2;
 
         /*var ambient = new THREE.AmbientLight(0xFFFFFF, 1);
@@ -158,15 +165,17 @@
 
 
         // Init gui
-        /*	const gui = new GUI();
+        /*
+        	const gui = new GUI();
            
             gui.add( renderer, 'toneMappingExposure', 0, 5); 
+            gui.add( renderer, 'gammaFactor', 0, 5); 
             gui.add( sunLight, 'intensity', 0, 5); 
             gui.add( sunLight.position, 'x', -5, 5); 
             gui.add( sunLight.position, 'y', -5, 5); 
             gui.add(sunLight.shadow, 'bias', -0.1,0.1);
-            gui.add(sunLight.shadow, 'radius', 0,100); */
-
+            gui.add(sunLight.shadow, 'radius', 0,100); 
+*/
 
 
         onWindowResize();
@@ -314,6 +323,26 @@
                 }
                 render();
                 break;
+            case "roughness_map":
+                var loader = new THREE.TextureLoader();
+                function onroughLoad(texture) {
+                    targetMat.roughnessMap = texture;
+                    texture.flipY = false;
+                    targetMat.roughnessMap.wrapS = THREE.RepeatWrapping;
+                    targetMat.roughnessMap.wrapT = THREE.RepeatWrapping;
+                    targetMat.needsUpdate = true;
+                    console.log("Roughness Map Applied");
+                    render();
+                }
+                if (value == null) {
+                    targetMat.roughnessMap = null;
+                    targetMat.needsUpdate = true;
+                    render();
+                } else {
+                    loader.load(ltvs__source +"/textures/" + value, onroughLoad);
+                }
+                render();
+                break;
             case "roughness_value":
                 targetMat.roughness = value;
                 render();
@@ -342,16 +371,17 @@
         }
     }
 
-    function getModelFromID(id){
-        console.log("getting", id);
-        fetch(server_path + '/clients/' + id)
+    function getModelFromSKU(sku, lang = "none", id = 0){
+        console.log("getting", sku, id);
+        fetch(server_path + '/clients/getmodel/' + lang + '/' + sku + '/' + id)
         .then(response => response.json())
         .then(data => {
-            console.log("model loaded____________" + data.params.id)
-            DecorManager.addGroup(data.params.id, data.params.model, data.params.default_material, data.params.default_material_key, data.params.sku, data.defaultAccessories )
+            console.log("model loaded____________" + data.defaultAccessories)
+            DecorManager.addGroup(data.params.model_class, data.params.id, data.params.model, data.params.default_material, data.params.default_material_key, data.params.sku, data.defaultAccessories,'', repeatLoad )
            // loadGroup('{{params.model}}', '{{params.default_material}}', '{{params.default_material_key}}', '{{params.sku}}', defaultAccs);
         
-           DecorUI.createUI(data.materials, data.accessories, data.params.default_material_key )
+           DecorUI.createUI(data.materials, data.accessories, data.params.default_material_key, data.variants )
+          // repeatLoad = true;
         
         })
     }
@@ -362,7 +392,8 @@
     window.loadGroup= DecorManager.addGroup;
     window.render = render;
     window.changeMaterial = DecorManager.changeMaterial;
-    window.createAR = DecorManager.createAR;
+    window.changeVariant = DecorManager.loadVariant;
+    window.ltvs__createAR = DecorManager.createAR;
     window.clearPreview = DecorManager.clearPreview;
     window.grabScreenshot = grabScreenshot;
     window.assignMaterial = DecorManager.assignMaterial;
@@ -372,11 +403,21 @@
     window.dev__reset = DecorManager.reset;
     window.dev__hidespinner = hideSpinner;
     window.scene = scene;
-    window.getModelFromID = getModelFromID;
+    window.getModelFromSKU = getModelFromSKU;
     window.createList = DecorUI.createList;
     window.removeItem = DecorUI.removeItem;
     window.ltvs__sendToExportScript = DecorUI.sendToExportScript;
     window.ltvs__export = DecorManager.exportGLB;
+    window.ltvs__getFocusGroup = DecorManager.getFocusGroup;
+    window.envLayer = envLayer;
+    window.ltvs__controls = controls;
+    window.ltvs__renderer = renderer;
+    window.ltvs__camera = camera;
+    window.ltvs__container = container;
+    window.ltvs__saveDesign = DecorManager.saveDesign;
+   
+
+    
   
 
 

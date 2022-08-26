@@ -1,7 +1,7 @@
 // THIS IS A JAVASCRIP FILE
 let ltvs__server = '';
 
-function ltvs_sendToCart(itemlist){
+function ltvs__sendToCart(itemlist){
     
     console.log(itemlist);
 }
@@ -10,4 +10,4 @@ function ltvs_sendToCart(itemlist){
 
 
 
-window.ltvs_sendToCart = ltvs_sendToCart;
+window.ltvs__sendToCart = ltvs__sendToCart;

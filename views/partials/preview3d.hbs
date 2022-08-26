@@ -320,10 +320,31 @@ import { RGBELoader } from '/three/examples/jsm/loaders/RGBELoader.js';
                 targetMat.roughness = value;
                 render();
                 break;
+            case "roughness_map":
+                var loader = new THREE.TextureLoader();
+                function onroughLoad(texture) {
+                    targetMat.roughnessMap = texture;
+                    texture.flipY = false;
+                    targetMat.roughnessMap.wrapS = THREE.RepeatWrapping;
+                    targetMat.roughnessMap.wrapT = THREE.RepeatWrapping;
+                    targetMat.needsUpdate = true;
+                    console.log("Roughness Map Applied");
+                    render();
+                }
+                if (value == null) {
+                    targetMat.roughnessMap = null;
+                    targetMat.needsUpdate = true;
+                    render();
+                } else {
+                    loader.load("/textures/" + value, onroughLoad);
+                }
+                render();
+                break;
             case "metalness_value":
                 targetMat.metalness = value;
                 render();
                 break;
+            
             case "bump_map":
                 var loader = new THREE.TextureLoader();
                 function onmapLoad(texture) {

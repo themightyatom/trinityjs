@@ -3,12 +3,11 @@ import * as THREE from '/three/build/three.module.js';
 
 let loadedMaterialObjects = [];
 let loadedMaterials = {};
-let targetMat = null;
+
 
 var MaterialManager = (function () {
 
-
-    function applyMaterialProperty(property, value) {
+    function applyMaterialProperty(property, value,targetMat) {
 
         switch (property) {
             case "diffuse_map":
@@ -94,6 +93,26 @@ var MaterialManager = (function () {
                 }
                 render();
                 break;
+            case "roughness_map":
+                var loader = new THREE.TextureLoader();
+                function onroughLoad(texture) {
+                    targetMat.roughnessMap = texture;
+                    texture.flipY = false;
+                    targetMat.roughnessMap.wrapS = THREE.RepeatWrapping;
+                    targetMat.roughnessMap.wrapT = THREE.RepeatWrapping;
+                    targetMat.needsUpdate = true;
+                    console.log("Roughness Map Applied");
+                    render();
+                }
+                if (value == null) {
+                    targetMat.roughnessMap = null;
+                    targetMat.needsUpdate = true;
+                    render();
+                } else {
+                    loader.load(ltvs__source +"/textures/" + value, onroughLoad);
+                }
+                render();
+                break;
             case "roughness_value":
                 targetMat.roughness = value;
                 render();
@@ -125,12 +144,12 @@ var MaterialManager = (function () {
     function createMaterial(material) {
        
 
-        targetMat = new THREE.MeshStandardMaterial();
+        let targetMat = new THREE.MeshStandardMaterial();
 
         Object.entries(material).forEach(entry => {
             const [key, value] = entry;
             if (value != '') {
-                applyMaterialProperty(key, value);
+                applyMaterialProperty(key, value, targetMat);
             }
         });
         targetMat.needsUpdate = true;
@@ -145,16 +164,15 @@ var MaterialManager = (function () {
 
        assignMaterial(target,id,key, extension) {
                 if(loadedMaterials[id] != undefined) {
-                    console.log("found material");
-                    target.assignDefaultMaterial(loadedMaterials[id],key,extension);
+                    console.log("changing material", target,id,key, "extension:", extension);
+                    target.assignDefaultMaterial(key,loadedMaterials[id].clone(),extension,id);
                 }else{
                 fetch(ltvs__source + '/materials/' + id)
                     .then(response => response.json())
                     .then(data => {
                         let material = createMaterial(data);
-                        target.assignDefaultMaterial(material,key,extension);
+                        target.assignDefaultMaterial(key,material,data.extension,id);
                         loadedMaterials[id] = material;
-                        
                     });
                 }
 
@@ -162,7 +180,7 @@ var MaterialManager = (function () {
 
         getMaterial(id, callback) {
             if(loadedMaterials[id] != undefined) {
-                callback(loadedMaterials[id]);
+                callback(loadedMaterials[id].clone());
             }else{
                 fetch(ltvs__source + '/materials/' + id)
                 .then(response => response.json())
@@ -172,7 +190,16 @@ var MaterialManager = (function () {
                     callback(material);                  
                 }); 
             }
-        }
+        },
+        /*checkMaterial(obj){
+            for (var mat in loadedMaterials) {
+                console.log("check", mat);
+                if(loadedMaterials[mat] == obj.material){
+                    obj.material = loadedMaterials[mat].clone();
+                    obj.material.name = "temp_" + mat;
+                }
+            }
+        }*/
 
 
     }

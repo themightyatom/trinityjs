@@ -88,7 +88,6 @@ router.get('/edit/:id', checkAuthenticated, (req, res) => {
         let sql = "SELECT stub,title from languages";
         let query = db.query(sql, (err, result) => {
             if (err) throw err;
-            console.log(result);
             let params = { id: 'new', title: 'New Model Group' }
             res.render('editGroup', { params: params, languages: result });
         });
@@ -100,7 +99,6 @@ router.post('/delete', checkAuthenticated, (req, res) => {
 
     // remove coresponding database entry
     let sql = "DELETE FROM " + _table + " WHERE id = '" + req.body.id + "'";
-    console.log("REMOVING", req.body);
     //remove any associated translation
     let translations = {item_id:req.body.id, item_type:'group'};
     let query = db.query(sql, (err, result) => {

@@ -1,0 +1,13 @@
+<h2>{{ title }}</h2>
+
+<div class="submit-bt"> <button onclick="window.location.href='/designs/edit/new'">Create New Design</button></div>
+
+ <div class="item-row-top"><div class="column-3" ><span class="menutitle">TITLE</span></div><div class="column-3" ><span class="menutitle">ID</span></div><div class="column-3" ><span class="menutitle">DATE</span></div></div>
+{{# each designs as |val key|}}
+
+   <div class="item-row" onclick="window.location.href='/designs/view/{{val.id}}'"><div class="column-3" >{{val.title}}</div><div class="column-3" >{{val.id}}</div><div class="column-3" > {{ val.date }}</div></div>
+{{/each}}
+
+<script>
+   function startup(){};
+</script>

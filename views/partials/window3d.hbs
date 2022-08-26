@@ -15,6 +15,8 @@
     let camera, scene, renderer, preview, controls, width3d, height3d, sunLight, fillLight;
     let targetMat, decorLayer, envLayer, loadAni, container;
 
+    let decorManager = new DecorManager();
+
 
 
     init('ltvs_container');
@@ -96,11 +98,11 @@
 
         window.addEventListener('resize', onWindowResize, false);
 
-        DecorManager.setCamera(camera);
-        DecorManager.setTargetLayer(decorLayer);
-        DecorManager.setEnvLayer(envLayer);
-        DecorManager.setTargetWindow(container);
-        DecorManager.setControls(controls);
+        decorManager.setCamera(camera);
+        decorManager.setTargetLayer(decorLayer);
+        decorManager.setEnvLayer(envLayer);
+        decorManager.setTargetWindow(container);
+        decorManager.setControls(controls);
 
         //Lighting Sun
         sunLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);

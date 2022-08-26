@@ -66,10 +66,11 @@ router.get('/all', (req, res) => {
 
 router.get('/search/:term', (req, res) => {
     //let sql = 'SELECT * FROM models WHERE title LIKE ' + req.params.term;
-    let sql = "SELECT title, id FROM models WHERE title LIKE '%" + req.params.term + "%' OR sku LIKE '%" + req.params.term + "%' ORDER BY `models`.`priority` ASC";
+    let sql = "SELECT title, id, menu, snap_type FROM models WHERE title LIKE '%" + req.params.term + "%' OR sku LIKE '%" + req.params.term + "%' ORDER BY `models`.`priority` ASC";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
-        res.send(result);
+        
+        res.send({models:result});
     })
 });
 
@@ -101,7 +102,11 @@ router.get('/page/:page', checkAuthenticated, (req, res) => {
             res.render('modelList', { models: result, categories: cats, title: 'Models', prevpage:prev, nextpage:Number(page)+1 });
         })
         }else{
+            if(page > 0){
             res.redirect('/models/page/0');
+            }else{
+             res.render('nomodels', {title:'No models found'});   
+            }
         }   
 
     })
@@ -119,7 +124,7 @@ router.get('/category/:id', checkAuthenticated, (req, res) => {
     })
 });
 router.post('/search/', checkAuthenticated, (req, res) => {
-    let sql = "SELECT * FROM models WHERE title LIKE '%" + req.body.term + "%' OR sku LIKE '%" + req.body.term + "%' ORDER BY `models`.`priority` ASC";
+    let sql = "SELECT * FROM models WHERE title LIKE '%" + req.body.term + "%' OR sku LIKE '%" + req.body.term + "%' OR model LIKE '%" + req.body.term + "%' ORDER BY `models`.`priority` ASC";
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         sql = 'SELECT * FROM categories';
@@ -152,6 +157,10 @@ router.get('/editModel/:id', checkAuthenticated, (req, res) => {
         if (knownParameters.categories.length > 1) {
             let cats = JSON.parse(knownParameters.categories);
             knownParameters.categories = cats;
+        }
+        if (knownParameters.variants.length > 1) {
+            let vars = JSON.parse(knownParameters.variants);
+            knownParameters.variants = vars;
         }
         if (knownParameters.default_accessories.length > 1) {
             let defaccs = JSON.parse(knownParameters.default_accessories);
@@ -218,12 +227,19 @@ fs.readdir(classfolder, function (err, files) {
 router.get('/variation/:id', checkAuthenticated, (req, res) => {
     //copy parameters the original model, while creating new row
     let _id = req.params.id;
-    let sql = "INSERT INTO models( title, model, sku, categories, snap, snap_type, exclude, accessory_groups, materials, default_material, default_material_key, default_accessories ) SELECT title, model, sku, categories, snap, snap_type, exclude, accessory_groups, materials, default_material, default_material_key, default_accessories FROM models WHERE id=" + _id;
+    let sql = "INSERT INTO models( title, model, sku, categories, snap, snap_type, exclude, accessory_groups, materials, default_material, default_material_key, default_accessories, metadata ) SELECT title, model, sku, categories, snap, snap_type, exclude, accessory_groups, materials, default_material, default_material_key, default_accessories, metadata FROM models WHERE id=" + _id;
     let query = db.query(sql, (err, result) => {
         if (err) throw err;
         translationTools.duplicateTranslations(_id ,result.insertId, 'models')
             .then((response) => {
-                    res.redirect('/models/editmodel/' + result.insertId );
+                //change name
+                let newid = result.insertId;
+                sql = "UPDATE models SET title = CONCAT(title, ' (copy)') WHERE id =" + newid;
+                query = db.query(sql, (err,result) => {
+                if (err) throw err;
+                    res.redirect('/models/editmodel/' + newid );
+                });
+                    
                 
             });
     });
@@ -240,34 +256,44 @@ router.get('/uploadModel', checkAuthenticated, (req, res) => {
 // It's very crucial that the file name matches the name attribute in your html
 router.post('/uploadglb/', upload.single('file-to-upload'), (req, res) => {
     let model = req.file.originalname;
+    let classList;
     // Check for database entry with same file name
     let sql = "SELECT * from models WHERE model ='" + model + "'";
-    let query = db.query(sql, (err, result) => {
+    let query = db.query(sql, async (err, result) => {
         if (err) throw err;
       
         if (result.length > 0) {
             let id = result[0].id;
-            res.render('editModel', result[0]);
+           
+            res.redirect('/models/editModel/' +id);
         } else {
             // Otherwise create new entry
             let len = model.lastIndexOf('.');
             let sku = model.substr(0, len);
             let title = sku;
+            let model_class = 'DecorObject';
             let menu = 1;
             let sql = 'INSERT INTO models SET ? ';
-            let post = { title: title, sku: sku, model: model};
+            let default_material = 1;
+            let post = { title, sku, model, model_class};
+            await getClasses(model_class)
+        .then((response) =>{
+           classList = response;
+        });
           
             let query = db.query(sql, post, (err, result) => {
                 if (err) throw err;
                 let id = result.insertId;
                 res.render('editModel', {
+                    classList:classList,
                     params: {
                         model,
                         title,
                         sku,
                         id,
                         menu,
-                        default_material:0
+                        model_class,
+                        default_material
                     }
                 });
             });
@@ -312,7 +338,11 @@ router.post('/updatemodel', checkAuthenticated, (req, res) => {
     delete translations.exclude;
     delete translations.include;
     delete translations.menu;
+    delete translations.mirror;
     delete translations.model_class;
+    delete translations.updatecopies;
+    delete translations.variants;
+    delete translations.metadata;
     
     translations.item_id = req.body.id;
     translations.item_type = 'models';
@@ -322,12 +352,14 @@ router.post('/updatemodel', checkAuthenticated, (req, res) => {
     let groups = JSON.stringify(req.body.accessory_groups);
     let mats = JSON.stringify(req.body.materials);
     let defAccs = JSON.stringify(req.body.default_accessories);
+    let vars = JSON.stringify(req.body.variants);
     req.body.categories = cats;
     req.body.accessory_groups = groups;
     req.body.default_accessories = defAccs;
+    req.body.variants = vars;
     delete req.body.submit;
     let sql = "UPDATE models SET ? WHERE id = '" + req.body.id + "'";
-    let post = {model_class:req.body.model_class, default_accessories:defAccs, default_material: req.body.default_material, default_material_key: req.body.default_material_key, materials: mats, categories: cats, accessory_groups: groups, model: req.body.model, snap: req.body.snap, snap_type: req.body.snap_type, exclude: req.body.exclude, include: req.body.include,sku: req.body.sku, title: req.body.title, menu:req.body.menu };
+    let post = {variants:vars, model_class:req.body.model_class, default_accessories:defAccs, default_material: req.body.default_material, default_material_key: req.body.default_material_key, materials: mats, categories: cats, accessory_groups: groups, model: req.body.model, snap: req.body.snap, snap_type: req.body.snap_type, exclude: req.body.exclude, include: req.body.include,sku: req.body.sku, title: req.body.title, menu:req.body.menu, mirror:req.body.mirror, metadata:req.body.metadata };
     
     delete post.submit;
     let query = db.query(sql, post, (err, result) => {
@@ -335,13 +367,17 @@ router.post('/updatemodel', checkAuthenticated, (req, res) => {
         // update translations
         translationTools.saveTranslations(translations)
             .then(value =>{
-                //update other models sharing same base model
-                sql = "UPDATE models SET ? WHERE model = '"  + req.body.model + "'";
-                post = {categories: cats, accessory_groups: groups, snap: req.body.snap, snap_type: req.body.snap_type, exclude: req.body.exclude };
-                query = db.query(sql, post, (err, result) => {
-                    if (err) throw err;   
-                    res.redirect('/models')}
-                );
+                if(Number(req.body.updatecopies) > 0){
+                    //update other models sharing same base model
+                    sql = "UPDATE models SET ? WHERE model = '"  + req.body.model + "'";
+                    post = {categories: cats, accessory_groups: groups, snap: req.body.snap, snap_type: req.body.snap_type, exclude: req.body.exclude };
+                    query = db.query(sql, post, (err, result) => {
+                        if (err) throw err;   
+                        res.redirect('/models')}
+                    );
+                }else{
+                    res.redirect('/models');
+                }
             });
     });
 
@@ -445,11 +481,10 @@ router.post('/uploadthumb/', uploadthumb.single('file-to-upload'), (req, res) =>
 router.post('/reorder', (req,res) =>{
     let list = req.body.list;
    
-    let ind = 0;
         
           for(var i=0;i<list.length;i++) {
             var _id = list[i];
-            var sql = "UPDATE models SET priority = ? WHERE id = ?";
+            var sql = "UPDATE models SET priority = ? WHERE sku = ?";
             db.query(sql, [i, _id], function(err, result) {
               if(err) { console.log(err); return; }
             });
@@ -461,6 +496,17 @@ router.post('/reorder', (req,res) =>{
 
 });
 
-
+router.get('/idfromsku/:sku', (req,res) =>{
+    let _sku = req.params.sku;
+    let sql = "SELECT id from models WHERE sku ='" + _sku + "'";
+    let query = db.query(sql, (err, result) => {
+        if (err) throw err;
+        if (result.length > 0) {
+            res.send(result[0]);
+        } else {
+            res.send({ message: 'No model found with that sku' });
+        }
+    })
+});
 
 module.exports = router;

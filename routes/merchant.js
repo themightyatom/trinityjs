@@ -51,7 +51,7 @@ router.get('/category/:id', checkAuthenticated, (req, res) => {
         .then((response) => {
             let searchstr = '\"' + req.params.id + '\"'; //search array as string
             // let sql = "SELECT * FROM models WHERE categories LIKE '%" + searchstr + "%' ORDER BY `models`.`priority` ASC";
-            let sql = "SELECT mods.id as id, mods.sku as sku, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + response.merchant_id + " AS merch ON merch.model_id = mods.id WHERE categories LIKE '%" + searchstr + "%' ORDER BY mods.priority ASC";
+            let sql = "SELECT mods.id as id, mods.sku as sku, merch.configurable as configurable, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + response.merchant_id + " AS merch ON merch.model_id = mods.sku WHERE categories LIKE '%" + searchstr + "%' ORDER BY mods.priority ASC";
             let query = db.query(sql, (err, result) => {
                 if (err) throw err;
                 sql = 'SELECT * FROM categories';
@@ -66,7 +66,7 @@ router.post('/search', checkAuthenticated, (req, res) => {
     let user = req.user
         .then((response) => {
             // let sql = "SELECT * FROM models WHERE title LIKE '%" + req.body.term + "%' OR sku LIKE '%" + req.body.term + "%' ORDER BY `models`.`priority` ASC";
-            let sql = "SELECT mods.id as id, mods.sku as sku, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + response.merchant_id + " AS merch ON merch.model_id = mods.id WHERE mods.title LIKE '%" + req.body.term + "%' OR mods.sku LIKE '%" + req.body.term + "%'ORDER BY mods.priority ASC";
+            let sql = "SELECT mods.id as id, mods.sku as sku, merch.configurable as configurable, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + response.merchant_id + " AS merch ON merch.model_id = mods.sku WHERE mods.title LIKE '%" + req.body.term + "%' OR mods.sku LIKE '%" + req.body.term + "%'ORDER BY mods.priority ASC";
             let query = db.query(sql, (err, result) => {
                 if (err) throw err;
                 sql = 'SELECT * FROM categories';
@@ -87,10 +87,9 @@ router.get('/webshop-ids', checkAuthenticated, (req, res) => {
 
     let user = req.user
         .then((response) => {
-            let sql = 'SELECT mods.id as id, mods.sku as sku, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN ' + response.merchant_id + ' AS merch ON merch.model_id = mods.sku ORDER BY mods.priority ASC';
+            let sql = 'SELECT mods.id as id, mods.sku as sku, merch.configurable as configurable, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN ' + response.merchant_id + ' AS merch ON merch.model_id = mods.sku ORDER BY mods.priority ASC';
 
             let query = db.query(sql, (err, result) => {
-                console.log("RES", result);
                 if (err) throw err;
                 sql = 'SELECT * FROM categories';
                 query = db.query(sql, (err, cats) => {
@@ -117,7 +116,8 @@ router.post('/save-id', checkAuthenticated, (req, res) => {
                         res.send("ok");
                     })
                 } else {
-                    sql = "UPDATE " + response.merchant_id + " SET webshop_id ='" + req.body.webshop_id + "' WHERE model_id = '" + req.body.id + "'";
+                   
+                    sql = "UPDATE " + response.merchant_id + " SET webshop_id ='" + req.body.webshop_id + "' WHERE model_id = '" + req.body.sku + "'";
                     query = db.query(sql, post, (err, result) => {
                         if (err) throw err;
                         res.send("ok");
@@ -145,6 +145,11 @@ router.post('/import-ids', checkAuthenticated, upload.single('file-to-upload'), 
             // remove the first line: header
             csvData.shift();
             let query = "REPLACE INTO " + table +" (model_id, webshop_id) VALUES ?";
+
+          //let query = "INSERT INTO " + table +" (model_id, webshop_id) VALUES (model_id, webshop_id) ON DUPLICATE KEY UPDATE webshop_id=VALUES(webshop_id)";
+
+
+
             db.query(query, [csvData], (error, response) => {
                 console.log(error || response);
                 res.redirect('/merchant/webshop-ids');
@@ -158,6 +163,19 @@ router.post('/import-ids', checkAuthenticated, upload.single('file-to-upload'), 
 
 router.get('/importer', checkAuthenticated, (req,res) =>{
     res.render('merchantupload.hbs', {layout:'merchant', title:"CSV upload"});
+})
+
+router.post('/setconfigurable', checkAuthenticated, (req,res) =>{
+    let user = req.user
+    .then((response) => {
+        let table = response.merchant_id;
+        let sql = "UPDATE " + table + " SET configurable = '" + req.body.configurable + "' WHERE model_id = '" + req.body.sku + "'";
+        console.log("CHANGE", sql);
+        db.query(sql, (err,response) =>{
+            if(err) throw err;
+            res.send('ok');
+        })
+    })
 })
 
 
@@ -174,11 +192,19 @@ router.get('/checkproduct/:id', (req, res) => {
     if (split) {
         modelid = fullid.substr(split + 1);
         merchant_id = fullid.substr(0, split);
-        sql = "SELECT model_id FROM " + merchant_id + " WHERE  webshop_id = '" + modelid + "'";
+        sql = "SELECT model_id FROM " + merchant_id + " WHERE  webshop_id = '" + modelid + "' AND configurable = '1'";
         let query = db.query(sql, (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
-                res.json({ exists: true, sku: result[0].model_id });
+                //check that we have it...
+                sql = "SELECT id FROM models WHERE sku = '" + result[0].model_id + "'";
+                query = db.query(sql, (err, result2) => {
+                if(result2.length > 0){
+                    res.json({ exists: true, id: result2[0].id });
+                }else{
+                    res.json({ exists: false }); 
+                }
+            });
             } else {
                 res.json({ exists: false });
             }
@@ -190,12 +216,10 @@ router.get('/checkproduct/:id', (req, res) => {
 
 });
 router.post('/getwebshopids',upload.none(), (req,res) =>{
-    console.log("SKU", req.body.list.length, req.body.merchant);
     let strArray = "'" + req.body.list + "'";
     let commaArray = strArray.replace(/,/g, "\',\'");
     let sql = "SELECT model_id, webshop_id FROM " + req.body.merchant + " WHERE model_id IN (" + commaArray + ")";
     //let sql = "SELECT model_id, webshop_id FROM " + req.body.merchant + " WHERE model_id IN (\'4625-10\')";
-    console.log("sql", sql);
     let query = db.query(sql, (err, result) =>{
         if (err) throw err;
        

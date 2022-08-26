@@ -14,5 +14,9 @@
         if (value == undefined) return '';
         return value == test ? 'checked' : '';
     },
+    selectCheck:function (value,test){
+      if (value == undefined) return '';
+        return value == test ? 'selected' : '';
+    }
    
   }

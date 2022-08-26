@@ -21,6 +21,14 @@
             <lable for="title" class="menutitle">Title</lable><br>
             <input type="text" id="title" name="title" value="{{title}}" required>
         </p>
+         <p>
+            <lable for="category" class="menutitle">Type</lable><br>
+            <select name="category" id="category">
+            <option value="none" {{selectCheck category 'none'}}>None</option>
+            <option value="floor" {{selectCheck category 'floor'}}>Floor</option>
+            <option value="wallpaper" {{selectCheck category 'wallpaper'}}>Wallpaper</option>
+            </select>
+        </p>
         <p>
             <lable for="extension" class="menutitle">Extension (added to SKU by default)</lable><br>
             <input type="text" id="extension" name="extension" value="{{extension}}" >
@@ -33,7 +41,7 @@
         <div>
             <lable for="opacity_value" class="menutitle">Opacity</lable><br>
             <input type="range" id="opacity_value" name="opacity_value" min="0" max="1" step="0.01"
-                value="{{opacity_value}}" oninput="updateField(this.id,this.value)">
+                value="{{opacity_value}}" oninput="updateField(this.id,this.value)"><span id="opacity_value_display">{{opacity_value}}</span>
         </div>
         <p>
             <lable for="emissive_hex" class="menutitle">Emissive Color</lable><br>
@@ -42,12 +50,20 @@
         <p>
             <lable for="roughness_value" class="menutitle">Roughness</lable><br>
             <input type="range" id="roughness_value" name="roughness_value" min="0" max="1" step="0.01"
-                value="{{roughness_value}}" oninput="updateField(this.id,this.value)">
+                value="{{roughness_value}}" oninput="updateField(this.id,this.value)"><span id="roughness_value_display">{{roughness_value}}</span>     
+        </p>
+        <p>
+             <lable for="roughness_map" class="menutitle">Roughness Map</lable><br>
+            <div class="map-preview" ><img width="100%" height="100%"
+                    id="roughness_map_prev" onclick="imageChoose('roughness_map')" /><div class="delete-bt" id="roughness_map_remove" onclick="updateField('roughness_map',null)"><span class="material-icons" style="margin: -2px;">
+                        highlight_off
+                    </span></div></div><input class="image-input" type="text" id="roughness_map"
+                name="roughness_map" value="{{roughness_map}}">
         </p>
         <p>
             <lable for="metalness_value" class="menutitle">Metalness</lable><br>
             <input type="range" id="metalness_value" name="metalness_value" min="0" max="1" step="0.01"
-                value="{{metalness_value}}" oninput="updateField(this.id,this.value)">
+                value="{{metalness_value}}" oninput="updateField(this.id,this.value)"><span id="metalness_value_display">{{metalness_value}}</span>
         </p>
         <div>
             <lable for="diffuse_map" class="menutitle">Diffuse Map</lable><br>
@@ -68,7 +84,7 @@
         <p>
             <lable for="normal_value" class="menutitle">Normal Amount</lable><br>
             <input type="range" id="normal_value" name="normal_value" min="0" max="1" step="0.01"
-                value="{{normal_value}}" oninput="updateField(this.id,this.value)">
+                value="{{normal_value}}" oninput="updateField(this.id,this.value)"><span id="normal_value_display">{{normal_value}}</span>
         </p>
         <div>
             <lable for="bump_map" class="menutitle">Bump Map</lable><br>
@@ -157,6 +173,11 @@
             applyMaterialProperty('bump_map', bump);
             loadThumb('bump_map', bump);
         }
+         var roughness = '{{roughness_map}}';
+        if (roughness.length > 3) {
+            applyMaterialProperty('roughness_map', roughness);
+            loadThumb('roughness_map', roughness);
+        }
     }
     function loadThumb(field, value) {
         let targ = document.getElementById(field + '_prev');
@@ -195,6 +216,10 @@
         console.log("value", field, value)
         let f = document.getElementById(field);
         f.value = value;
+
+        let disp = document.getElementById(field + "_display");
+        if(disp)  disp.innerHTML = value;
+      
         //for maps...
         if (field.includes('_map')) {
             loadThumb(field, value);

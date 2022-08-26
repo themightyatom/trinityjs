@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="/css/login.css">-->
+    <title>Log in</title>
+</head>
+
+<body>
+    <style>
+        @font-face {
+            font-family: 'Maven Pro';
+            src: url('/css/mavenpro.woff2') format('woff2');
+        }
+
+        :root {
+            --action-color: #a7b7a9;
+        }
+
+        body {
+            font-family: 'Maven Pro', sans-serif;
+            background-color: #f8f8f8;
+            font-size: 12px;
+        }
+
+        .login-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0px;
+            top: 0px;
+            background-color: #f8f8f8;
+            
+
+        }
+
+        .login-container h1 {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .login-box {
+            background-color: #f8f8f8;
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 0);
+            padding: 10px;
+
+
+        }
+
+        input[type='email'],
+        input[type='password'],
+        input[type='text'] {
+            border: 0px;
+            box-shadow: rgb(40 42 49 / 16%) 0px 1px 2px 0px;
+            background-color: #f3f3f3;
+            border-radius: 1.5em;
+            padding: 5px;
+            font-family: 'Maven Pro', sans-serif;
+            text-align: center;
+            width: 234px;
+
+            
+
+
+        }
+
+        .register-link {
+            position: absolute;
+            bottom: 10%;
+            width: 100%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            justify-content: center;
+            display: flex;
+            cursor: pointer;
+
+        }
+
+        .signup-link {
+            color: var(--action-color);
+            font-weight: 600;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            color: var(--action-color);
+            font-weight: 600;
+            margin-left: 5px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .top-logo {
+            color: var(--action-color);
+
+            justify-content: center;
+            display: flex;
+            padding-top: 60px;
+
+
+        }
+
+        .form-element {
+            margin: 14px;
+        }
+
+        .form-button {
+            text-align: center;
+
+        }
+
+        .enter-button {
+            border-radius: 1.5em;
+            box-shadow: rgb(40 42 49 / 16%) 0px 1px 2px 0px;
+            width: fit-content;
+            padding: 5px 20px;
+            background-color: var(--action-color);
+
+            margin-top: 30px;
+            color: #f8f8f8;
+            font-size: 15px;
+            border: 0px;
+            cursor: pointer;
+
+        }
+
+        .ltvs-messages {
+            background-color: #f5bbbb;
+            position: relative;
+            left: 50%;
+            /* bottom: 5px; */
+            transform: translate(-50%, 0);
+            padding: 10px;
+            width: 90%;
+            text-align: center;
+            margin-top: 20px;
+            border-radius: 1.5em;
+            visibility: hidden;
+        }
+
+        #signup-container {
+            display: none;
+        }
+
+        #forgot-container {
+            display: none;
+        }
+
+        #signin-link {
+            display: none;
+        }
+
+        .login-close {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            margin: 5px;
+        }
+
+        .design-list {
+            cursor: pointer;
+            font-family: 'Maven Pro', sans-serif;
+            font-size: 14px;
+            user-select: none;
+        }
+    </style>
+
+    <div class="login-container">
+        <div class="top-logo"><svg xmlns='http://www.w3.org/2000/svg' height='48px' viewBox='0 0 24 24' width='48px'
+                fill='#a7b7a9'>
+                <path d='M0 0h24v24H0z' fill='none' />
+                <path
+                    d='M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z' />
+            </svg></div>
+        <div class="login-box" id="login-box-container">
+            <div class="form-element">
+                <h1>Login</h1>
+            </div>
+            <form id="loginform">
+                <div class="form-element"><input type="email" id="ltvs__email" placeholder="email" required></div>
+                <div class="form-element"><input type="password" id="ltvs__password" placeholder="password" required>
+                </div>
+                <!--<div class="form-element"><div onpointerup="forgottenPass()" class="forgot-link">forgot?</div></div>-->
+                <div class="form-element"><input type="checkbox" id="ltvs__stayloggedin" value="stay"><label for="ltvs__stayloggedin">Stay logged in</label></div>
+                <div class="form-button"><button class="enter-button" type="submit" name="submit" id="submit">
+                        login
+                    </button></div>
+            </form>
+            <div id="ltvs_login_messages" class="ltvs-messages"></div>
+        </div>
+
+        <div class="register-link" id="register-link">
+            <div>Don't have an account?</div>
+            <div onpointerup="signup()" class="signup-link">Sign Up</div>
+        </div>
+        <div class="register-link" id="signin-link">
+            <div>Have an account?</div>
+            <div onpointerup="signin()" class="signup-link">Login</div>
+        </div>
+
+
+        <div class="login-box" id="signup-container">
+            <div class="form-element">
+                <h1>Sign up</h1>
+            </div>
+            <form id="signupform">
+                <div class="form-element"><input type="text" id="ltvs_name" placeholder="name" required></div>
+                <div class="form-element"><input type="email" id="ltvs_email" placeholder="email" required></div>
+                <div class="form-element"><input type="password" id="ltvs_password" placeholder="password" required>
+                </div>
+                <div class="form-element"><input type="password" id="ltvs_password2" placeholder="re-type password"
+                        required></div>
+
+                <div class="form-button"><button class="enter-button" type="submit" name="submit">
+                        sign up
+                    </button></div>
+            </form>
+            <div id="ltvs_signup_messages" class="ltvs-messages"></div>
+        </div>
+
+
+
+        <div class="login-box" id="forgot-container">
+            <div class="login-box">
+                <div class="form-element">
+                    <h1>Reset Password</h1>
+                </div>
+                <form id="resetform">
+                    <div class="form-element"><input type="email" id="ltvs_resetemail" placeholder="email" required>
+                    </div>
+
+                    <div class="form-button"><button class="enter-button" type="submit" name="submit"
+                            id="submit_signup">
+                            send
+                        </button></div>
+                </form>
+                <div id="ltvs_forgot_message" class="ltvs-messages"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+        var form = document.getElementById("loginform");
+        form.addEventListener('submit', collectToken);
+
+        var formsign = document.getElementById("signupform");
+        formsign.addEventListener('submit', register);
+
+        var formforgot = document.getElementById("resetform");
+        formforgot.addEventListener('submit', forgotten);
+
+        function collectToken(event) {
+            event.preventDefault();
+            let email = document.getElementById('ltvs__email').value;
+            let password = document.getElementById('ltvs__password').value;
+            let stayLoggedIn = document.getElementById('ltvs__stayloggedin').checked;
+
+
+            var str = 'password=' + password + '&email=' + email;
+            console.log("Collectiing token", email, password);
+            fetch('https://auth.customshop.online/auth/gettoken', {
+                method: 'POST',
+                body: new URLSearchParams(str)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    let msgshow = document.getElementById("ltvs_login_messages");
+                    msgshow.innerHTML = data.message;
+                    msgshow.style.visibility = "visible";
+                    //check status
+                    if (data.status == 1) {
+                        let tf = document.getElementById("ltvs__token");
+                        tf.value = data.token;
+                        //tf.style.display = 'block';
+                        tf.dispatchEvent(new CustomEvent('ltvs__loggedIn', { bubbles: true, detail: { text: data.token, stay:stayLoggedIn} }))
+                    }
+                })
+        }
+        function register() {
+            event.preventDefault();
+            let email = document.getElementById('ltvs_email').value;
+            let password = document.getElementById('ltvs_password').value;
+            let passwordConfirm = document.getElementById('ltvs_password2').value;
+            let name = document.getElementById('ltvs_name').value;
+
+
+            var str = 'name=' + name + '&password=' + password + '&passwordConfirm=' + passwordConfirm + '&email=' + email;
+            fetch('https://auth.customshop.online/auth/createuser', {
+                method: 'POST',
+                body: new URLSearchParams(str)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    let msgshow = document.getElementById("ltvs_signup_messages");
+                    msgshow.innerHTML = data.message;
+                    msgshow.style.visibility = "visible";
+                    //check status
+                    if (data.status == 1) {
+                        signin();
+                    }
+                })
+        }
+        function forgotten() {
+            event.preventDefault();
+            console.log("forgotten password");
+            let msg = document.getElementById("ltvs_forgot_message");
+            msg.innerHTML = "Check your email :)";
+            msg.style.visibility = "visible";
+            setTimeout(signin, 3000);
+        }
+        function signup() {
+            console.log("signing up");
+            let su = document.getElementById('signup-container');
+            su.style.display = "block";
+            let rl = document.getElementById('register-link');
+            rl.style.display = "none";
+            let si = document.getElementById('signin-link');
+            si.style.display = "flex";
+            let fg = document.getElementById('forgot-container');
+            fg.style.display = "none";
+            let lbc = document.getElementById('login-box-container');
+            lbc.style.display = "none";
+
+
+        }
+        function signin() {
+            console.log("signing in");
+            let su = document.getElementById('signup-container');
+            su.style.display = "none";
+            let rl = document.getElementById('register-link');
+            rl.style.display = "flex";
+            let si = document.getElementById('signin-link');
+            si.style.display = "none";
+            let fg = document.getElementById('forgot-container');
+            fg.style.display = "none";
+            let lbc = document.getElementById('login-box-container');
+            lbc.style.display = "block";
+
+        }
+        function forgottenPass() {
+            console.log("forgot");
+            let su = document.getElementById('signup-container');
+            su.style.display = "none";
+            let rl = document.getElementById('register-link');
+            rl.style.display = "none";
+            let si = document.getElementById('signin-link');
+            si.style.display = "flex";
+            let fg = document.getElementById('forgot-container');
+            fg.style.display = "block";
+            let lbc = document.getElementById('login-box-container');
+            lbc.style.display = "none";
+
+        }
+        function closeLogin() {
+            console.log("closing");
+            document.getElementsByTagName("BODY")[0].innerHTML = '';
+        }
+    </script>
+
+</body>
+
+</html>

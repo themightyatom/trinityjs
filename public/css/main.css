@@ -11,6 +11,7 @@ body{
     width:240px;
     height: calc(100% - 60px);
     z-index: 2;
+    overflow-y: auto;
 }
 .main{
     
@@ -45,7 +46,7 @@ body{
 }
 .cover{
     background-color: #f1f1f1;
-    height: 100px;
+    height: 80px;
     position: fixed;
     top: 10px;
     width: 100%;
@@ -147,6 +148,7 @@ input[type="submit" i]{
     height: 500px;
     padding-right: 20px;
     padding-bottom: 20px;
+    padding-left: 10px;
     width:500px;
     position: absolute;
     left:0px;
@@ -155,7 +157,7 @@ input[type="submit" i]{
 .parameter-column{
     position: absolute;
     max-width: 500px;
-    top:550px;
+    top:630px;
 }
 .textureBox{
     min-width:500px;
@@ -216,6 +218,12 @@ input[type="submit" i]{
 }
 .column-4{
     width: 25%;
+    position: relative;
+    float: left;
+    margin: auto;
+}
+.column-5{
+    width: 20%;
     position: relative;
     float: left;
     margin: auto;

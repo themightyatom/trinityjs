@@ -1,0 +1,33 @@
+<div id="save_design" style="padding:20px;">Save Design?</div>
+<div style="display: flex;justify-content: space-between;">
+<button  id="save_button" onclick="saveAndClose()">Save</button>
+<div style="width:10px"></div>
+<button id="dont_save" onclick="newAndClose()">Don't Save</button>
+
+</div>
+<div style="padding: 20px; font-size: 12px;">
+
+    <input type="checkbox" id="keeproom" >
+    <label for="keeproom" id="keeproom_label">Keep Room?</label>
+    </div>
+<script>
+    //function closeDialog(){document.getElementById('ltvs_dialog').remove()};
+    function closeDialog(){$('#new_plan').remove()};
+    function newAndClose(){
+        let keeproom = document.getElementById('keeproom').checked;
+        DD2022.newPlan(keeproom);
+        closeDialog(); 
+    }
+    function saveAndClose(){
+        DD2022.buttonCommands('save');
+        closeDialog();
+    }
+    function getTranslations(){
+        console.log("t", DD2022.getTranslation('save_design'));
+        document.getElementById("save_design").innerHTML = DD2022.getTranslation('save_design');
+        document.getElementById("save_button").innerHTML = DD2022.getTranslation('save');
+        document.getElementById("dont_save").innerHTML = DD2022.getTranslation('dont_save');
+        document.getElementById("keeproom_label").innerHTML = DD2022.getTranslation('keeproom');
+    }
+    getTranslations();
+</script>
