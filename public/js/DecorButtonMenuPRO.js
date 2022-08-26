@@ -93,7 +93,7 @@ class DecorButtonMenuPRO{
     room_edit_button.setAttribute("title", this.getTranslation('edit_room'));
     room_edit_button.classList.add("buttonArrayButton");
    // room_edit_button.innerHTML = "<div class='decor-icon'><svg  x= '0px ' y= '0px ' width= '24px ' height= '24px ' viewBox= '0 0 24 24 '><path id= 'Layer0_0_1_STROKES ' stroke= '" + this.iconColor + "' stroke-width= '2 ' stroke-linejoin= 'square' stroke-linecap= 'square' fill= 'none' d= 'M 14.15 2.75 L 2.55 2.75 2.55 21.5 13.65 21.5 13.65 16.15 21.4 16.15 21.4 2.75 19.9 2.75 16.2 7.4'/></svg></div>";
-     room_edit_button.innerHTML = "<div class='decor-icon'><svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24' fill='" + this.iconColor + "'><path d='M10,5V10H9V5H5V13H9V12H10V17H9V14H5V19H12V17H13V19H19V17H21V21H3V3H21V15H19V10H13V15H12V9H19V5H10Z' /></svg></div><div class='menu-lable'><span>" + this.getTranslation('edit_room') + "<span></div>";
+   room_edit_button.innerHTML = "<div class='decor-icon'><svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24' stroke= '" + this.iconColor + "'><path d='M 21.0413,11.14C 21.1827,11.14 21.3173,11.1973 21.4213,11.3027L 22.6973,12.5787C 22.912,12.792 22.912,13.14 22.6973,13.3493L 21.6973,14.3493L 19.6507,12.3027L 20.6507,11.3027C 20.76,11.1973 20.9013,11.14 21.0413,11.14 Z M 19.0627,12.88L 21.1093,14.932L 15.0627,21L 13,21L 13,18.9373L 19.0627,12.88 Z M 12,5.688L 7,10.188L 7,18L 11,18L 11,20L 5,20L 5,12L 2,12L 12,3L 19.4587,9.71285L 17,12.1716L 17,10.188L 12,5.688 Z' /></svg></div><div class='menu-lable'><span>" + this.getTranslation('edit_room') + "<span></div>";
      room_edit_button.addEventListener('mousedown', e => this.callback('room'));
    
     const share_button = document.createElement("div");
@@ -139,6 +139,13 @@ class DecorButtonMenuPRO{
     download_button.classList.add("buttonArrayButton");
     download_button.innerHTML = "<div class='decor-icon'><svg xmlns='http://www.w3.org/2000/svg' enable-background='new 0 0 24 24' height='24px' viewBox='0 0 24 24' width='24px' fill='" + this.iconColor + "'><g><rect fill='none' height='24' width='24'/></g><g><path d='M5,20h14v-2H5V20z M19,9h-4V3H9v6H5l7,7L19,9z'/></g></svg></div><div class='menu-lable'><span>" + this.getTranslation('download') + "<span></div>";
     download_button.addEventListener('mousedown', e => this.callback('download'));
+
+    const cad_button = document.createElement("div");
+    cad_button.setAttribute("id", "cadButton");
+    cad_button.classList.add("buttonArrayButton");
+    cad_button.innerHTML = "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' width='24' height='24' viewBox='0 0 24 24' fill='" + this.iconColor + "'><path d='M10,5V10H9V5H5V13H9V12H10V17H9V14H5V19H12V17H13V19H19V17H21V21H3V3H21V15H19V10H13V15H12V9H19V5H10Z' /></svg><div class='menu-lable'><span>" + this.getTranslation('cad') + "<span></div>";
+   // cad_button.innerHTML ='<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="' + this.iconColor + '"><path d="M11 18H13V15H16V13H13V10H11V13H8V15H11ZM18 22H6Q5.175 22 4.588 21.413Q4 20.825 4 20V4Q4 3.175 4.588 2.587Q5.175 2 6 2H14L20 8V20Q20 20.825 19.413 21.413Q18.825 22 18 22ZM13 9V4H6Q6 4 6 4Q6 4 6 4V20Q6 20 6 20Q6 20 6 20H18Q18 20 18 20Q18 20 18 20V9ZM6 4V9V4V9V20Q6 20 6 20Q6 20 6 20Q6 20 6 20Q6 20 6 20V4Q6 4 6 4Q6 4 6 4Z"/></svg> <div class="menu-lable"><span>' + this.getTranslation("cad") + '<span></div>';
+    cad_button.addEventListener('mousedown', e => this.callback('cad'));
     
     
     this.user_button = document.createElement("div");
@@ -203,6 +210,7 @@ class DecorButtonMenuPRO{
     this.buttonArray.appendChild(browse_button);
     this.buttonArray.appendChild(new_button);
     this.buttonArray.appendChild(room_edit_button);
+    this.buttonArray.appendChild(cad_button);
     this.buttonArray.appendChild(save_button);
     this.buttonArray.appendChild(upload_button);
     this.buttonArray.appendChild(duplicate_button);

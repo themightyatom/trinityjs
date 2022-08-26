@@ -1189,6 +1189,17 @@ label {
   top: 10px;
   box-shadow: 0px 0px 6px 1px rgb(0 0 0 / 10%);
 }
+.cadmenu{
+  position: fixed;
+  width: 192px;
+  left: calc(50% - 96px);
+  height: 40px;
+  z-index: 10000;
+  background: #FFF;
+ /* bottom: 0px; */
+  top:51px;
+  box-shadow: 0px 0px 6px 1px rgb(0 0 0 / 10%);
+}
 
 .dimensions {
   width: 100%;

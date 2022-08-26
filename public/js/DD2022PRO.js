@@ -11,7 +11,8 @@ import DecorRoomMenu from '/js/DecorRoomMenu.js';
 import DecorModelUpload from '/js/DecorModelUpload.js';
 import DecorObject from '/classes/DecorObject.js';
 import * as THREE from '/three/build/three.module.js';
-import { GLTFExporter } from '/three/examples/jsm/exporters/DecorGLTFExporter.js';
+import { DecorGLTFExporter } from '/js/DecorGLTFExporter.js';
+import DecorCADMenu from '/js/DecorCADMenu.js';
 import EventManager from '/js/EventManager.js';
 import DialogBox from '/js/DialogBox.js';
 import SharedObjects from '/js/SharedObjects.js';
@@ -55,6 +56,9 @@ class DD2022 {
         this.sharepath = "/designs/view/";
         this.startDesign = false;
         this.refreshMenu = true;
+        this.cadMode = false;
+        this.showDimensions = true;
+        this.cadMenu;
         this.showBottles = false;
         this.sharedObjects = new SharedObjects();
         this.decorBrowser = new DecorBrowser();
@@ -191,6 +195,26 @@ class DD2022 {
         this.focusRoom = room;
         render();
     }
+    enterCADmode(){
+        let room = null;
+        if(this.decor3d.envLayer.children.length > 0) room = this.decor3d.envLayer.children[0];
+        
+
+        if(this.cadMode){
+            this.cadMode = false;
+            this.cadMenu.close();
+        }else{ 
+            this.cadMenu = new DecorCADMenu(this.decor3d, room,this.decorRoomPlanner);
+            this.cadMode = true;
+            // show room from above, with pan and zoom tools. Show position of selected
+            this.decor3d.enterOrtographicMode();
+            
+        }
+        this.decorRoomPlanner.endEdit();
+        render();
+        
+     
+    }
     setFocusGroup(group) {
         this.focusObj = group;
     }
@@ -291,6 +315,9 @@ class DD2022 {
                 break;
             case 'new':
                 this.newPlanPrompt();
+                break;
+            case 'cad':
+                this.enterCADmode();
                 break;
             case 'bottles':
                 this.showHideBottles();
@@ -723,10 +750,13 @@ class DD2022 {
     }
     returnTo3Dmode() {
         //after editing room in 2D
+        this.decor3d.addPerspectiveCamera();        
         this.decorManager.setCamera();
-        DecorUI.createUI(this.focusRoom, true);
 
-        this.focusRoom.showhide2D(false);
+        if(this.focusRoom != null){
+            DecorUI.createUI(this.focusRoom,true);
+            this.focusRoom.showhide2D(false);
+        }
 
         DecorUI.weedUnavailable();
         this.decorManager.enable();
@@ -734,6 +764,19 @@ class DD2022 {
         $("#buttonmenu").css("display", "block");
         $("#dialogboxholder").css("display", "block");
         this.decor3d.controls.enabled = true;
+        this.cadMode = false;
+
+        this.decorRoomPlanner.scaleTexts(6);
+        
+        while (this.decor3d.controlLayer.children.length > 0) {
+            this.decor3d.controlLayer.remove(this.decor3d.controlLayer.children[this.decor3d.controlLayer.children.length - 1]);
+        }
+        while (this.decor3d.drawLayer.children.length > 0) {
+            this.decor3d.drawLayer.remove(this.decor3d.drawLayer.children[this.decor3d.drawLayer.children.length - 1]);
+        }
+        $("#dimensions").html("");
+        this.decorRoomPlanner.endEdit();
+        render();
 
     }
     uploadFile() {
@@ -774,7 +817,7 @@ class DD2022 {
 
     }
     downloadModel() {
-        var exporter = new GLTFExporter();
+        var exporter = new DecorGLTFExporter();
         var target = this.decor3d.decorLayer;
         this.decor3d.showHideGrid(false);
 

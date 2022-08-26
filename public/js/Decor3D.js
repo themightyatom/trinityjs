@@ -101,6 +101,10 @@ class Decor3D {
         this.scene.add(this.drawLayer);
         this.drawLayer.name = "drawLayer";
 
+        this.controlLayer = new THREE.Object3D();
+        this.scene.add(this.controlLayer);
+        this.controlLayer.name = "controlLayer";
+
         let mat = new THREE.ShadowMaterial();
         mat.opacity = 0.02;
         let geom = new THREE.PlaneGeometry(10, 10);
@@ -384,10 +388,7 @@ class Decor3D {
         this.camera.updateProjectionMatrix();
 
         this.mode = '2d';
-        if (this.controlLayer == null) {
-            this.controlLayer = new THREE.Object3D();
-            this.scene.add(this.controlLayer);
-        }
+        
         /*this.controlLayer.add(this.elasticLine);
         this.elasticLine.geometry = new THREE.BufferGeometry();
         console.log("Camera", this.camera);*/

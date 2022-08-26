@@ -3,6 +3,7 @@ import * as THREE from '/three/build/three.module.js';
 import { DecorDragControls } from '/js/DecorDragControls.js';
 import DecorLogin from '/js/DecorLogin.js';
 import MaterialManager from '/js/MaterialManager.js';
+import DimensionLine from '/js/DimensionLine.js';
 
 
 
@@ -46,7 +47,10 @@ class DecorRoomPlanner {
         this.minX = new THREE.Vector3();
         this.maxZ = new THREE.Vector3();
         this.minZ = new THREE.Vector3();
+        this.vector = new THREE.Vector2();
+        this.vector3d = new THREE.Vector3();
         this.rayHits = [0, 0, 0, 0];
+        this.objDistances = [0, 0, 0, 0];
         this.mouse = new THREE.Vector2();
         this.YPLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         this.normalMatrix = new THREE.Matrix3(); // create once and reuse
@@ -61,6 +65,20 @@ class DecorRoomPlanner {
         this.limitReset = e => this.resetLimits();
 
         this.currentWall;
+
+        this.dimLines = [];
+
+        this.dimLine0 = new DimensionLine(this.rayOffset, this.rayOffset, 0x000000, this.arrowWidth, this.arrowLength);
+        this.dimLine1 = new DimensionLine(this.rayOffset, this.rayOffset, 0x000000, this.arrowWidth, this.arrowLength);
+        this.dimLine2 = new DimensionLine(this.rayOffset, this.rayOffset, 0x000000, this.arrowWidth, this.arrowLength);
+        this.dimLine3 = new DimensionLine(this.rayOffset, this.rayOffset, 0x000000, this.arrowWidth, this.arrowLength);
+
+        this.dimLine0.position.y = 3;
+        this.dimLine1.position.y = 3;
+        this.dimLine2.position.y = 3;
+        this.dimLine3.position.y = 3;
+
+        this.dimLines.push(this.dimLine0, this.dimLine1, this.dimLine2, this.dimLine3);
 
         this.dropTarget = null;
 
@@ -160,7 +178,67 @@ class DecorRoomPlanner {
     }
     removeUI() {
         ltvs_menuHolder.classList.remove("cover-full");
-       ltvs_menuHolder.innerHTML = "";
+        ltvs_menuHolder.innerHTML = "";
+    }
+    buildWallArray() {
+        this.wallArray = [];
+        if (this.decor3d.envLayer.children.length > 0) {
+            for (var w = 0; w < this.decor3d.envLayer.children[0].wallArray.length; w++) {
+                this.wallArray.push(this.decor3d.envLayer.children[0].wallArray[w].snapSurface);
+            }
+            // add any accessories that contains _aswall
+            for (var p = 0; p < this.decor3d.envLayer.children[0].accessoryLayer.children.length; p++) {
+
+                /* if(this.decor3d.envLayer.children[0].accessoryLayer.children[p].wallArray.length > 0 ){
+                     for(var i=0;i<this.decor3d.envLayer.children[0].accessoryLayer.children[p].wallArray.length;i++){
+                         this.decor3d.envLayer.children[0].accessoryLayer.children[p].wallArray[i].geometry.computeBoundingBox();
+                         this.decor3d.envLayer.children[0].accessoryLayer.children[p].wallArray[i].geometry.computeBoundingSphere();
+                     }
+                 }*/
+
+                this.wallArray = this.wallArray.concat(this.decor3d.envLayer.children[0].accessoryLayer.children[p].wallArray);
+            }
+            //add floor for vertical measurements
+            this.wallArray.push(this.decor3d.envLayer.children[0].floorsnap);
+        }
+    }
+
+    buildObstructionArray() {
+        this.obstructionArray = [];
+        this.obstructionArray = this.obstructionArray.concat(this.wallArray);
+        while (this.decor3d.controlLayer.children.length > 0) {
+            this.decor3d.controlLayer.remove(this.decor3d.controlLayer.children[this.decor3d.controlLayer.children.length - 1]);
+        }
+        this.obstructionMat = new THREE.MeshBasicMaterial({ color: 0xFF0000, visible: false });
+        for (var i = 0; i < this.decor3d.decorLayer.children.length; i++) {
+            if (this.decor3d.decorLayer.children[i] != this.currentTarget) {
+                this.decor3d.decorLayer.children[i].turnOffSnapPoints();
+                this.bbox.setFromObject(this.decor3d.decorLayer.children[i]);
+                this.bbox.getCenter(this.rayCenter);
+                this.bbox.getSize(this.raySize);
+                let box = new THREE.Mesh(new THREE.BoxGeometry(this.raySize.x, this.raySize.y, this.raySize.z), this.obstructionMat);
+                this.decor3d.controlLayer.add(box);
+                box.position.copy(this.rayCenter);
+                this.obstructionArray.push(box);
+            }
+        }
+        //add room accessories (stairs etc)
+        if (this.decor3d.envLayer.children.length > 0) {
+            let layer = this.decor3d.envLayer.children[0].accessoryLayer;
+            for (var j = 0; j < layer.children.length; j++) {
+                if (layer.children[j] != this.currentTarget) {
+                    layer.children[j].turnOffSnapPoints();
+                    this.bbox.setFromObject(layer.children[j]);
+                    this.bbox.getCenter(this.rayCenter);
+                    this.bbox.getSize(this.raySize);
+                    let box = new THREE.Mesh(new THREE.BoxGeometry(this.raySize.x, this.raySize.y, this.raySize.z), this.obstructionMat);
+                    this.decor3d.controlLayer.add(box);
+                    box.position.copy(this.rayCenter);
+                    this.obstructionArray.push(box);
+                }
+            }
+        }
+
     }
 
     startSelectMoveTool() {
@@ -268,22 +346,22 @@ class DecorRoomPlanner {
     }
 
     selectObject(obj) {
-        if(DD2022.shiftkey){
-            if(this.currentTarget != null){
+        if (DD2022.shiftkey) {
+            if (this.currentTarget != null) {
                 this.multiSelected.push(this.currentTarget);
             }
             this.multiSelected.push(obj);
             this.currentTarget = obj;
             this.highlightSelected();
             this.currentTarget = null;
-        }else{
+        } else {
             this.lowlight();
             this.currentTarget = obj;
             this.startEdit();
             this.currentWall = null;
         }
-        
-        
+
+
     }
 
     getRoomObject(e) {
@@ -317,7 +395,7 @@ class DecorRoomPlanner {
     startEdit() {
         console.log("editing ROom PLanner", this.currentTarget);
         this.rect = this.decor3d.container.getBoundingClientRect(); //calculate once
-        
+
         this.highlightSelected();
         this.decor3d.controls.enabled = false;
         this.camera = this.decor3d.camera;
@@ -351,7 +429,10 @@ class DecorRoomPlanner {
         }
         if (this.currentTarget.snap == "wall") {
             //  this.dragControls.rotationEnabled(false);
+            // if(DD2022.cadMode) this.dragControls.deactivate();
         }
+        this.buildWallArray();
+        this.buildObstructionArray();
 
         /* if(this.dragControls._listeners == undefined){
          
@@ -365,16 +446,22 @@ class DecorRoomPlanner {
         DD2022.loadMenu(this.currentTarget);
         this.resetLimits();
 
-        if (this.currentTarget.snap == 'wall' && this.currentTarget.classtype.substring(0,8) == "WineRack"){
+        if (this.currentTarget.snap == 'wall' && this.currentTarget.classtype.substring(0, 8) == "WineRack") {
             this.registerSnapPoints(this.currentTarget);
-        } 
-        if (this.currentTarget.snap == 'wall'){
+        }
+        if (this.currentTarget.snap == 'wall') {
             this.buildWallArray();
             this.objectSnapPoints = this.currentTarget.getWallSnaps();
-        } 
-        
+        }
+
+        setTimeout(this.drawStaticDimensions.bind(this),100);
 
 
+
+    }
+    drawStaticDimensions(){
+        this.drawObjectDimension();
+        render();
     }
     registerSnapPoints(object) {
         this.snapPoints = [];
@@ -382,7 +469,7 @@ class DecorRoomPlanner {
         var pos = new THREE.Vector3();
         for (var i = 0; i < this.decor3d.decorLayer.children.length; i++) {
             let winerack = this.decor3d.decorLayer.children[i];
-            if (winerack != object && winerack.classtype.substring(0,8) == "WineRack") {
+            if (winerack != object && winerack.classtype.substring(0, 8) == "WineRack") {
 
                 points = winerack.getWallSnaps();
                 for (var p = 0; p < points.length; p++) {
@@ -394,9 +481,9 @@ class DecorRoomPlanner {
                 }
             }
         }
-       
 
-        
+
+
         // targetObject = object;
 
 
@@ -408,8 +495,8 @@ class DecorRoomPlanner {
                 this.wallArray.push(this.decor3d.envLayer.children[0].wallArray[w].snapSurface);
             }
         }
-         // add room corner/floor/cieling snaps
-         if (this.decor3d.envLayer.children.length > 0 && this.decor3d.envLayer.children[0].classtype == "DynamicRoom") {
+        // add room corner/floor/cieling snaps
+        if (this.decor3d.envLayer.children.length > 0 && this.decor3d.envLayer.children[0].classtype == "DynamicRoom") {
             var pos = new THREE.Vector3();
             for (var t = 0; t < this.decor3d.envLayer.children[0].pointArray.length; t++) {
                 this.decor3d.envLayer.children[0].pointArray[t].getWorldPosition(pos);
@@ -423,7 +510,7 @@ class DecorRoomPlanner {
                 this.wallArray = this.wallArray.concat(this.decor3d.envLayer.children[0].accessoryLayer.children[p].wallArray);
             }
         }
-        
+
     }
     resetLimits() {
         //reset collision
@@ -474,9 +561,9 @@ class DecorRoomPlanner {
         console.log("ending", this.dropTarget);
 
         var l = this.multiSelected.length;
-        if(l > 0){
+        if (l > 0) {
             var i
-            for(i=0;i<l;i++){
+            for (i = 0; i < l; i++) {
                 this.currentTarget = this.multiSelected[i];
                 this.lowlight();
             }
@@ -490,7 +577,7 @@ class DecorRoomPlanner {
         this.decor3d.controls.enabled = true;
         if (this.dropTarget) this.reattachObject();
 
-       
+
 
         this.currentTarget = null;
 
@@ -503,6 +590,7 @@ class DecorRoomPlanner {
             }
         })
         this.currentTarget.createWallSnaps();
+
         render();
     }
     lowlight() {
@@ -522,19 +610,19 @@ class DecorRoomPlanner {
         this.currentTarget = target;
     }
     collisionTest(obj) {
-        
+
         this.lastEvent = this.dragControls.getLastEvent();
         this.mouse.x = (this.lastEvent.clientX / this.rect.width) * 2 - 1;
         this.mouse.y = - (this.lastEvent.clientY / this.rect.height) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
-       
+
         if (obj.object.snap == "wall") {
 
 
             this.wallIntersects = this.raycaster.intersectObjects(this.wallArray, true);
             this.len = this.wallIntersects.length;
             if (this.len > 0) {
-                
+
                 for (this.iter = 0; this.iter < this.len; this.iter++) {
 
 
@@ -556,6 +644,7 @@ class DecorRoomPlanner {
                             obj.object.lookAt(this.worldNormal);
                         }
                         obj.object.position.copy(this.wallIntersects[this.iter].point);
+                        //this.drawWallObjectDimension(obj.object);
                         break;
                     }
 
@@ -568,6 +657,7 @@ class DecorRoomPlanner {
                 this.dropTarget = null;
                 this.dragControls.resetOffset();
 
+
             }
 
             this.closestSnap(obj.object);
@@ -575,7 +665,11 @@ class DecorRoomPlanner {
             obj.object.position.x -= this.px;
             obj.object.position.y -= this.py;
             obj.object.position.z -= this.pz;
+            // this.drawWallObjectDimension(obj.object);
+            if (DD2022.cadMode) this.drawObjectDimension();
             return;
+
+
         }
 
 
@@ -623,7 +717,7 @@ class DecorRoomPlanner {
             this.points = this.decor3d.envLayer.children[0].pointArray;
             obj.object.backSnap.getWorldPosition(this.snapPos);
             //  this.snapPos.x += Math.sin(this.raySize.z/2
-        
+
             this.len = this.points.length;
             for (var i = 0; i < this.points.length - 1; i++) {
 
@@ -676,6 +770,7 @@ class DecorRoomPlanner {
             // default:
             // break;
             //}
+            this.drawObjectDimension();
         }
     }
     closestSnap() {
@@ -711,6 +806,283 @@ class DecorRoomPlanner {
         }
 
 
+    }
+    clearDrawLayer() {
+        while (this.decor3d.drawLayer.children.length > 0) {
+            this.decor3d.drawLayer.remove(this.decor3d.drawLayer.children[this.decor3d.drawLayer.children.length - 1]);
+        }
+    }
+    drawObjectDimension() {
+        if (!DD2022.cadMode) return;
+        if (this.decor3d.envLayer.children.length < 1) return;
+        if (!this.currentTarget) return;
+        this.clearDrawLayer();
+
+        $("#dimensions").html("");
+
+
+        //cast a ray from the center of the object 
+
+        this.bbox.setFromObject(this.currentTarget);
+        this.bbox.getCenter(this.rayCenter);
+        this.bbox.getSize(this.raySize);
+        this.rayCenter.y = 0.01; //check at ground level
+
+        // X negative direction 0
+        this.rayOffset.x = this.rayCenter.x - (this.raySize.x / 2);
+        this.rayOffset.z = this.rayCenter.z;
+        this.rayPos.y = 0.01;
+        this.rayDirection.x = -1;
+        this.rayDirection.y = 0;
+        this.rayDirection.z = 0;
+        this.collisionRay.set(this.rayOffset, this.rayDirection);
+        this.collisions = this.collisionRay.intersectObjects(this.obstructionArray, false);
+        if (this.collisions.length > 0) {
+
+            //this.decor3d.drawLayer.add(new DimensionLine(this.rayOffset, collisions[0].point, 0x008abd, 0.1, 0.2));
+            this.decor3d.drawLayer.add(this.dimLine0);
+
+            this.dimLine0.redraw(this.rayOffset, this.collisions[0].point);
+
+            this.vector3d.x = this.rayOffset.x + ((this.collisions[0].point.x - this.rayOffset.x) / 2);
+            this.vector3d.z = this.rayOffset.z;
+            this.vector = this.screenXY(this.vector3d);
+            this.createDimensionInput(Number(this.vector.x - 15), Number(this.vector.y - 14), "negx", Math.round(this.collisions[0].distance * 100));
+            // $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><span><input type='text' tabindex='" + 0 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='negx' value='" + Math.round(this.collisions[0].distance * 100) + ' cm' + "' ></div>");
+            this.objDistances[0] = this.collisions[0].distance;
+        }
+        // X positive 1
+        this.rayOffset.x = this.rayCenter.x + (this.raySize.x / 2);
+        this.rayPos.y = 0.01;
+        this.rayDirection.x = 1;
+        this.rayDirection.y = 0;
+        this.rayDirection.z = 0;
+        this.collisionRay.set(this.rayOffset, this.rayDirection);
+        this.collisions = this.collisionRay.intersectObjects(this.obstructionArray, false);
+        if (this.collisions.length > 0) {
+
+            //this.decor3d.drawLayer.add(new DimensionLine(this.rayOffset, collisions[0].point, 0x008abd, 0.1, 0.2));
+            this.decor3d.drawLayer.add(this.dimLine1);
+            this.dimLine1.redraw(this.rayOffset, this.collisions[0].point);
+            this.vector3d.x = this.rayOffset.x + ((this.collisions[0].point.x - this.rayOffset.x) / 2);
+            this.vector3d.z = this.rayOffset.z;
+            this.vector = this.screenXY(this.vector3d);
+            this.createDimensionInput(Number(this.vector.x - 15), Number(this.vector.y - 14), "posx", Math.round(this.collisions[0].distance * 100))
+            // $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><input type='text' tabindex='" + 1 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='posx' value='" +  + ' cm' + "' ></div>");
+            this.objDistances[1] = this.collisions[0].distance;
+        }
+        // Z negative direction
+        this.rayOffset.x = this.rayCenter.x;
+        this.rayOffset.z = this.rayCenter.z + this.raySize.z / 2;
+        this.rayPos.y = 0.01;
+        this.rayDirection.x = 0;
+        this.rayDirection.y = 0;
+        this.rayDirection.z = 1;
+        this.collisionRay.set(this.rayOffset, this.rayDirection);
+        this.collisions = this.collisionRay.intersectObjects(this.obstructionArray, false);
+        if (this.collisions.length > 0) {
+
+            //this.decor3d.drawLayer.add(new DimensionLine(this.rayOffset, collisions[0].point, 0x008abd, 0.1, 0.2));
+            this.decor3d.drawLayer.add(this.dimLine2);
+            this.dimLine2.redraw(this.rayOffset, this.collisions[0].point, true);
+            this.vector3d.x = this.rayOffset.x
+            this.vector3d.z = this.rayOffset.z + ((this.collisions[0].point.z - this.rayOffset.z) / 2);
+            this.vector = this.screenXY(this.vector3d);
+            //  $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><input type='text' tabindex='" + 0 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='posz' value='" + Math.round(this.collisions[0].distance * 100) + ' cm' + "' ></div>");
+            this.createDimensionInput(Number(this.vector.x + 5), Number(this.vector.y - 6), "posz", Math.round(this.collisions[0].distance * 100))
+            this.objDistances[2] = this.collisions[0].distance;
+        }
+        // Z positive
+        this.rayOffset.z = this.rayCenter.z - this.raySize.z / 2;
+        this.rayPos.y = 0.01;
+        this.rayDirection.x = 0;
+        this.rayDirection.y = 0;
+        this.rayDirection.z = -1;
+        this.collisionRay.set(this.rayOffset, this.rayDirection);
+        this.collisions = this.collisionRay.intersectObjects(this.obstructionArray, false);
+        if (this.collisions.length > 0) {
+            this.decor3d.drawLayer.add(this.dimLine3);
+            this.dimLine3.redraw(this.rayOffset, this.collisions[0].point, true)
+            this.vector3d.x = this.rayOffset.x
+            this.vector3d.z = this.rayOffset.z + ((this.collisions[0].point.z - this.rayOffset.z) / 2);
+            this.vector = this.screenXY(this.vector3d);
+            //   $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><input type='text' tabindex='" + 0 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='negz' value='" + Math.round(this.collisions[0].distance * 100) + ' cm' + "' ></div>");
+            this.createDimensionInput(Number(this.vector.x + 5), Number(this.vector.y - 6), "negz", Math.round(this.collisions[0].distance * 100))
+            this.objDistances[3] = this.collisions[0].distance;
+        }
+
+
+        /* this.currentTarget.rightCenterSnap.getWorldPosition(this.arrowEnd);
+         this.arrowStart.copy(this.arrowEnd);
+         this.arrowStart.x -= 1;
+         this.decor3d.drawLayer.add(new DimensionLine(this.arrowStart, this.arrowEnd, 0x008abd, 0.1, 0.2));*/
+    }
+    createDimensionInput(left, top, id, value) {
+        $("#dimensions").append("<div style='position:absolute;left:" + left + "px;top:" + top + "px'><span style='cursor:pointer; pointer-events:all' onclick='DD2022.decorRoomPlanner.makeDimensionActive(event)' id='l_" + id + "'>" + value + " cm</span><input style='display:none' type='text' tabindex='" + 0 + "' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='" + id + "' value='" + value + "' ></div>");
+    }
+    makeDimensionActive(event) {
+        console.log("event", event);
+        event.target.style.display = 'none';
+        let inputid = event.target.id.substr(2);
+        $("#" + inputid).css("display", "block");
+        $("#" + inputid).focus();
+        $("#" + inputid).select();
+    }
+    drawWallObjectDimension(obj) {
+        if (!DD2022.showDimensions) return;
+        if (this.decor3d.envLayer.children.length < 1) return;
+        while (this.decor3d.drawLayer.children.length > 0) {
+            this.decor3d.drawLayer.remove(this.decor3d.drawLayer.children[this.decor3d.drawLayer.children.length - 1]);
+        }
+
+        $("#dimensions").html("");
+
+
+        //cast a ray from the center of the object 
+
+        this.bbox.setFromObject(obj);
+        this.bbox.getCenter(this.rayCenter);
+        this.bbox.getSize(this.raySize);
+        this.rayCenter.y = 0.01; //check at ground level
+
+        // object X negative direction 0
+        this.rayOffset.x = this.rayCenter.x - (this.raySize.x / 2);
+        this.rayOffset.z = this.rayCenter.z;
+
+        obj.frontSnap.getWorldPosition(this.rayCenter);
+        //get the left hand direction
+        obj.frontLeftSnap.getWorldPosition(this.leftPos);
+        obj.frontRightSnap.getWorldPosition(this.rightPos);
+
+        this.rayDirection = this.leftPos.clone().sub(this.rightPos).normalize();
+
+        this.rayPos.y = 0.01;
+
+        this.collisionRay.set(this.leftPos, this.rayDirection);
+        this.collisions = this.collisionRay.intersectObjects(this.wallArray, false);
+        if (this.collisions.length > 0) {
+
+            //this.decor3d.drawLayer.add(new DimensionLine(this.rayOffset, collisions[0].point, 0x008abd, 0.1, 0.2));
+            this.decor3d.drawLayer.add(this.dimLine0);
+            this.dimLine0.redraw(this.leftPos, this.collisions[0].point);
+
+            this.vector3d.x = this.leftPos.x + ((this.collisions[0].point.x - this.leftPos.x) / 2);
+            this.vector3d.z = this.leftPos.z + ((this.collisions[0].point.z - this.leftPos.z) / 2);
+            this.vector3d.y = this.leftPos.y;
+            this.vector = this.screenXY(this.vector3d);
+            //   $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><input type='text' tabindex='" + 0 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='negz' value='" + Math.round(this.collisions[0].distance * 100) + ' cm' + "' ></div>");
+            this.createDimensionInput(Number(this.vector.x - 5), Number(this.vector.y - 14), "left", Math.round(this.collisions[0].distance * 100))
+            this.objDistances[0] = this.collisions[0].distance;
+        }
+
+        // X positive 1 (local right-hand direction)
+        this.snapPos = this.rightPos.clone().sub(this.leftPos).normalize();
+        this.collisionRay.set(this.rightPos, this.snapPos);
+        this.collisions = this.collisionRay.intersectObjects(this.wallArray, false);
+        if (this.collisions.length > 0) {
+
+            this.decor3d.drawLayer.add(this.dimLine1);
+            this.dimLine1.redraw(this.rightPos, this.collisions[0].point);
+            this.vector3d.x = this.rightPos.x + ((this.collisions[0].point.x - this.rightPos.x) / 2);
+            this.vector3d.z = this.rightPos.z + ((this.collisions[0].point.z - this.rightPos.z) / 2);
+            this.vector3d.y = this.rightPos.y;
+            this.vector = this.screenXY(this.vector3d);
+            //   $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><input type='text' tabindex='" + 0 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='negz' value='" + Math.round(this.collisions[0].distance * 100) + ' cm' + "' ></div>");
+            this.createDimensionInput(Number(this.vector.x - 5), Number(this.vector.y - 14), "right", Math.round(this.collisions[0].distance * 100))
+            this.objDistances[1] = this.collisions[0].distance;
+        }
+        // Y negative direction
+        obj.frontSnap.getWorldPosition(this.rayCenter);
+        this.rayDirection.copy(this.rayCenter);
+        this.rayDirection.y = 0;
+
+        this.decor3d.drawLayer.add(this.dimLine2);
+        this.dimLine2.redraw(this.rayCenter, this.rayDirection);
+
+        this.vector3d.x = this.rayCenter.x;
+        this.vector3d.z = this.rayCenter.z;
+        this.vector3d.y = this.rayCenter.y / 2;
+        this.vector = this.screenXY(this.vector3d);
+        //   $("#dimensions").append("<div style='position:absolute;left:" + Number(this.vector.x - 15) + "px;top:" + Number(this.vector.y - 6) + "px'><input type='text' tabindex='" + 0 + "' onfocus='DD2022.decorRoomPlanner.makeNumeric(event)' onfocusout='DD2022.decorRoomPlanner.changeLengthOut(event)' onkeydown='DD2022.decorRoomPlanner.changeLengthKey(event)' id='negz' value='" + Math.round(this.collisions[0].distance * 100) + ' cm' + "' ></div>");
+        this.createDimensionInput(Number(this.vector.x + 15), Number(this.vector.y - 6), "up", Math.round(this.rayCenter.y * 100));
+
+
+
+    }
+    clearDimensions() {
+        $("#dimensions").html("");
+    }
+    makeNumeric(e) {
+        e.target.value = e.target.value.substr(0, e.target.value.length - 3);
+    }
+    changeLengthOut(e) {
+
+        // this.changeDistance(e.target);
+
+    }
+    changeLengthKey(e) {
+        if (e.keyCode == 9 || e.keyCode == 13) {
+            this.changeDistance(e.target);
+        }
+    }
+    changeDistance(target) {
+        console.log("changing distance", target.id);
+        let dist = target.value / 100;
+        let shift;
+        switch (target.id) {
+
+            case "negx":
+                shift = dist - this.objDistances[0];
+                this.currentTarget.position.x += shift;
+                break;
+
+            case "posx":
+                shift = dist - this.objDistances[1];
+                this.currentTarget.position.x -= shift;
+                break;
+
+            case "posz":
+                shift = dist - this.objDistances[2];
+                this.currentTarget.position.z -= shift;
+                break;
+
+            case "negz":
+                shift = dist - this.objDistances[3];
+                this.currentTarget.position.z += shift;
+                break;
+            case "left":
+                shift = dist - this.objDistances[0];
+                console.log("shift", shift);
+                this.currentTarget.translateX(shift);
+                break;
+            case "right":
+                shift = dist - this.objDistances[1];
+                console.log("shift", shift);
+                this.currentTarget.translateX(-shift);
+                break;
+            case "up":
+                this.currentTarget.position.y = dist;
+                break;
+
+            default:
+                break;
+        }
+        /* if (this.currentTarget.snap == "wall") {
+             if(DD2022.showDimensions) this.drawWallObjectDimension(this.currentTarget);
+             this.decor3d.envLayer.children[0].createHoles();
+             
+         }else{
+             if(DD2022.showDimensions) this.drawObjectDimension();
+         } */
+        if (DD2022.showDimensions) this.drawObjectDimension();
+        render();
+    }
+    scaleTexts(value) {
+        console.log("Scaling texts", value);
+        let a = value / 6;
+        for (var i = 0; i < this.dimLines.length; i++) {
+            this.dimLines[i].scaleText(a);
+        }
     }
     getClosestPoint(A, B, P) {
         var segmentClamp = true;
@@ -758,6 +1130,29 @@ class DecorRoomPlanner {
 
 
         return angle;
+
+    }
+    screenXY(objPosition) {
+
+        var vector = new THREE.Vector3();
+        vector.copy(objPosition);
+        /*var windowWidth = window.innerWidth;
+        var minWidth = 1280;
+      
+        if(windowWidth < minWidth) {
+          windowWidth = minWidth;
+        }*/
+
+        var widthHalf = this.decor3d.renderer.domElement.width / 2;
+        var heightHalf = this.decor3d.renderer.domElement.height / 2;
+
+        vector.project(this.decor3d.camera);
+
+        vector.x = (vector.x * widthHalf) + widthHalf;
+        vector.y = - (vector.y * heightHalf) + heightHalf;
+        vector.z = 0;
+
+        return vector;
 
     }
 
