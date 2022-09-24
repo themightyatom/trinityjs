@@ -24,7 +24,8 @@ class Translations{
             champagnebottles:"Champagne",
             language:"Sprog",
             save_design:"Gem Design?",
-            save:"Gem"
+            save:"Gem",
+            cad:"2D view"
         }   
         this.en = {
             width: "Width",
@@ -55,7 +56,8 @@ class Translations{
             dont_save:"Don't save",
             keeproom:"Keep room?",
             properties:"Properties",
-            settings:"Settings"
+            settings:"Settings",
+            cad:"2D view"
         }
         this.se = {
             width: "Bredd",
@@ -86,7 +88,8 @@ class Translations{
             dont_save:"Spara inte",
             keeproom:"Hålla rum?",
             properties:"Egenskaper",
-            settings:"Inställningar"
+            settings:"Inställningar",
+            cad:"2D vy"
         }
         this.de = {
             add_object:"Möbel hinzufügen",
@@ -106,7 +109,8 @@ class Translations{
             winebottles:"Wine Bottles",
             halfbottles:"1/2 Bottles",
             magnumbottles:"Magnum",
-            champagnebottles:"Champagne"
+            champagnebottles:"Champagne",
+            cad:"2D mode"
         }
     }
 }

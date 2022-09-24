@@ -3,9 +3,13 @@ import * as THREE from '/three/build/three.module.js';
 // import { RoomEnvironment } from '/three/examples/jsm/environments/RoomEnvironment.js';
 import { RGBELoader } from '/three/examples/jsm/loaders/RGBELoader.js';
 import { DecorOrbitControls } from '/js/DecorOrbitControls.js';
+//import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from '/three/examples/jsm/libs/stats.module.js';
 
 import { GUI } from '/three/examples/jsm/libs/lil-gui.module.min.js';
+import { VRButton } from '/three/examples/jsm/webxr/VRButton.js';
+import { XRControllerModelFactory } from '/three/examples/jsm/webxr/XRControllerModelFactory.js';
+
 
 class Decor3D {
     constructor(container, serverpath) {
@@ -38,12 +42,24 @@ class Decor3D {
 
         this.dampTimeout;
 
+        this.controller1;
+        this.controller2;
+		this.controllerGrip1;
+        this.controllerGrip2;
+
+        this.raycaster = new THREE.Raycaster();
+        this.tempMatrix = new THREE.Matrix4();
+        this.intersected = [];
+
+        this.group = new THREE.Group();
+        this.line;
+        this.testIntersects = [];
+				
+        this.movingObject = false;
+        this.activeController = null;
+
+
         this.init(container);
-
-       
-  
-
-
 
 
     };
@@ -63,15 +79,21 @@ class Decor3D {
         this.renderer.setSize(width3d, height3d);
         this.renderer.setPixelRatio(1.0);
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        // renderer.toneMapping = THREE.CineonToneMapping;
+        
         this.renderer.toneMappingExposure = 0.5;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.container.appendChild(this.renderer.domElement);
         this.renderer.shadowMap.enabled = true;
+        this.renderer.xr.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        // renderer.shadowMap.type = THREE.BasicShadowMap;
+        
 
         this.renderer.gammaFactor = 2.2;
+        
+
+        document.body.appendChild( VRButton.createButton( this.renderer ) );
+
+        
 
 
 
@@ -80,6 +102,39 @@ class Decor3D {
 
         this.scene = new THREE.Scene();
         // this.scene.background = new THREE.Color(0xf8f8f8);
+
+        //vr controllers
+
+				this.controller1 = this.renderer.xr.getController( 0 );
+				this.controller1.addEventListener( 'selectstart', this.onSelectStart.bind(this) );
+				this.controller1.addEventListener( 'selectend', this.onSelectEnd.bind(this) );
+				this.scene.add( this.controller1 );
+
+				this.controller2 = this.renderer.xr.getController( 1 );
+				this.controller2.addEventListener( 'selectstart', this.onSelectStart.bind(this) );
+				this.controller2.addEventListener( 'selectend', this.onSelectEnd.bind(this) );
+				this.scene.add( this.controller2 );
+
+				const controllerModelFactory = new XRControllerModelFactory();
+
+				this.controllerGrip1 = this.renderer.xr.getControllerGrip( 0 );
+				this.controllerGrip1.add( controllerModelFactory.createControllerModel( this.controllerGrip1 ) );
+				this.scene.add( this.controllerGrip1 );
+
+				this.controllerGrip2 = this.renderer.xr.getControllerGrip( 1 );
+				this.controllerGrip2.add( controllerModelFactory.createControllerModel( this.controllerGrip2 ) );
+				this.scene.add( this.controllerGrip2 );
+
+                const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+
+				this.line = new THREE.Line( geometry );
+				this.line.name = 'line';
+				this.line.scale.z = 5;
+
+				this.controller1.add( this.line.clone() );
+				this.controller2.add( this.line.clone() );
+
+                this.scene.add( this.group );
 
 
         this.addPerspectiveCamera();
@@ -118,16 +173,16 @@ class Decor3D {
 
         let scope = this;
         new RGBELoader()
-            .setDataType(THREE.UnsignedByteType)
+            .setDataType(THREE.HalfFloatType)
             .setPath(this.server_path + '/env/')
-            .load('overhead.hdr', function (texture) {
+            .load('overhead.hdr', function (img) {
 
-                scope.envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                scope.envMap = pmremGenerator.fromEquirectangular(img).texture;
 
                 //scope.scene.background = scope.envMap;
                 scope.scene.environment = scope.envMap;
 
-                texture.dispose();
+                img.dispose();
                 pmremGenerator.dispose();
             });
 
@@ -283,6 +338,133 @@ class Decor3D {
         this.animate();
 
     }
+    onSelectStart( event ) {
+
+        const controller = event.target;
+
+        const object = this.getIntersections( controller );
+
+        if ( object != null ) {
+
+           
+           // controller.attach( object );
+            DD2022.decorRoomPlanner.setTarget(object);
+            DD2022.decorRoomPlanner.startEdit();
+            this.movingObject = true;
+            this.activeController = controller;
+            controller.userData.selected = object;
+
+        }
+
+    }
+
+    onSelectEnd( event ) {
+
+        const controller = event.target;
+
+        if ( controller.userData.selected !== undefined ) {
+
+            //const object = controller.userData.selected;
+            //object.material.emissive.b = 0;
+            //this.decorLayer.attach( object );
+            DD2022.decorRoomPlanner.endEdit();
+            controller.userData.selected = undefined;
+            this.movingObject = false;
+
+        }
+
+
+    }
+
+    getIntersections( controller ) {
+
+        this.tempMatrix.identity().extractRotation( controller.matrixWorld );
+
+        this.raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+       this.raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( this.tempMatrix );
+
+       this.testIntersects = this.raycaster.intersectObjects( this.decorLayer.children, true );
+
+       let obj = null;
+        if (this.testIntersects.length > 0) {
+            for (var i = 0; i < this.testIntersects.length; i++) {
+                if (this.testIntersects[i].object.name.substr(0, 3) != '_as') {
+                    obj = this.testIntersects[i].object;
+                    break;
+                }
+            }
+        }
+
+
+
+        if (obj) {
+            let depth = 10; //prevent loop from continuing efter 10 levels
+            let decobj = null;
+            while (obj.parent) {
+                if (obj.parent.snap_type == "surface") decobj = obj.parent;
+                if (obj.parent.parent == this.decorLayer) {
+
+                    return obj.parent;
+                } else {
+                    obj = obj.parent;
+                }
+                depth -= 1;
+                if (depth < 1) { return null };
+            }
+        } else {
+            return null;
+        }
+
+        //return this.raycaster.intersectObjects( this.decorLayer.children, true );
+
+    }
+
+    intersectObjects( controller ) {
+
+        // Do not highlight when already selected
+
+        if ( controller.userData.selected !== undefined ) return;
+
+        const line = controller.getObjectByName( 'line' );
+        const object = this.getIntersections( controller );
+
+        if ( object != null ) {
+
+           // object.material.emissive.r = 1;
+            this.intersected.push( object );
+
+            //line.scale.z = intersection.distance;
+
+        } else {
+
+            line.scale.z = 5;
+
+        }
+
+    }
+
+
+    cleanIntersected() {
+
+        while ( this.intersected.length ) {
+
+            const object = this.intersected.pop();
+             
+
+        }
+
+    }
+
+    moveObject(){
+        this.tempMatrix.identity().extractRotation( this.activeController.matrixWorld );
+
+        this.raycaster.ray.origin.setFromMatrixPosition( this.activeController.matrixWorld );
+       this.raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( this.tempMatrix );
+       DD2022.decorRoomPlanner.collisionTest(null,this.raycaster);
+       //this.testIntersects = this.raycaster.intersectObjects( this.decorLayer.children, true );
+    }
+
+
     addPerspectiveCamera() {
         this.camera = new THREE.PerspectiveCamera(45, this.width3d / this.height3d, 0.1, 50);
         this.camera.position.set(0, 1, 10);
@@ -345,23 +527,38 @@ class Decor3D {
     showHideGrid(value) {
         this.grid.visible = value;
     }
-    animate() {
+    /*animate() {
         requestAnimationFrame(this.animate.bind(this));
 
-        if(!this.noRender){
+        //if(!this.noRender){
             this.render();
-        }
+        //}
        // this.render();
         //this.stats.update();
-       if(this.controls.enabled) this.controls.update();
+       //if(this.controls.enabled) this.controls.update();
        
+    }*/
+
+    animate() {
+
+        this.renderer.setAnimationLoop( this.render.bind(this) );
+
     }
 
 
 
     render() {
 
+        this.cleanIntersected();
+
+		this.intersectObjects( this.controller1 );
+		this.intersectObjects( this.controller2 );
+
+        if(this.movingObject) this.moveObject();
+
         this.renderer.render(this.scene, this.camera);
+
+        if(this.controls.enabled) this.controls.update();
      
     }
     setCamPos(cam) {

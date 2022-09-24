@@ -1,6 +1,7 @@
 import DecorObject from '/classes/DecorObject.js';
 import * as THREE from '/three/build/three.module.js';
 import { Reflector } from '/js/DecorReflector.js';
+import SnapMaterial from '/js/SnapMaterial.js';
 
 class GlassPartition extends DecorObject {
 
@@ -29,6 +30,27 @@ class GlassPartition extends DecorObject {
         this.strut = null;
         this.strutLayer = new THREE.Object3D();
         this.add(this.strutLayer);
+
+        this.snapSurface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), SnapMaterial);
+        this.snapSurface.position.y = this.currentHeight/200;
+        this.snapSurface.position.z = 0.03;
+        this.snapSurface.isPlane = true;
+        this.snapSurface.name = "_aswall_0";
+       // this.snapSurface.visible = false;
+      
+
+        this.snapSurface2 = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), SnapMaterial);
+        this.snapSurface2.position.y = this.currentHeight/200;
+        this.snapSurface.position.z = -0.03;
+        this.snapSurface.rotation.y = Math.PI/2;
+        this.snapSurface2.isPlane = true;
+        this.snapSurface2.name = "_aswall_1";
+        //this.snapSurface2.visible = false;
+        this.add(this.snapSurface);
+        this.add(this.snapSurface2);
+
+        this.snapPoints.push(this.snapSurface,this.snapSurface2);
+        this.wallArray.push(this.snapSurface,this.snapSurface2);
     }
 
     loadModel(id, model, sku, cb) {
@@ -135,7 +157,7 @@ class GlassPartition extends DecorObject {
                             clipBias: 0.003,
                             textureWidth: 1024,
                             textureHeight: 1024,
-                            color: 0x889999
+                            color: 0x313737
                         });
 
                         container.glass.material.transparent = true;
@@ -152,7 +174,7 @@ class GlassPartition extends DecorObject {
                             clipBias: 0.003,
                             textureWidth: 1024,
                             textureHeight: 1024,
-                            color: 0x889999
+                            color: 0x313737
                         });
 
                         container.glassReverse.material.transparent = true;
@@ -364,6 +386,17 @@ class GlassPartition extends DecorObject {
             vert.visible = true;
             this.strutLayer.add(vert);
         }
+
+        this.snapSurface.position.y = this.snapSurface2.position.y = this.currentHeight/200;
+        this.snapSurface.scale.x = this.snapSurface2.scale.x = this.currentWidth/100; 
+        this.snapSurface.scale.y = this.snapSurface2.scale.y = this.currentHeight/100; 
+
+        this.snapSurface.geometry.computeBoundingBox();
+        this.snapSurface.geometry.computeBoundingSphere();
+
+        
+        this.snapSurface2.geometry.computeBoundingBox();
+        this.snapSurface2.geometry.computeBoundingSphere();
 
 
     }

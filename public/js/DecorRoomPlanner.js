@@ -118,49 +118,7 @@ class DecorRoomPlanner {
     loadRoomType() {
         console.log("done");
     }
-    /* loadProductMenu() {
-         let lang = ltvs__lang;
-         ltvs_menuHolder.classList.add("cover-full");
-         fetch(ltvs__source + '/clients/productmenu/' + lang)
-             .then(response => response.json())
-             .then(data => {
-                 let htmlStr = "<div class='cat-but' onmousedown='DecorRoomPlanner.removeUI()'><img style='box-shadow:none;' width='24px' height='24px' src='" + ltvs__source + "/icons/arrow_back_black_24dp.svg'></div>";
-                 data.cats.forEach(element => {
-                     htmlStr += "<div class='cat-con'><div class='pallet-item-container' onmousedown='DecorRoomPlanner.openCat(" + element.id + ")'><img src='" + ltvs__source + "/thumbs/categories/" + element.id + ".png'><div class='itempalette-label'>" + element.title + "</div></div></div>";
-                 });
- 
-                 ltvs_menuHolder.innerHTML = htmlStr;
-             });
-     }
-     openCat(id) {
- 
-         ltvs_menuHolder.classList.add("cover-full");
-         fetch(ltvs__source + '/clients/category/' + id + '/none')
-             .then(response => response.json())
-             .then(data => {
-                 ltvs_menuHolder.innerHTML = "";
- 
-                 const closeBut = document.createElement("div");
-                 closeBut.onmousedown = this.loadProductMenu.bind(this);
-                 closeBut.classList.add('cat-but');
-                 closeBut.innerHTML = "<img style='box-shadow:none;' width='24px' height='24px' src='" + ltvs__source + "/icons/arrow_back_black_24dp.svg'>";
-                 ltvs_menuHolder.appendChild(closeBut);
-                 const items = document.createElement("div");
-                 ltvs_menuHolder.appendChild(items);
-                 let htmlStr = "";
-                 data.models.forEach(element => {
-                     if (element.snap_type == "environment") {
-                         // htmlStr += "<div class='pallet-item-container' onmousedown= \"DecorRoomPlanner.loadEnvironment('" + element.model_class + "','" + element.id + "','"+ element.snap +"','"+ element.model +"','" + element.sku + "')\"><img width='80' height='80' src='" + ltvs__source + "/thumbs/models/" + element.id +".png'><div class='itempalette-label'>" + element.title + "</div></div>";
-                         htmlStr += "<div class='pallet-item-container' onmousedown='DecorRoomPlanner.loadEnvironment(" + element.id + ")'><img width='80' height='80' src='" + ltvs__source + "/thumbs/models/" + element.id + ".png'><div class='itempalette-label'>" + element.title + "</div></div>";
-                     } else {
-                         htmlStr += "<div class='pallet-item-container' onmousedown='DecorRoomPlanner.loadNewModel(" + element.id + ")'><img width='80' height='80' src='" + ltvs__source + "/thumbs/models/" + element.id + ".png'><div class='itempalette-label'>" + element.title + "</div></div>";
-                     }
-                     // htmlStr += "<div class='model-but' style='background-image:url(\""+ ltvs__source + "/thumbs/models/" + element.id +".png\")' onmousedown='DecorRoomPlanner.loadNewModel(" + element.id +")'>" + element.title + "</div>";
-                 });
-                 items.innerHTML = htmlStr;
- 
-             })
-     }*/
+   
     loadEnvironment(id) {
         this.removeUI()
         //clear environment
@@ -360,8 +318,6 @@ class DecorRoomPlanner {
             this.startEdit();
             this.currentWall = null;
         }
-
-
     }
 
     getRoomObject(e) {
@@ -584,7 +540,7 @@ class DecorRoomPlanner {
     }
     highlightSelected() {
         this.currentTarget.traverse(function (obj) {
-            if (obj.isMesh && obj.material.emissive && obj.parent.snap != "bot") {
+            if (obj.isMesh && obj.material.emissive && obj.parent.snap != "bot" && obj.snap != "bot") {
                 // MaterialManager.checkMaterial(obj);
                 obj.material.emissive.set(0x3a2600);
             }

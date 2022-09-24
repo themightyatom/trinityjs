@@ -17,7 +17,7 @@
     constructor(){
         this.lang;
         if(window.location.href.substring(0,16) != "http://localhost"){
-            this.server_path = 'https://vinlagringse.customshop.online';
+            this.server_path = 'https://trinity.customshop.online';
         }else{
             this.server_path = '';  
         }

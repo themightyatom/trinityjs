@@ -40,7 +40,7 @@ import {
 	Vector4,
 	VectorKeyframeTrack,
 	sRGBEncoding
-} from '../../../build/three.module.js';
+} from 'three';
 import * as fflate from '../libs/fflate.module.js';
 import { NURBSCurve } from '../curves/NURBSCurve.js';
 
@@ -53,11 +53,10 @@ import { NURBSCurve } from '../curves/NURBSCurve.js';
  *  Morph normals / blend shape normals
  *
  * FBX format references:
- * 	https://wiki.blender.org/index.php/User:Mont29/Foundation/FBX_File_Structure
- * 	http://help.autodesk.com/view/FBX/2017/ENU/?guid=__cpp_ref_index_html (C++ SDK reference)
+ * 	https://help.autodesk.com/view/FBX/2017/ENU/?guid=__cpp_ref_index_html (C++ SDK reference)
  *
- * 	Binary format specification:
- *		https://code.blender.org/2013/08/fbx-binary-file-format-specification/
+ * Binary format specification:
+ *	https://code.blender.org/2013/08/fbx-binary-file-format-specification/
  */
 
 
@@ -387,6 +386,15 @@ class FBXTreeParser {
 
 			texture.repeat.x = values[ 0 ];
 			texture.repeat.y = values[ 1 ];
+
+		}
+
+		if ( 'Translation' in textureNode ) {
+
+			const values = textureNode.Translation.value;
+
+			texture.offset.x = values[ 0 ];
+			texture.offset.y = values[ 1 ];
 
 		}
 
@@ -1888,6 +1896,13 @@ class GeometryParser {
 			if ( geoInfo.material && geoInfo.material.mappingType !== 'AllSame' ) {
 
 				materialIndex = getData( polygonVertexIndex, polygonIndex, vertexIndex, geoInfo.material )[ 0 ];
+
+				if ( materialIndex < 0 ) {
+
+					console.warn( 'THREE.FBXLoader: Invalid material index:', materialIndex );
+					materialIndex = 0;
+
+				}
 
 			}
 
@@ -3556,6 +3571,8 @@ class BinaryParser {
 
 				}
 
+				break; // cannot happen but is required by the DeepScan
+
 			default:
 				throw new Error( 'THREE.FBXLoader: Unknown property type ' + type );
 
@@ -3948,7 +3965,7 @@ function generateTransform( transformData ) {
 	if ( transformData.preRotation ) {
 
 		const array = transformData.preRotation.map( MathUtils.degToRad );
-		array.push( transformData.eulerOrder );
+		array.push( transformData.eulerOrder || Euler.DefaultOrder );
 		lPreRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
 	}
@@ -3956,7 +3973,7 @@ function generateTransform( transformData ) {
 	if ( transformData.rotation ) {
 
 		const array = transformData.rotation.map( MathUtils.degToRad );
-		array.push( transformData.eulerOrder );
+		array.push( transformData.eulerOrder || Euler.DefaultOrder );
 		lRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
 	}
@@ -3964,7 +3981,7 @@ function generateTransform( transformData ) {
 	if ( transformData.postRotation ) {
 
 		const array = transformData.postRotation.map( MathUtils.degToRad );
-		array.push( transformData.eulerOrder );
+		array.push( transformData.eulerOrder || Euler.DefaultOrder );
 		lPostRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 		lPostRotationM.invert();
 

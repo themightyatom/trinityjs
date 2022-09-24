@@ -335,6 +335,10 @@ router.get('/category/:id/:lang',(req,res) => {
     })
 });
 
+router.get('/openvr/:designid', (req,res) =>{
+    res.render('vr',{ layout: 'design.hbs', title: 'VR viewer', designid:req.params.designid  });
+});
+
 
 
 

@@ -1,12 +1,10 @@
 import {
-	LinearFilter,
 	MeshBasicMaterial,
 	NearestFilter,
-	RGBAFormat,
 	ShaderMaterial,
 	UniformsUtils,
 	WebGLRenderTarget
-} from '../../../build/three.module.js';
+} from 'three';
 import { Pass, FullScreenQuad } from './Pass.js';
 import { AfterimageShader } from '../shaders/AfterimageShader.js';
 
@@ -25,19 +23,11 @@ class AfterimagePass extends Pass {
 		this.uniforms[ 'damp' ].value = damp;
 
 		this.textureComp = new WebGLRenderTarget( window.innerWidth, window.innerHeight, {
-
-			minFilter: LinearFilter,
 			magFilter: NearestFilter,
-			format: RGBAFormat
-
 		} );
 
 		this.textureOld = new WebGLRenderTarget( window.innerWidth, window.innerHeight, {
-
-			minFilter: LinearFilter,
 			magFilter: NearestFilter,
-			format: RGBAFormat
-
 		} );
 
 		this.shaderMaterial = new ShaderMaterial( {

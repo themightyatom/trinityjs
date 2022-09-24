@@ -3,13 +3,13 @@ import WebGPUProgrammableStage from './WebGPUProgrammableStage.js';
 
 class WebGPURenderPipelines {
 
-	constructor( renderer, properties, device, sampleCount, nodes ) {
+	constructor( device, nodes, utils ) {
 
-		this.renderer = renderer;
-		this.properties = properties;
 		this.device = device;
-		this.sampleCount = sampleCount;
 		this.nodes = nodes;
+		this.utils = utils;
+
+		this.bindings = null;
 
 		this.pipelines = [];
 		this.objectCache = new WeakMap();
@@ -24,16 +24,22 @@ class WebGPURenderPipelines {
 	get( object ) {
 
 		const device = this.device;
-		const properties = this.properties;
-
-		const material = object.material;
-		const materialProperties = properties.get( material );
 
 		const cache = this._getCache( object );
 
 		let currentPipeline;
 
 		if ( this._needsUpdate( object, cache ) ) {
+
+			const material = object.material;
+
+			// release previous cache
+
+			if ( cache.currentPipeline !== undefined ) {
+
+				this._releaseObject( object );
+
+			}
 
 			// get shader
 
@@ -64,37 +70,15 @@ class WebGPURenderPipelines {
 			currentPipeline = this._acquirePipeline( stageVertex, stageFragment, object, nodeBuilder );
 			cache.currentPipeline = currentPipeline;
 
-			// keep track of all pipelines which are used by a material
+			// keep track of all used times
 
-			let materialPipelines = materialProperties.pipelines;
+			currentPipeline.usedTimes ++;
+			stageVertex.usedTimes ++;
+			stageFragment.usedTimes ++;
 
-			if ( materialPipelines === undefined ) {
+			// events
 
-				materialPipelines = new Set();
-				materialProperties.pipelines = materialPipelines;
-
-			}
-
-			if ( materialPipelines.has( currentPipeline ) === false ) {
-
-				materialPipelines.add( currentPipeline );
-
-				currentPipeline.usedTimes ++;
-				stageVertex.usedTimes ++;
-				stageFragment.usedTimes ++;
-
-			}
-
-			// dispose
-
-			if ( materialProperties.disposeCallback === undefined ) {
-
-				const disposeCallback = onMaterialDispose.bind( this );
-				materialProperties.disposeCallback = disposeCallback;
-
-				material.addEventListener( 'dispose', disposeCallback );
-
-			}
+			material.addEventListener( 'dispose', cache.dispose );
 
 		} else {
 
@@ -141,7 +125,7 @@ class WebGPURenderPipelines {
 
 		if ( pipeline === undefined ) {
 
-			pipeline = new WebGPURenderPipeline( this.device, this.renderer, this.sampleCount );
+			pipeline = new WebGPURenderPipeline( this.device, this.utils );
 			pipeline.init( cacheKey, stageVertex, stageFragment, object, nodeBuilder );
 
 			pipelines.push( pipeline );
@@ -155,7 +139,7 @@ class WebGPURenderPipelines {
 	_computeCacheKey( stageVertex, stageFragment, object ) {
 
 		const material = object.material;
-		const renderer = this.renderer;
+		const utils = this.utils;
 
 		const parameters = [
 			stageVertex.id, stageFragment.id,
@@ -168,8 +152,9 @@ class WebGPURenderPipelines {
 			material.stencilFail, material.stencilZFail, material.stencilZPass,
 			material.stencilFuncMask, material.stencilWriteMask,
 			material.side,
-			this.sampleCount,
-			renderer.getCurrentEncoding(), renderer.getCurrentColorFormat(), renderer.getCurrentDepthStencilFormat()
+			utils.getSampleCount(),
+			utils.getCurrentEncoding(), utils.getCurrentColorFormat(), utils.getCurrentDepthStencilFormat(),
+			utils.getPrimitiveTopology( object )
 		];
 
 		return parameters.join();
@@ -182,12 +167,37 @@ class WebGPURenderPipelines {
 
 		if ( cache === undefined ) {
 
-			cache = {};
+			cache = {
+
+				dispose: () => {
+
+					this._releaseObject( object );
+
+					this.objectCache.delete( object );
+
+					object.material.removeEventListener( 'dispose', cache.dispose );
+
+				}
+
+			};
+
 			this.objectCache.set( object, cache );
 
 		}
 
 		return cache;
+
+	}
+
+	_releaseObject( object ) {
+
+		const cache = this.objectCache.get( object );
+
+		this._releasePipeline( cache.currentPipeline );
+		delete cache.currentPipeline;
+
+		this.nodes.remove( object );
+		this.bindings.remove( object );
 
 	}
 
@@ -258,16 +268,17 @@ class WebGPURenderPipelines {
 
 		// check renderer state
 
-		const renderer = this.renderer;
+		const utils = this.utils;
 
-		const encoding = renderer.getCurrentEncoding();
-		const colorFormat = renderer.getCurrentColorFormat();
-		const depthStencilFormat = renderer.getCurrentDepthStencilFormat();
+		const sampleCount = utils.getSampleCount();
+		const encoding = utils.getCurrentEncoding();
+		const colorFormat = utils.getCurrentColorFormat();
+		const depthStencilFormat = utils.getCurrentDepthStencilFormat();
 
-		if ( cache.sampleCount !== this.sampleCount || cache.encoding !== encoding ||
+		if ( cache.sampleCount !== sampleCount || cache.encoding !== encoding ||
 			cache.colorFormat !== colorFormat || cache.depthStencilFormat !== depthStencilFormat ) {
 
-			cache.sampleCount = this.sampleCount;
+			cache.sampleCount = sampleCount;
 			cache.encoding = encoding;
 			cache.colorFormat = colorFormat;
 			cache.depthStencilFormat = depthStencilFormat;
@@ -277,33 +288,6 @@ class WebGPURenderPipelines {
 		}
 
 		return needsUpdate;
-
-	}
-
-}
-
-function onMaterialDispose( event ) {
-
-	const properties = this.properties;
-
-	const material = event.target;
-	const materialProperties = properties.get( material );
-
-	material.removeEventListener( 'dispose', materialProperties.disposeCallback );
-
-	properties.remove( material );
-
-	// remove references to pipelines
-
-	const pipelines = materialProperties.pipelines;
-
-	if ( pipelines !== undefined ) {
-
-		for ( const pipeline of pipelines ) {
-
-			this._releasePipeline( pipeline );
-
-		}
 
 	}
 

@@ -108,7 +108,7 @@ class TestSquare extends Object3D{
     
         const loader = new GLTFLoader().setPath(ltvs__source +'/glb/');
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath(ltvs__source + '/three/examples/jsm/libs/draco/gltf/');
+        dracoLoader.setDecoderPath(ltvs__source + '/three/examples/js/libs/draco/gltf/');
         loader.setDRACOLoader(dracoLoader); 
         
         let scope = this;
@@ -143,7 +143,7 @@ class TestSquare extends Object3D{
         let scope = this;
         const loader = new GLTFLoader();
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath(ltvs__source + '/three/examples/jsm/libs/draco/gltf/');
+        dracoLoader.setDecoderPath(ltvs__source + '/three/examples/js/libs/draco/gltf/');
         loader.setDRACOLoader(dracoLoader); 
         loader.parse( model, '', function ( gltf) {
             scope.add(gltf.scene);

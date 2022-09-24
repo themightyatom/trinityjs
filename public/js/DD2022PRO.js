@@ -3,7 +3,7 @@
 import DecorManager from '/js/DecorManager.js';
 import DecorUI from '/js/DecorUI.js';
 import DecorButtonMenuPRO from '/js/DecorButtonMenuPRO.js';
-import DecorRoomPlanner from '/js/DecorRoomPlanner.js';
+import DecorRoomPlanner from '/js/DecorRoomPlannerVR.js';
 import Decor3D from '/js/Decor3D.js';
 import DecorLogin from '/js/DecorLogin.js';
 import DecorIO from '/js/DecorIO.js';
@@ -28,7 +28,7 @@ class DD2022 {
         this.translations = new Translations();
         console.log("WINDOW", window.location.href);
         if (window.location.href.substring(0, 16) != "http://localhost") {
-            this.server_path = 'https://vinlagringse.customshop.online';
+            this.server_path = 'https://trinity.customshop.online';
         } else {
             this.server_path = '';
         }

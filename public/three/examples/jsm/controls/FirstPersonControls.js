@@ -2,7 +2,7 @@ import {
 	MathUtils,
 	Spherical,
 	Vector3
-} from '../../../build/three.module.js';
+} from 'three';
 
 const _lookDirection = new Vector3();
 const _spherical = new Spherical();
@@ -11,13 +11,6 @@ const _target = new Vector3();
 class FirstPersonControls {
 
 	constructor( object, domElement ) {
-
-		if ( domElement === undefined ) {
-
-			console.warn( 'THREE.FirstPersonControls: The second parameter "domElement" is now mandatory.' );
-			domElement = document;
-
-		}
 
 		this.object = object;
 		this.domElement = domElement;
