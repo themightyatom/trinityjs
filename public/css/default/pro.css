@@ -276,7 +276,7 @@ body {
 
   height: max-content;
   position: absolute;
-  background-color: #000000;
+  background-color: #262626;
   -webkit-box-shadow: 0px 0px 6px 1px rgb(0 0 0 / 10%);
   box-shadow: 0px 0px 6px 1px rgb(0 0 0 / 10%);
   transition: max-height 1.2s ease-out;
@@ -324,7 +324,7 @@ body {
   max-height: calc(100% - 30px);
   position: absolute;
   right: 10px;
-  top: 51px;
+  top: 61px;
   background-color: #f9f9f9;
   -webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.1);
@@ -1156,7 +1156,7 @@ input[type="number"].property-spinner {
   display: grid;
   align-items: center;
   box-sizing: border-box;
-  top: 38px;
+  top: 52px;
   pointer-events: all;
   z-index: -1;
 }

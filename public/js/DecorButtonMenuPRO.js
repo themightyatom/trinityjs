@@ -84,7 +84,7 @@ class DecorButtonMenuPRO{
     logo_button.setAttribute("title", "Vinlagring.se");
     logo_button.classList.add("buttonArrayButton");
     logo_button.addEventListener('mousedown', e => this.callback('toggle_titles'));
-    logo_button.innerHTML = "<img src='" + ltvs__source + "/icons/vinlagring_logo.png' width='24' height='24'>";
+    logo_button.innerHTML = "<img src='" + ltvs__source + "/imgs/logo_small.png' width='35' height='35'>";
     
     
 
