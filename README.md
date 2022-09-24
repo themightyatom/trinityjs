@@ -28,10 +28,10 @@ Features include:
 
 ## Dependencies
 
-The server uses Express, Handlebars and MySQL for storage. Other databases could be used.
-The sample clients are written in vanilla js, with the only dependencies being threejs and JQuery
+The server uses Express, Handlebars and MySQL for storage (other databases could be substituted)
+The sample clients are written in plain javascript (ES6), with the only dependencies being threejs and JQuery
 
 ## Target Users
 
 The platform is designed for javascript developers, particularly threejs developers, with or without
-experience with nodejs.
+experience with nodejs. It can also be used by 3D modellers with no programming experience.
