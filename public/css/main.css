@@ -11,7 +11,6 @@ body{
     width:240px;
     height: calc(100% - 60px);
     z-index: 2;
-    overflow-y: auto;
 }
 .main{
     
@@ -285,11 +284,15 @@ color: white !important;
     width:220px !important;
 }
 .image-chooser{
-    width: calc(100% - 930px);
-    /* height: 200px; */
-    position: absolute;
-    left: 900px;
-    top: 60px;
+    width: calc(100% - 773px);
+    max-height: calc(100% - 80px);
+    position: fixed;
+    left: 765px;
+    top: 67px;
+    background: white;
+    box-shadow: rgb(40 42 49 / 16%) 0px 1px 2px 0px;
+    z-index: 10;
+    overflow-y: auto;
 }
 .map-preview{
     margin-top: 10px;

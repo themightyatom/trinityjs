@@ -264,15 +264,15 @@ class DecorRoomPlanner {
             let test = null;
             let detach = false;
             if (testObj != null) {
-                if (testObj.object != null) {
+               /* if (testObj.object != null) {
                     test = testObj.object;
                     this.dropTarget = testObj.group;
                     detach = true;
                 } else {
-                    this.reattachObject(); // reattach any surface product
+                    this.reattachObject(); // reattach any surface product */
                     test = testObj.group;
                     this.dropTarget = null;
-                }
+               // }
             }
             console.log("SELECTED", testObj);
 
@@ -284,12 +284,14 @@ class DecorRoomPlanner {
 
 
             if (test) {
+                this.lowlight();
+                this.currentTarget = test;
 
                 //detach from object
-                if (testObj.object && testObj.group != testObj.object) {
+               /* if (testObj.object && testObj.group != testObj.object) {
                     // this.currentTarget.parent.remove(this.currentTarget);
                     this.decor3d.decorLayer.attach(this.currentTarget);
-                }
+                }*/
                 this.selectObject(test);
             } else {
                 let roomObj = this.getRoomObject(e);
@@ -531,7 +533,7 @@ class DecorRoomPlanner {
             this.dragControls.deactivate();
         }
         this.decor3d.controls.enabled = true;
-        if (this.dropTarget) this.reattachObject();
+       // if (this.dropTarget) this.reattachObject();
 
 
 

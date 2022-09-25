@@ -259,6 +259,8 @@
         var formforgot = document.getElementById("resetform");
         formforgot.addEventListener('submit', forgotten);
 
+        var authentication_server = "insert path to authentication server"; 
+
         function collectToken(event) {
             event.preventDefault();
             let email = document.getElementById('ltvs__email').value;
@@ -268,7 +270,7 @@
 
             var str = 'password=' + password + '&email=' + email;
             console.log("Collectiing token", email, password);
-            fetch('https://auth.customshop.online/auth/gettoken', {
+            fetch( authentication_server + '/auth/gettoken', {
                 method: 'POST',
                 body: new URLSearchParams(str)
             })
@@ -296,7 +298,7 @@
 
 
             var str = 'name=' + name + '&password=' + password + '&passwordConfirm=' + passwordConfirm + '&email=' + email;
-            fetch('https://auth.customshop.online/auth/createuser', {
+            fetch(authentication_server + '/auth/createuser', {
                 method: 'POST',
                 body: new URLSearchParams(str)
             })

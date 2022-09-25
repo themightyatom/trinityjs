@@ -17,7 +17,6 @@ Features include:
 - User login, storage and retrieval of designs
 - Sharing of designs
 - Support for multi-languages web clients
-- Admin and Merchant logins
 - Many end points for retrieving models, categories, materials, search, etc.
 - Viewing models in AR
 - Viewing environments in VR
@@ -34,3 +33,44 @@ The sample clients are written in vanilla js, with the only dependencies being t
 
 The platform is designed for javascript developers, particularly threejs developers, with or without
 experience with nodejs.
+
+## Installation Guide
+TO run locally, the build requires MySQL/MariaDB and nodejs.
+
+We recommend installing using [XAMMP](https://www.apachefriends.org/), which also gives
+you MariaDB and phpmyadmin for checking, cloning and editing databases.
+We also recommend using Visual Studio Code as your editor. Installing VS Code also gives
+you nodejs.
+
+Once you have them installed, clone or download the trinityjs repository.
+Open the folder in VS Code.
+To work locally, you will need to create a .env file in the root of your project and add the following parameters.
+
+```
+SESSION_SECRET= input a random text string
+dbhost=localhost
+dbuser=root
+dbpassword= (usally blank, but depends on your environment)
+dbdatabase= name of database
+dbsocket= (usually blank, though may be necessary for server hosting)
+JWT_SECRET = replace with random text string
+
+```
+A database with sample data and an admin user is provided in the file 'sample.sql'
+Import this data into a new database.
+Remember to remove the sample admin user, once you have created your own login.
+
+The sample admin user has the following login:
+user name: admin@trinityjs.com
+password: trinityjs123
+
+Once configured, in the terminal enter
+
+```
+npm run dev
+```
+
+
+## License
+
+[Apache License 2.0](https://github.com/google/draco/blob/master/LICENSE)

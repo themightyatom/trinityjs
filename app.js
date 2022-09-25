@@ -81,8 +81,6 @@ app.use('/materials', require('./routes/materials'));
 app.use('/textures', require('./routes/textures'));
 app.use('/translations', require('./routes/translations'));
 app.use('/clients', require('./routes/clients'));
-app.use('/merchant', require('./routes/merchant'));
-app.use('/outputedit', require('./routes/outputedit'));
 app.use('/designs', require('./routes/designs'));
 app.use('/ar', require('./routes/ar'));
 
@@ -103,13 +101,7 @@ global[checkNotAuthenticated] = (req, res, next) =>{
   next()
 }
 
-//pp.assignChecks(checkAuthenticated,checkNotAuthenticated);
 
-/*app.post('/log-in', passport.authenticate('local', {
-  successRedirect: '/models',
-  failureRedirect: '/',
-  failureFlash: true
-}))*/
 
 app.post('/log-in', passport.authenticate('local', {
     successRedirect: '/users',
@@ -125,7 +117,7 @@ app.get('/logout', function(req, res){
 
 
 app.get('/', checkAuthenticated, (req,res) =>{
-  //res.render('login', { layout: 'loginregister.hbs', title: 'Login' });
+  
   res.redirect('/models');
 });
 
