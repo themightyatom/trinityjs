@@ -17,7 +17,6 @@ Features include:
 - User login, storage and retrieval of designs
 - Sharing of designs
 - Support for multi-languages web clients
-- SKU mapping for use in e-commerce solutions
 - Admin and Merchant logins
 - Many end points for retrieving models, categories, materials, search, etc.
 - Viewing models in AR
