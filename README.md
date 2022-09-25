@@ -88,5 +88,5 @@ At the bottom of the menu, press the "PRO" button to open the main room editor
 
 [GNU Lesser General Public License version 3](https://opensource.org/licenses/LGPL-3.0)
 
-[In plain English...] (https://tldrlegal.com/license/gnu-lesser-general-public-license-v3-(lgpl-3))
+[In plain English...] (https://tldrlegal.com/license/gnu-lesser-general-public-license-v3-(lgpl-3)
 
