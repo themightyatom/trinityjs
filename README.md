@@ -26,12 +26,18 @@ Features include:
 
 ## Dependencies
 
+<<<<<<< HEAD
 The server uses Express, Handlebars and MariaDB for storage. Other databases could be used.
 The sample clients are written in vanilla js, with the only dependencies being [threejs](https://threejs.org/) and [JQuery](https://jquery.com/)
+=======
+The server uses Express, Handlebars and MySQL for storage (other databases could be substituted)
+The sample clients are written in plain javascript (ES6), with the only dependencies being threejs and JQuery
+>>>>>>> 30e655d97319dda216279b032cc720dbb6c18cc8
 
 ## Target Users
 
 The platform is designed for javascript developers, particularly threejs developers, with or without
+<<<<<<< HEAD
 experience with nodejs.
 
 ## Installation Guide
@@ -81,3 +87,6 @@ the list of included models.
 ## License
 
 [Apache License 2.0](https://github.com/google/draco/blob/master/LICENSE)
+=======
+experience with nodejs. It can also be used by 3D modellers with no programming experience.
+>>>>>>> 30e655d97319dda216279b032cc720dbb6c18cc8
