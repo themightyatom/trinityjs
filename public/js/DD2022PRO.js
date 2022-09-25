@@ -26,9 +26,9 @@ class DD2022 {
     constructor() {
         this.lang;
         this.translations = new Translations();
-        console.log("WINDOW", window.location.href);
+        // if run locally, use local resources. Add your server path to run locally and in production
         if (window.location.href.substring(0, 16) != "http://localhost") {
-            this.server_path = 'https://trinity.customshop.online';
+            this.server_path = 'your_server_path';
         } else {
             this.server_path = '';
         }

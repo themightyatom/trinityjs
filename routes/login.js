@@ -36,7 +36,7 @@ router.post('/register', checkAuthenticated, async (req, res) => {
         let email = req.body.email;
         let role = req.body.role;
         let password = hashedPassword;
-        let post = { username: username, email: email, password: password, role:role, merchant_id:req.body.merchant_id };
+        let post = { username: username, email: email, password: password, role:role};
         let query = db.query(sql, post, (err, result) => {
             if (err) throw err;
             res.redirect('/');

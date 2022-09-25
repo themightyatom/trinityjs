@@ -26,8 +26,8 @@ Features include:
 
 ## Dependencies
 
-The server uses Express, Handlebars and MySQL for storage. Other databases could be used.
-The sample clients are written in vanilla js, with the only dependencies being threejs and JQuery
+The server uses Express, Handlebars and MariaDB for storage. Other databases could be used.
+The sample clients are written in vanilla js, with the only dependencies being [threejs](https://threejs.org/) and [JQuery](https://jquery.com/)
 
 ## Target Users
 
@@ -69,6 +69,13 @@ Once configured, in the terminal enter
 ```
 npm run dev
 ```
+You should see the login page. Log in with the default login and you should see 
+the list of included models.
+
+![Image](https://static.wixstatic.com/media/825285_e63bf64f3c974f8c9a2db3ed36a9ff6f~mv2.png)
+
+
+
 
 
 ## License

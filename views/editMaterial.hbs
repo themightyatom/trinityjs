@@ -21,7 +21,7 @@
             <lable for="title" class="menutitle">Title</lable><br>
             <input type="text" id="title" name="title" value="{{title}}" required>
         </p>
-         <p>
+        <p>
             <lable for="category" class="menutitle">Type</lable><br>
             <select name="category" id="category">
             <option value="none" {{selectCheck category 'none'}}>None</option>
@@ -38,6 +38,14 @@
             <input type="color" id="color_hex" name="color_hex" value="{{color_hex}}"
                 oninput="updateField(this.id,this.value)">
         </p>
+        <div>
+            <lable for="diffuse_map" class="menutitle">Diffuse Map</lable><br>
+            <div class="map-preview" ><img width="100%" height="100%"
+                    id="diffuse_map_prev" onclick="imageChoose('diffuse_map')" /><div class="delete-bt" id="diffuse_map_remove" onclick="updateField('diffuse_map',null)"><span class="material-icons" style="margin: -2px;">
+                        highlight_off
+                    </span></div></div><input class="image-input" type="text" id="diffuse_map"
+                name="diffuse_map" value="{{diffuse_map}}">
+        </div>
         <div>
             <lable for="opacity_value" class="menutitle">Opacity</lable><br>
             <input type="range" id="opacity_value" name="opacity_value" min="0" max="1" step="0.01"
@@ -65,14 +73,7 @@
             <input type="range" id="metalness_value" name="metalness_value" min="0" max="1" step="0.01"
                 value="{{metalness_value}}" oninput="updateField(this.id,this.value)"><span id="metalness_value_display">{{metalness_value}}</span>
         </p>
-        <div>
-            <lable for="diffuse_map" class="menutitle">Diffuse Map</lable><br>
-            <div class="map-preview" ><img width="100%" height="100%"
-                    id="diffuse_map_prev" onclick="imageChoose('diffuse_map')" /><div class="delete-bt" id="diffuse_map_remove" onclick="updateField('diffuse_map',null)"><span class="material-icons" style="margin: -2px;">
-                        highlight_off
-                    </span></div></div><input class="image-input" type="text" id="diffuse_map"
-                name="diffuse_map" value="{{diffuse_map}}">
-        </div>
+        
         <div>
             <lable for="normal_map" class="menutitle">Normal Map</lable><br>
             <div class="map-preview" ><img width="100%" height="100%"
@@ -202,15 +203,21 @@
                 let htmlstr = '';
                 var i;
                 let thumb;
+                console.log(data);
                 for (i = 0; i < data.length; i++) {
                     thumb = data[i].texture;
-                    htmlstr += '<div class="thumb-img" onclick="updateField(\'' + field + '\',\'' + thumb + '\')"><img src="/thumbs/textures/' + thumb + '"></div>';
+                    htmlstr += '<div class="thumb-img" onclick="updateField(\'' + field + '\',\'' + thumb + '\')"><img title="'+data[i].title+'" src="/thumbs/textures/' + thumb + '"><div style="width:80px;overflow:hidden;font-size:10px">'+data[i].title+'</div></div>';
                 }
+                htmlstr += '<div style="display: grid;position: relative;width: 99%;"><button onclick="cancelImagePicker()">CANCEL</button></div>'
                 var imgBrowse = document.getElementById('images');
                 imgBrowse.innerHTML = htmlstr;
 
             });
 
+    }
+    function cancelImagePicker(){
+        var imgBrowse = document.getElementById('images');
+            imgBrowse.innerHTML = '';
     }
     function updateField(field, value) {
         console.log("value", field, value)

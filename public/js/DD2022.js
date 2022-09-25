@@ -16,8 +16,9 @@
    class DD2022{
     constructor(){
         this.lang;
+        // if run locally, use local resources. Add your server path to run locally and in production
         if(window.location.href.substring(0,16) != "http://localhost"){
-            this.server_path = 'https://trinity.customshop.online';
+            this.server_path = 'your_server_path';
         }else{
             this.server_path = '';  
         }
@@ -25,7 +26,6 @@
         this.decor3d = new Decor3D('ltvs_container',this.server_path);
     
         this.decorManager = new DecorManager(this.decor3d);
-        //this.decorButtonMenu = new DecorButtonMenu(this.decor3d,this.buttonCommands.bind(this),this.decorManager);
     
         this.decorLogin = new DecorLogin(this.setToken.bind(this));
         this.decorRoomPlanner = new DecorRoomPlanner(this.decor3d, this.decorManager);

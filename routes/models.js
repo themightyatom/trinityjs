@@ -456,26 +456,7 @@ router.post('/deletemodel', checkAuthenticated, (req, res) => {
 
 });
 
-router.get('/merchant', checkAuthenticated, (req, res) => {
 
-
-    let user = req.user
-        .then((response) => {
-            let sql = 'SELECT mods.id as id, mods.sku as sku, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN ' + response.merchant_id + ' AS merch ON merch.model_id = mods.id ORDER BY mods.priority ASC';
-            // let sql = 'SELECT mods.id as id, mods.sku as sku, merch.webshop_id as webshop_id FROM models AS mods INNER JOIN '+ response.merchant_id + ' AS merch ON merch.model_id = mods.id';
-            // let sql = "SELECT mods.id as id, mods.sku as sku, merch.webshop_id as webshop_id FROM models as mods";
-            let query = db.query(sql, (err, result) => {
-
-                if (err) throw err;
-                sql = 'SELECT * FROM categories';
-                query = db.query(sql, (err, cats) => {
-                    if (err) throw err;
-                    res.render('merchantModelList', { layout: 'merchant.hbs', models: result, categories: cats, title: 'Models' });
-                })
-
-            })
-        })
-});
 
 // PUBLIC INTERFACE
 

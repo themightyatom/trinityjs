@@ -27,15 +27,11 @@ router.get('/designer/:id', (req, res) => {
     let idArray = fullid.split('-');
     let modelid = idArray[0];
     let sql;
-    let merchant_id = null;
-    let lang;
-    //specific merchant
-    if(idArray.length > 1) {
-        merchant_id = idArray[1];
-        sql = "SELECT mods.*, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + merchant_id + " AS merch ON merch.model_id = mods.id WHERE merch.webshop_id = '" + modelid + "'";
-    }else{
-        sql = "SELECT * FROM models WHERE id='" + modelid + "'";
-    }
+    
+    let lang;    
+  
+    sql = "SELECT * FROM models WHERE id='" + modelid + "'";
+    
     if(idArray.length == 3){
         lang = idArray[2];
     }else{
@@ -196,7 +192,7 @@ async function getAccessories(groups,lang = 'none') {
             sql = "SELECT * from accessories WHERE id IN(" + groups + ") ORDER BY `accessories`.`priority` ASC";
         }else{
             sql = "SELECT acc.list as list, acc.id as id, acc.type as type, tran." + lang + " as title FROM accessories AS acc LEFT JOIN translations AS tran ON tran.item_id = acc.id AND tran.item_type = 'accessories' WHERE acc.id IN(" + groups + ") ORDER BY acc.priority ASC";   
-           // "SELECT mods.*, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + merchant_id + " AS merch ON merch.model_id = mods.id WHERE merch.webshop_id = '" + modelid + "'";
+           
         }
         query = db.query(sql, async (err, accessories) => {
             if (err) throw err;
@@ -301,9 +297,8 @@ router.get('/productmenu/:lang', (req,res) =>{
         //sql = "SELECT * from categories WHERE id IN(" + groups + ") ORDER BY `accessories`.`priority` ASC";
         sql = "SELECT title,id from categories WHERE menu = '1' ORDER BY `categories`.`priority` ASC";
     }else{
-       // sql = "SELECT title,id from categories WHERE menu = '1'";
-    sql = "SELECT cat.id as id, tran." + lang + " as title FROM categories AS cat LEFT JOIN translations AS tran ON tran.item_id = cat.id AND tran.item_type = 'categories'  WHERE menu = '1' ORDER BY cat.priority ASC";   
-       // "SELECT mods.*, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + merchant_id + " AS merch ON merch.model_id = mods.id WHERE merch.webshop_id = '" + modelid + "'";
+       
+        sql = "SELECT cat.id as id, tran." + lang + " as title FROM categories AS cat LEFT JOIN translations AS tran ON tran.item_id = cat.id AND tran.item_type = 'categories'  WHERE menu = '1' ORDER BY cat.priority ASC";   
     }
     let query = db.query(sql, (err,result) =>{
         if (err) throw err;
@@ -324,7 +319,6 @@ router.get('/category/:id/:lang',(req,res) => {
         sql = "SELECT * from models WHERE categories LIKE '%" + _id + "%' AND menu = '1' ORDER BY priority ASC" ;
     }else{
         sql = "SELECT acc.list as list, acc.id as id, acc.type as type, tran." + lang + " as title FROM accessories AS acc LEFT JOIN translations AS tran ON tran.item_id = acc.id AND tran.item_type = 'accessories' WHERE acc.id IN(" + groups + ") ORDER BY acc.priority ASC";   
-       // "SELECT mods.*, merch.webshop_id as webshop_id FROM models AS mods LEFT JOIN " + merchant_id + " AS merch ON merch.model_id = mods.id WHERE merch.webshop_id = '" + modelid + "'";
     }
     let query = db.query(sql, (err,result) =>{
         if (err) throw err;
