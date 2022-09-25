@@ -86,4 +86,7 @@ At the bottom of the menu, press the "PRO" button to open the main room editor
 
 ## License
 
-[Apache License 2.0](https://github.com/google/draco/blob/master/LICENSE)
+[GNU Lesser General Public License version 3](https://opensource.org/licenses/LGPL-3.0)
+
+[In plain English...] (https://tldrlegal.com/license/gnu-lesser-general-public-license-v3-(lgpl-3))
+
