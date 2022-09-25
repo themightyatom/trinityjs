@@ -15,7 +15,6 @@ import { DecorGLTFExporter } from '/js/DecorGLTFExporter.js';
 import DecorCADMenu from '/js/DecorCADMenu.js';
 import EventManager from '/js/EventManager.js';
 import DialogBox from '/js/DialogBox.js';
-import SharedObjects from '/js/SharedObjects.js';
 import DecorBrowser from '/js/DecorBrowser.js';
 import Translations from '/js/Translations.js';
 import MathEx from '/js/MathEx.js';
@@ -59,8 +58,8 @@ class DD2022 {
         this.cadMode = false;
         this.showDimensions = true;
         this.cadMenu;
-        this.showBottles = false;
-        this.sharedObjects = new SharedObjects();
+      
+       
         this.decorBrowser = new DecorBrowser();
         this.products = {};
         this.currentViewIndex = -1;
@@ -72,7 +71,7 @@ class DD2022 {
 
         setTimeout(this.loadSnapshot.bind(this), 1000);
         setTimeout(this.autoLogin.bind(this), 500);
-        setTimeout(this.importPrices.bind(this), 2000);
+        
         this.eventManager = new EventManager(this.decor3d.renderer.domElement);
         this.eventManager.addAction({ type: "down", target: this.decor3d, func: "startAnimate" });
         this.eventManager.addAction({ type: "up", target: this.decor3d, func: "stopAnimate" });
@@ -319,12 +318,6 @@ class DD2022 {
             case 'cad':
                 this.enterCADmode();
                 break;
-            case 'bottles':
-                this.showHideBottles();
-                break;
-            case 'print':
-                this.shareDesign(true); //print?
-                break;
             case 'duplicate':
                 this.duplicateSelected();
                 break;
@@ -353,7 +346,6 @@ class DD2022 {
     setLanguage(){
         this.lang = ltvs__lang;
         console.log("language is now", this.lang);
-        this.bottleCount();
         if(this.focusObj) {
             let g = this.focusObj;
             this.focusObj = null;
@@ -367,60 +359,15 @@ class DD2022 {
     }
 
 
-    showHideBottles() {
-        if (this.showBottles) {
-            this.showBottles = false;
-            for (var i = 0; i < this.decor3d.decorLayer.children.length; i++) {
-                let obj = this.decor3d.decorLayer.children[i];
-                if (obj.classtype.substring(0, 8) == "WineRack") {
 
-                    obj.hideBottles();
-                }
-            }
-        } else {
-            this.showBottles = true;
-            for (var i = 0; i < this.decor3d.decorLayer.children.length; i++) {
-                let obj = this.decor3d.decorLayer.children[i];
-                if (obj.classtype.substring(0, 8) == "WineRack") {
-                    obj.showBottles();
-                }
-            }
-            let cap = this.bottleCount();
-
-
-        }
-        this.renderScene();
-    }
-
-    bottleCount() {
-        let totalCapacity = { mag: 0, champ: 0, bot: 0, half: 0 };
-        console.log("checking bottle capacity");
-        for (var i = 0; i < this.decor3d.decorLayer.children.length; i++) {
-            let obj = this.decor3d.decorLayer.children[i];
-            if (obj.classtype.substring(0, 8) == "WineRack") {
-                let cap = obj.capacity;
-                totalCapacity.mag += cap.mag;
-                totalCapacity.champ += cap.champ;
-                totalCapacity.bot += cap.bot;
-                totalCapacity.half += cap.half;
-            }
-        }
-        let dialog = new DialogBox('bottle_count', null, { right: '10px', bottom: '10px' });
-        let htmlstr = '<div style="text-align: center;padding-bottom: 10px;">'+ this.getTranslation('capacity') +'</div><div style="font-size: smaller;">';
-        htmlstr += '<div>' + this.getTranslation('winebottles') +': ' + totalCapacity.bot + '</div>';
-        htmlstr += '<div>' + this.getTranslation('halfbottles') +': ' + totalCapacity.half + '</div>';
-        htmlstr += '<div>' + this.getTranslation('magnumbottles') +': ' + totalCapacity.mag + '</div>';
-        htmlstr += '<div>' + this.getTranslation('champagnebottles') +': ' + totalCapacity.champ + '</div></div>';
-        dialog.setHTMLContents(htmlstr);
-        return htmlstr;
-    }
+    
 
     getTranslation(obj){
        
         let lang = this.lang;
         
         if(lang == "none" || lang == undefined){
-            lang = 'se';
+            lang = 'en';
         }
         return this.translations[lang][obj];
     }
@@ -432,7 +379,7 @@ class DD2022 {
     newPlan(keeproom) {
         //prompt for save
         this.decorManager.masterReset(keeproom);
-        this.bottleCount();
+      
     }
     newPlanPrompt() {
         let dialog = new DialogBox('new_plan', 'newplan.html');
@@ -480,7 +427,6 @@ class DD2022 {
     }
     sendToExportScript() {
         DecorUI.closeList();
-        this.decorButtonMenu.closemenu();
         DecorUI.sendToExportScript(this.decor3d.decorLayer);
     }
     loadDesign(data) {
@@ -645,7 +591,7 @@ class DD2022 {
 
             this.focusObj = null;
             render();
-            this.bottleCount();
+         
             return;
         }
         if (this.focusObj.parent == this.decor3d.envLayer) {
@@ -1016,155 +962,8 @@ class DD2022 {
     removeElement(id) {
         $('#' + id).remove();
     }
-    //import price data
-    importPrices() {
-        let scope = this;
-        $.ajax({
-            type: "GET",
-            url: "/csv/prices.csv",
-            dataType: "text",
-            success: function (data) { scope.processData(data); }
-        });
-    }
+   
 
-    processData(allText) {
-        var record_num = 10;  // or however many elements there are in each row
-        var allTextLines = allText.split(/\r\n|\n/);
-        console.log(allTextLines[0]);
-        var entries = allTextLines[0].split(';');
-        console.log(entries);
-
-        let obj = null;
-        let line = null;
-        let sku = null;
-        for (var i = 1; i < allTextLines.length; i++) {
-            line = allTextLines[i].split(';');
-            obj = { price: line[5], description: line[0], link: line[3] };
-            sku = String(line[1]).trim();
-            this.products[sku] = obj;
-        }
-    }
-
-    printOut(sharelink) {
-        let imgData = this.saveAsImage(false);
-        
-        console.log(imgData,sharelink);
-        var printWindow = window.open('', 'PRINT');
-        printWindow.document.write('<html><head><title>Print Preview</title>');
-        printWindow.document.write('<link rel="stylesheet" href="' + this.server_path + '/css/default/pro.css" type="text/css" />');
-        printWindow.document.write('<body>');
-        printWindow.document.write('<div style="width: 200px;padding: 10px;margin: 20px;"><img id="logo_id" style="width:200px" src="' + this.server_path + '/imgs/vinlagring.svg" draggable="false"></img></div>');
-        printWindow.document.write('<div style="margin:20px; width:800px"><img style="width:800px;" id="imgtopWall" src="' + imgData + '"/></div>');
-
-        
-        
-        printWindow.document.write("<div class='pagebreak'></div>");
-        let botCount = this.bottleCount();
-
-
-        printWindow.document.write('<div style="margin:20px; width:100px;border: 1px solid #ddd;padding: 10px;">');
-        printWindow.document.write(botCount);
-        printWindow.document.write('</div>');
-
-        
-
-        let productList = DecorUI.listDesign(this.decor3d.decorLayer, true);
-        printWindow.document.write('<div style="margin:20px; width:800px">');
-        printWindow.document.write(productList);
-        printWindow.document.write('</div>');
-
-        printWindow.document.write('<div style="margin:20px; width:800px">');
-        printWindow.document.write('<a href=' + sharelink +'>' + sharelink + '</a>');
-        printWindow.document.write('</div>');
-
-        printWindow.document.write('</body></html>');
-        setTimeout(function () {
-            printWindow.print();
-            //  printWindow.close();
-        }, 500);
-
-    }
-
-    /*
-    
-    function PrintElem(elem) {
-        console.log("PPPPP PrintElem", elem);
-        // var mywindow = window.open('', 'PRINT', 'height=400,width=720');
-        var mywindow = window.open('', 'PRINT');
-        var printLogoSrc;
-       
-        printLogoSrc = document.getElementById("logo_id").src;
-        // mywindow.document.write('<img src="' + printLogoSrc +'">');
-        mywindow.document.write('<img src="' + printLogoSrc + '">');
-        mywindow.document.write('<html><head><title>' + document.title + '</title>');
-        mywindow.document.write('<link rel="stylesheet" href="css/printlist3.css" type="text/css" />')
-        // mywindow.document.write('<style>body { #itemlisttable th: #33a939; }</style>');
-        //mywindow.document.write('</head><body onload=print() >');
-        // mywindow.document.write('</head><body  >');
-        // mywindow.document.write('<h1>' + document.title + '</h1>');
-        mywindow.document.write(document.getElementById(elem).innerHTML);
-        // Page break
-        mywindow.document.write("<div class='page-break'></div>");
-    
-        // var rec = mywindow.document.getElementById('itemlistcontainer').getBoundingClientRect();
-        var y_topimg = 290 + _listLenght * 17; //rec.top + rec.height * 0.75 ; // hvorfor gange 0.75?
-        console.log("y_topimg", y_topimg, _listLenght);
-        mywindow.document.write("<div style='position:relative;'>");
-        mywindow.document.write("<div  id='imgtopview'><img class='imgPrint' src='" + imgDataTopview + "'/></div >");
-        mywindow.document.write("<div  id='imgtopview'><img class='imgPrint' src='" + imgDataTopviewDim + "'/></div >");
-        mywindow.document.write("</div >");
-    
-        // Page break
-        mywindow.document.write("<div class='page-break'></div>");
-    
-        mywindow.document.write("<img class='imgPrint' id='imgtopWall' src='" + imgDataTopWall + "'/>");
-        // Page break
-        mywindow.document.write("<div class='page-break'></div>");
-        mywindow.document.write("<img class='imgPrint' id='imgrightWall' src='" + imgDataRightWall + "'/>");
-        // Page break
-        mywindow.document.write("<div class='page-break'></div>");
-        mywindow.document.write("<img class='imgPrint' id='imgbottomWall' src='" + imgDataBottomWall + "'/>");
-        // Page break
-        mywindow.document.write("<div class='page-break'></div>");
-        mywindow.document.write("<img class='imgPrint' id='imgleftWall' src='" + imgDataLeftWall + "'/>");
-    
-        // mywindow.document.write('<h1>' + document.title + '</h1>');
-        mywindow.document.write('</body></html>');
-        mywindow.document.close(); // necessary for IE >= 10
-        mywindow.focus(); // necessary for IE >= 10
-        //setTimeout(mywindow.print(),10000);
-        setTimeout(function () {
-            mywindow.close();
-        }, 1000);
-        //mywindow.print();
-        //mywindow.close();
-        var css = '@page { size: landscape; }',
-            head = mywindow.document.head || mywindow.document.getElementsByTagName('head')[0],
-            style = mywindow.document.createElement('style');
-    
-        style.type = 'text/css';
-        style.media = 'print';
-    
-        if (style.styleSheet) {
-            style.styleSheet.cssText = css;
-        } else {
-            style.appendChild(mywindow.document.createTextNode(css));
-        }
-    
-        head.appendChild(style);
-        setTimeout(function () {
-            mywindow.print();
-            mywindow.close();
-        }, 500);
-        
-    
-    
-        return true;
-    } */
-    openSettings(){
-        let dialog = new DialogBox('settings', 'settings.html');
-        setTimeout(this.showSettings.bind(this),200);
-    }
     showSettings(){
         document.getElementById(this.units).checked = true; 
     }

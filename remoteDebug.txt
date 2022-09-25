@@ -1,5 +1,0 @@
-In chrome...
-chrome://inspect#devices
-
-Open current developer IP 
-192.168.0.33:3000/clients/preview/572

@@ -1,1 +1,0 @@
-D.objects['front'].dimensions = D.objects['wood0'].dimensions

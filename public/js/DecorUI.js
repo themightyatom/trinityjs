@@ -749,7 +749,7 @@ var DecorUI = (function () {
 
                 });
             });
-            ltvs__sendToCart(shoppingList);
+            alert("No e-commerce platform found");
         },
         listDesign(layer, print = false) {
             shoppingList = [];
@@ -776,7 +776,7 @@ var DecorUI = (function () {
             let skuSet = new Set(SKUlist);
             for (const item of skuSet) {
                 console.log(item); // 👉️ one, two, three, four
-                let details = DD2022.products[item];
+                let details = {description:'Products Description here', price:'99'} //collect from price list
                 if (details != undefined) {
                     shoppingList.push({ sku: item, quantity: this.getQuantity(item, SKUlist), name: details.description, price: details.price, decorId: idList[item] });
                 } else if (item != 'none' && item != "") {
@@ -794,7 +794,7 @@ var DecorUI = (function () {
                 htmlStr += "<tr><th width='5%' scope='col'>" + item.quantity + "</th><th width='15%' scope='col'>" + item.sku + "</th><th width='55%' scope='col'>" + item.name + "</th><th width='15%' scope='col'>" + item.price + "</th><th width='10%' scope='col'>" + tot + "</th></tr>";
 
             });
-            var totalText = "Totalt SEK";
+            var totalText = "Totalt ";
             htmlStr += "<tr><th width='5%' scope='col'>" + totalText + "</th><th width='15%' scope='col'></th><th width='55%' scope='col'></th><th width='15%' scope='col'></th><th width='10%' scope='col'>" + totPrice + "</th></tr>";
             htmlStr += "</table></div>";
             if(!print){

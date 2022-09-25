@@ -156,9 +156,7 @@
     assignMaterial(matid, key , ext){
         this.decorManager.assignMaterial(key,matid, ext);
     }
-    bottleCount(){
-        
-    }
+    
 
 
    }

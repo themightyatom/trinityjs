@@ -517,9 +517,7 @@ closeShareWindow(){
 
     }
 
-    bottleCount(){
-
-    }
+    
   
    
     

@@ -28,6 +28,7 @@ Features include:
 
 The server uses Express, Handlebars and MariaDB for storage. Other databases could be used.
 The sample clients are written in vanilla js, with the only dependencies being [threejs](https://threejs.org/) and [JQuery](https://jquery.com/)
+The current [threejs](https://github.com/mrdoob/three.js/) build (version 144) is included in the repository.
 
 ## Target Users
 
@@ -73,6 +74,11 @@ You should see the login page. Log in with the default login and you should see
 the list of included models.
 
 ![Image](https://static.wixstatic.com/media/825285_e63bf64f3c974f8c9a2db3ed36a9ff6f~mv2.png)
+
+At the bottom of the menu, press the "PRO" button to open the main room editor
+
+![Image](https://static.wixstatic.com/media/825285_4a1aa33ec0e549239dfc7a6fd3b85b46~mv2.png)
+
 
 
 

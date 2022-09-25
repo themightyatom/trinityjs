@@ -12,7 +12,7 @@ class DecorButtonMenuPRO{
         this.decor3d = decor3d;
         this.user_button;
         this.menuIsOpen =false;
-        this.languages = ["se", "en"];
+        this.languages = ["en", "se"];
         this.decorManager = decorManager;
         
         this.callback = callback;
@@ -72,20 +72,12 @@ class DecorButtonMenuPRO{
     browse_button.addEventListener('mousedown', e => this.callback('browse'));
     browse_button.innerHTML = "<div class='decor-icon'><svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='" + this.iconColor + "'><path d='M0 0h24v24H0V0z' fill='none'/><path d='M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z'/></svg></div><div class='menu-lable'><span>" + this.getTranslation('add_object') + "<span></div>";
 
-    const print_button = document.createElement("div");
-    print_button.setAttribute("id", "browseButton");
-    print_button.setAttribute("title", this.getTranslation('print'));
-    print_button.classList.add("buttonArrayButton");
-    print_button.addEventListener('mousedown', e => this.callback('print'));
-    print_button.innerHTML ='<div class="decor-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="' + this.iconColor + '"><path d="M16 8V5H8v3H6V3h12v5ZM4 10h16H6Zm14 2.5q.425 0 .712-.288.288-.287.288-.712t-.288-.713Q18.425 10.5 18 10.5t-.712.287Q17 11.075 17 11.5t.288.712q.287.288.712.288ZM16 19v-4H8v4Zm2 2H6v-4H2v-6q0-1.275.875-2.137Q3.75 8 5 8h14q1.275 0 2.138.863Q22 9.725 22 11v6h-4Zm2-6v-4q0-.425-.288-.713Q19.425 10 19 10H5q-.425 0-.713.287Q4 10.575 4 11v4h2v-2h12v2Z"/></svg></div><div class="menu-lable"><span>' + this.getTranslation('print') + '<span></div>';
-
     const logo_button = document.createElement("div");
     logo_button.setAttribute("id", "logoButton");
     logo_button.setAttribute("title", "Vinlagring.se");
     logo_button.classList.add("buttonArrayButton");
     logo_button.addEventListener('mousedown', e => this.callback('toggle_titles'));
     logo_button.innerHTML = "<img src='" + ltvs__source + "/imgs/logo_small.png' width='35' height='35'>";
-    
     
 
     const room_edit_button = document.createElement("div");
@@ -168,14 +160,6 @@ class DecorButtonMenuPRO{
     new_button.innerHTML ='<div class="decor-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="' + this.iconColor + '"><path d="M11 18H13V15H16V13H13V10H11V13H8V15H11ZM18 22H6Q5.175 22 4.588 21.413Q4 20.825 4 20V4Q4 3.175 4.588 2.587Q5.175 2 6 2H14L20 8V20Q20 20.825 19.413 21.413Q18.825 22 18 22ZM13 9V4H6Q6 4 6 4Q6 4 6 4V20Q6 20 6 20Q6 20 6 20H18Q18 20 18 20Q18 20 18 20V9ZM6 4V9V4V9V20Q6 20 6 20Q6 20 6 20Q6 20 6 20Q6 20 6 20V4Q6 4 6 4Q6 4 6 4Z"/></svg></div> <div class="menu-lable"><span>' + this.getTranslation("new") + '<span></div>';
     new_button.addEventListener('mousedown', e => this.callback('new'));
 
-    const bottle_button = document.createElement("div");
-    bottle_button.setAttribute("id", "bottleButton");
-    bottle_button.setAttribute("title", this.getTranslation("bottles"));
-    bottle_button.classList.add("buttonArrayButton");
-    bottle_button.innerHTML ='<div class="decor-icon"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24" fill="' + this.iconColor + '"><path d="M11.5 2C11.22 2 11 2.22 11 2.5V7C10.93 7 10.85 7 10.78 7.03C9.82 7.27 9.21 8 8.76 8.89C8.3 9.76 8 10.84 8 12C8.05 15 8 18.03 8 21C8 21.55 8.45 22 9 22C11 22 13 22 15 22C15.55 22 16 21.55 16 21C16.04 18 16 15 16 12C16 10.84 15.74 9.76 15.28 8.88C14.83 8 14.22 7.27 13.26 7.04C13.18 7 13.05 7 13 7V2.5C13 2.22 12.78 2 12.5 2M12 8.85C12.32 8.85 12.63 8.9 12.78 9C12.85 9.03 13.2 9.26 13.5 9.81C13.78 10.37 14 11.17 14 12V20H10V12C10 11.17 10.22 10.37 10.5 9.81C10.8 9.26 11.15 9.03 11.22 9C11.36 8.9 11.68 8.85 12 8.85Z" /></svg></div> <div class="menu-lable"><span>' + this.getTranslation("bottles") + '<span></div>';
-    bottle_button.addEventListener('mousedown', e => this.callback('bottles'));
-
-
     const lang_button = document.createElement("div");
     lang_button.setAttribute("id", "langButton");
     lang_button.setAttribute("title", this.getTranslation("language") );
@@ -193,15 +177,6 @@ class DecorButtonMenuPRO{
         node.onmousedown = this.changeLanguage.bind(this);
     }
 
-    const pref_button = document.createElement("div");
-    pref_button.setAttribute("id", "prefButton");
-    pref_button.setAttribute("title", this.getTranslation("settings") );
-    pref_button.style.maxHeight = "19px";
-    pref_button.style.right = "28px";
-    pref_button.classList.add("buttonArrayButton");
-    pref_button.classList.add("right-aligned");
-    pref_button.innerHTML ='<div class="decor-icon"><svg xmlns="http://www.w3.org/2000/svg"width="24" height="24" viewBox="0 0 24 24" fill="' + this.iconColor + '"><path d="m9.25 22-.4-3.2q-.325-.125-.612-.3-.288-.175-.563-.375L4.7 19.375l-2.75-4.75 2.575-1.95Q4.5 12.5 4.5 12.337v-.675q0-.162.025-.337L1.95 9.375l2.75-4.75 2.975 1.25q.275-.2.575-.375.3-.175.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3.287.175.562.375l2.975-1.25 2.75 4.75-2.575 1.95q.025.175.025.337v.675q0 .163-.05.338l2.575 1.95-2.75 4.75-2.95-1.25q-.275.2-.575.375-.3.175-.6.3l-.4 3.2Zm2.8-6.5q1.45 0 2.475-1.025Q15.55 13.45 15.55 12q0-1.45-1.025-2.475Q13.5 8.5 12.05 8.5q-1.475 0-2.488 1.025Q8.55 10.55 8.55 12q0 1.45 1.012 2.475Q10.575 15.5 12.05 15.5Zm0-2q-.625 0-1.062-.438-.438-.437-.438-1.062t.438-1.062q.437-.438 1.062-.438t1.063.438q.437.437.437 1.062t-.437 1.062q-.438.438-1.063.438ZM12 12Zm-1 8h1.975l.35-2.65q.775-.2 1.438-.588.662-.387 1.212-.937l2.475 1.025.975-1.7-2.15-1.625q.125-.35.175-.738.05-.387.05-.787t-.05-.788q-.05-.387-.175-.737l2.15-1.625-.975-1.7-2.475 1.05q-.55-.575-1.212-.963-.663-.387-1.438-.587L13 4h-1.975l-.35 2.65q-.775.2-1.437.587-.663.388-1.213.938L5.55 7.15l-.975 1.7 2.15 1.6q-.125.375-.175.75-.05.375-.05.8 0 .4.05.775t.175.75l-2.15 1.625.975 1.7 2.475-1.05q.55.575 1.213.962.662.388 1.437.588Z"/></svg></div>';
-    pref_button.onmouseup = this.openSettings.bind(this);
 
 
     // button order
@@ -223,14 +198,12 @@ class DecorButtonMenuPRO{
     }
 
     this.buttonArray.appendChild(share_button);
-    this.buttonArray.appendChild(print_button);
+
     this.buttonArray.appendChild(ar_button);
-    this.buttonArray.appendChild(bottle_button);
    
    
    this.buttonArray.appendChild(list_button);
    this.buttonArray.appendChild(this.user_button);
-   this.buttonArray.appendChild(pref_button);
    this.buttonArray.appendChild(lang_button);
 
    if(this.copyright_button == null){
@@ -249,9 +222,7 @@ class DecorButtonMenuPRO{
     if(this.getWidth() < 600) this.closemenu();
 
 }
-    openSettings(){
-        DD2022.openSettings();
-    }
+   
    
 
     togglebuttonmenu(){
@@ -293,7 +264,7 @@ class DecorButtonMenuPRO{
         let lang = ltvs__lang;
         
         if(lang == "none" || lang == undefined){
-            lang = 'se';
+            lang = 'en';
         }
         return Translations[lang][obj];
     }
