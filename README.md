@@ -86,7 +86,7 @@ At the bottom of the menu, press the "PRO" button to open the main room editor
 
 ## License
 
-[GNU Lesser General Public License version 3](https://opensource.org/licenses/LGPL-3.0)
+[GNU Affero General Public License v3 (AGPL-3.0)](https://opensource.org/licenses/AGPL-3.0)
 
-[In plain English...] (https://tldrlegal.com/license/gnu-lesser-general-public-license-v3-(lgpl-3))
+https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0)
 
