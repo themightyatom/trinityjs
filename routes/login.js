@@ -22,10 +22,10 @@ router.get('/register', checkAuthenticated, (req, res) => {
    
 });
 
-router.get('/logout', (req, res) => {
+/*router.get('/logout', (req, res) => {
     req.logOut()
     res.redirect('/login')
-  })
+  })*/
 
 router.post('/register', checkAuthenticated, async (req, res) => {
     try {

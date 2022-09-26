@@ -65,6 +65,10 @@ The sample admin user has the following login:
 user name: admin@trinityjs.com
 password: trinityjs123
 
+NOTE: Login to the admin interface is NOT the same as logging in as a web user, and
+uses a seperate authentication server. This allows ordinary users to login to all
+installations of Trinity with the same credentials.
+
 Once configured, in the terminal enter
 
 ```

@@ -206,14 +206,14 @@ class DecorButtonMenuPRO{
    this.buttonArray.appendChild(this.user_button);
    this.buttonArray.appendChild(lang_button);
 
-   if(this.copyright_button == null){
+   /*if(this.copyright_button == null){
    this.copyright_button = document.createElement("div");
    this.copyright_button.setAttribute("id", "copyright");
    this.copyright_button.setAttribute("title", "Visit devine.pub");
    this.copyright_button.classList.add("copyright-text");
    this.copyright_button.innerHTML ='<a href="https://devine.pub" target="_blank">Copyright&copy;2022 Devine Publishing </a>'; 
    document.body.appendChild(this.copyright_button);
-   }
+   }*/
      
    
    

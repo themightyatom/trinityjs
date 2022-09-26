@@ -111,7 +111,9 @@ app.post('/log-in', passport.authenticate('local', {
 
 
 app.get('/logout', function(req, res){
-  req.logout();
+  req.logout(function(err) {
+    if (err) { return next(err); }
+  });
   res.redirect('/');
 });
 
