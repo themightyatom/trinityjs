@@ -18,6 +18,7 @@ import DialogBox from '/js/DialogBox.js';
 import DecorBrowser from '/js/DecorBrowser.js';
 import Translations from '/js/Translations.js';
 import MathEx from '/js/MathEx.js';
+import { VRButton } from '/three/examples/jsm/webxr/VRButton.js';
 
 
 
@@ -27,7 +28,7 @@ class DD2022 {
         this.translations = new Translations();
         // if run locally, use local resources. Add your server path to run locally and in production
         if (window.location.href.substring(0, 16) != "http://localhost") {
-            this.server_path = 'your_server_path';
+            this.server_path = 'https://trinity.customshop.online';
         } else {
             this.server_path = '';
         }
@@ -111,6 +112,8 @@ class DD2022 {
             console.log( 'There was an error loading ' + url );
         
         };
+
+        document.body.appendChild( VRButton.createButton( this.decor3d.renderer ) );
 
 
     }
@@ -490,7 +493,7 @@ class DD2022 {
                         navigator
                             .share({
                                 title: 'Check out this design',
-                                url: "https://" + window.location.hostname + this.sharepath + "?designid=" + data.id,
+                                url: "https://" + window.location.hostname + this.sharepath + data.id,
                             })
                             .then(() => {
                                 console.log('Callback after sharing');

@@ -1,30 +1,80 @@
 <div class="menu">
-<div class="menutitle"><span>collections</span></div>
+    <div class="menutitle"><span>collections</span></div>
 
-<div class="menubt"><a class="menubt" href="/models/page/0">Models</a></div>
-<div class="menubt"><a class="menubt" href="/materials">Materials</a></div>
-<div class="menubt"><a class="menubt" href="/textures">Textures</a></div>
-<div class="menubt"><a class="menubt" href="/accessories">Accessory Groups</a></div>
-<div class="menubt"><a class="menubt" href="/categories">Categories</a></div>
-<div class="menubt"><a class="menubt" href="/languages">Languages</a></div>
+    <div class="menubt"><a class="menubt" href="/models/page/0">Models</a></div>
+    <div class="menubt"><a class="menubt" href="/materials">Materials</a></div>
+    <div class="menubt"><a class="menubt" href="/textures">Textures</a></div>
+    <div class="menubt"><a class="menubt" href="/accessories">Accessory Groups</a></div>
+    <div class="menubt"><a class="menubt" href="/categories">Categories</a></div>
+    <div class="menubt"><a class="menubt" href="/languages">Languages</a></div>
 
-<div class="menutitle"><span>import</span></div>
-<div class="menubt"><a class="menubt" href="/models/uploadModel">Add Model</a></div>
-<div class="menubt"><a class="menubt" href="/textures/upload">Add Texture</a></div>
-<div class="menubt"><a class="menubt" href="/models/uploadObject">Add Object</a></div>
-
+    <div class="menutitle"><span>import</span></div>
+    <div class="menubt"><a class="menubt" href="/models/uploadModel">Add Model</a></div>
+    <div class="menubt"><a class="menubt" href="/textures/upload">Add Texture</a></div>
 
 
-<div class="menutitle"><span>create</span></div>
-<div class="menubt"><a class="menubt" href="/login/register">User</a></div>
-<div class="menubt"><a class="menubt" href="/materials/edit/new">Material</a></div>
-<div class="menubt"><a class="menubt" href="/accessories/edit/new">Accessory Group</a></div>
-<div class="menubt"><a class="menubt" href="/designs/all">Designs</a></div>
+
+    <div class="menutitle"><span>create</span></div>
+    <div class="menubt"><a class="menubt" href="/login/register">User</a></div>
+    <div class="menubt"><a class="menubt" href="/materials/edit/new">Material</a></div>
+    <div class="menubt"><a class="menubt" href="/accessories/edit/new">Accessory Group</a></div>
+
+    <div class="menutitle"><span>view</span></div>
+    <div class="menubt"><a class="menubt" href="javascript:showHideHelp()">Show/Hide Help</a></div>
+    <div class="menubt"><a class="menubt" href="/designs/all">Designs</a></div>
+
+
+
+
+    <div class="menutitle"><span>editor</span></div>
+    <div class="menubt"><a class="menubt" href="/clients/pro">PRO</a></div>
 </div>
 
-<div class="menutitle"><span>editor</span></div>
-<div class="menubt"><a class="menubt" href="/clients/pro">PRO</a></div>
+<script>
+    let showingHelp = true;
+    let helpPopup = null;
+    function showHideHelp() {
+        var helpbuttons = document.getElementsByClassName('help-icon');
+        if (!showingHelp) {
+            
+            for (i = 0; i < helpbuttons.length; i++) {
+                helpbuttons[i].style.visibility = 'visible';
+            }
+            showingHelp = true;
+        }else{
+             for (i = 0; i < helpbuttons.length; i++) {
+                helpbuttons[i].style.visibility = 'hidden';
+            }
+            showingHelp = false; 
+        }
+    }
+    function showHelp(e){
+            e = e || window.event;;
+           
+            console.log(e);
+            let subject = event.target.getAttribute('name');
+            if(!helpPopup){
+                helpPopup = document.createElement("div");
+                helpPopup.classList.add("help-pop-up");
+                let main = document.getElementById('main');
+                main.appendChild(helpPopup);
+                
+            }
+            helpPopup.style.display = "block";
+            let htmlStr = "<div onclick='closeHelp()'><h3>" + helptexts[subject].title + "</h3>";
+                htmlStr += "<p>" + helptexts[subject].text + "</p><div>";
+            helpPopup.innerHTML = htmlStr;
+           helpPopup.style.top = (e.pageY - 60) + "px";
+           helpPopup.style.left = (e.pageX - 230) + "px";
+            
+    }
+    function closeHelp(){
+        helpPopup.innerHTML = "";
+        helpPopup.style.display = "none";
+    }
 
+
+</script>
 
 
 

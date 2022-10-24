@@ -7,7 +7,7 @@ import { DecorOrbitControls } from '/js/DecorOrbitControls.js';
 import Stats from '/three/examples/jsm/libs/stats.module.js';
 
 import { GUI } from '/three/examples/jsm/libs/lil-gui.module.min.js';
-import { VRButton } from '/three/examples/jsm/webxr/VRButton.js';
+
 import { XRControllerModelFactory } from '/three/examples/jsm/webxr/XRControllerModelFactory.js';
 
 
@@ -91,7 +91,7 @@ class Decor3D {
         this.renderer.gammaFactor = 2.2;
         
 
-        document.body.appendChild( VRButton.createButton( this.renderer ) );
+        
 
         
 

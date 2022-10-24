@@ -12,6 +12,7 @@
 
 </div>
 <div id="parameter-column" class="parameter-column">
+<div>
 <table style="background-color: #FFFFFF;">
     <tr>
         <td style="
@@ -37,24 +38,28 @@
 </td>
 </tr>
 </table>
+<div style="left: 529px; top: -128px;" name="thumbnails" class="help-icon" onclick="showHelp(event)">?</div>
+</div>
 <br>
 <form action="/models/updatemodel" method="post">
     <div class="default-accessories">
         <label for="default_accessories">Start Up Accessories:</label><br>
         <select style="display:none" name="default_accessories" id="default_accessories" multiple placeholder="Select">
-        </select>
+        </select><div style="left: 505px;top: 20px;" name="default_accessories" class="help-icon" onclick="showHelp(event)">?</div>
     </div>
     <br>
-    <p>
+    <div>
         <lable for="model">Model id</lable><br>
         <input type="text" id="id" name="id" value="{{params.id}}" readonly>
-    </p>
+        <div style="left: 363px;top: -34px;" name="model_id" class="help-icon" onclick="showHelp(event)">?</div>
+    </div>
     
-    <p>
+    <div>
         <lable for="model">Model</lable><br>
         <input type="text" id="model" name="model" value="{{params.model}}" readonly>
-    </p>
-    <p>
+        <div style="left: 363px;top: -34px;" name="model" class="help-icon" onclick="showHelp(event)">?</div>
+    </div>
+    <div>
         <label for="model_class">Model Class</label>
 
         <select name="model_class" id="model_class">
@@ -65,20 +70,21 @@
      
         {{/each}}
         </select>
-    </p>
-    <p>
+        <div style="left: 220px;top: -18px;" name="model_class" class="help-icon" onclick="showHelp(event)">?</div>
+    </div>
+    <div>
         <lable for="title">Title</lable><br>
         <input type="text" id="title" name="title" value="{{params.title}}" required>
-    </p>
-    <p>
+        <div style="left: 363px;top: -34px;" name="title" class="help-icon" onclick="showHelp(event)">?</div>
+    </div>
+    <div>
         <lable for="sku">SKU</lable><br>
         <input type="text" name="sku" id="sku" value="{{params.sku}}" required>
-    </p>
+        <div style="left: 363px;top: -34px;" name="sku" class="help-icon" onclick="showHelp(event)">?</div>
+    </div>
     <div>
         <lable for="snap">Snap Target</lable><br>
         <input type="text" name="snap" id="snap" value="{{params.snap}}"><br>
-        <input type="radio" name="snap_type" id="single" value="single" {{radioCheck params.snap_type 'single' }}>
-        <label for="single">Single</label>
         <input type="radio" name="snap_type" id="extreme" value="extreme" {{radioCheck params.snap_type 'extreme' }}>
         <label for="extreme">Extreme</label>
         <input type="radio" name="snap_type" id="environment" value="environment" {{radioCheck params.snap_type 'environment' }}>
@@ -87,57 +93,68 @@
             for="all">All</label>
         <input type="radio" name="snap_type" id="surface" value="surface" {{radioCheck params.snap_type 'surface' }}> <label
             for="surface">Surface</label>
-
+    <div style="left: 363px;top: -34px;" class="help-icon" name="snap_target" onclick="showHelp(event)">?</div>
     </div>
-    <p>
+    <div>
         <lable for="exclude">Exclude</lable><br>
         <input type="text" name="exclude" id="exclude" value="{{params.exclude}}" >
-    </p>
-    <p>
+         <div style="left: 363px;top: -34px;" class="help-icon" name="exclude" onclick="showHelp(event)">?</div>
+    </div>
+    <div>
         <lable for="include">Include</lable><br>
         <input type="text" name="include" id="include" value="{{params.include}}" >
-    </p>
+        <div style="left: 363px;top: -34px;" class="help-icon" name="include" onclick="showHelp(event)">?</div>
+    </div>
      <hr>
     <div class="allcategories">
         <label for="categories">Choose categories:</label><br>
         <select style="display:none" name="categories" id="categories" multiple placeholder="Select"> </select>
+        <div style="left: 505px;top: 20px;" class="help-icon" name="categories" onclick="showHelp(event)">?</div>
     </div>
     <br>
     <div class="allaccessorygroups">
         <label for="accessory_groups">Compatible Accessory Groups:</label><br>
-        <select style="display:none" name="accessory_groups" id="accessory_groups" multiple placeholder="Select">
+        <select style="display:none" name="accessory_groups" id="accessory_groups" multiple placeholder="Select">   
         </select>
+         <div style="left: 505px;top: 20px;" class="help-icon" name="accessory_groups" onclick="showHelp(event)">?</div>
     </div>
     <br>
     <div class="allmaterials">
         <label for="materials">Material Variations: (material variations you will be able to choose between in the designer)</label><br>
         <select style="display:none" name="materials" id="materials" multiple placeholder="Select">
         </select>
+                <div style="left: 505px;top: 20px;" class="help-icon" name="material_variations" onclick="showHelp(event)">?</div>
     </div>
     <br>
     <div class="variants">
         <label for="variants">Physical Variants: (physical variations you will be able to choose between in the designer)</label><br>
         <select style="display:none" name="variants" id="variants" multiple placeholder="Select">
         </select>
+        <div style="left: 505px;top: 20px;" class="help-icon" name="physical_variations" onclick="showHelp(event)">?</div>
     </div>
      <hr>
     <div class="default_material">
         <label for="default_material">Default Material: (the material automatically assigned to this model)</label><br>
         <select  oninput="applyMaterial()" style="display:none" name="default_material" id="default_material" placeholder="Select">
         </select>
+        <div style="left: 505px;top: 20px;" class="help-icon" name="default_material" onclick="showHelp(event)">?</div>
     </div>
-    <p>
-        <lable for="default_material_key">Default Material Key: (the first four letters of the name of the object(s) to recieve the default material)</lable><br>
+    <div>
+        <p></p>
+        <lable for="default_material_key">Default Material Key:</lable><br>
         <input oninput="applyMaterial()" type="text" id="default_material_key" name="default_material_key" maxlength="4" value="{{params.default_material_key}}">
-    </p>
+        <div style="left: 363px;top: -34px;" class="help-icon" name="default_material_key" onclick="showHelp(event)">?</div>
+    </div>
     <div>
          <lable for="metadata">Metadata (string)</lable><br>
         <input type="text" name="metadata" id="metadata" value="{{params.metadata}}" >
+        <div style="left: 363px;top: -34px;" class="help-icon" name="metadata" onclick="showHelp(event)">?</div>
     </div>
       <div>
           
         <input type="checkbox" id="mirror" name="mirror" value="{{params.mirror}}" {{checked params.mirror}}><label for="mirror">Can be mirrored</label><br>
-        <p></p>
+         <div style="left: 129px; top: -16px;" class="help-icon" name="mirror" onclick="showHelp(event)">?</div>
+        
     </div>
     
     
@@ -145,12 +162,15 @@
     <div>
         <input type="checkbox" id="menu" name="menu" value="{{params.menu}}" {{checked params.menu}}>
 <label for="menu">Show in Roomplanner menu</label><br>
+ <div style="left: 201px;top: -16px;" class="help-icon" name="roomplanner_menu" onclick="showHelp(event)">?</div>
     </div>
+    
      <hr>
     
     <div>
         <input type="checkbox" id="updatecopies" name="updatecopies" value="0">
     <label for="updatecopies">Update all copies of same model</label><br>
+    <div style="left: 227px; top: -16px;" class="help-icon" name="updatecopies" onclick="showHelp(event)">?</div>
     </div>
     <div class="submit-bt">
         <button type="submit" name="submit">
@@ -173,6 +193,7 @@
 <script>
     const ltvs__source = '';
     const ltvs__lang = 'none';
+    let helptexts;
     function startup() {
         
       DD2022.loadModel({{params.id}},"none", false);
@@ -381,12 +402,19 @@
             });
         });
 
+        fetch('/docs/help.models.json')
+            .then((response) => response.json())
+            .then((json) => helptexts = json);
+
         function itemIncludes(member){
             var values = $('#default_accessories').val();
             if(values == null || values.length < 1) return false;
             var id = String(member.id);
             return values.includes(id);
         }
+
+        
+        
 
 
 </script>

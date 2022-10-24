@@ -1,0 +1,88 @@
+{
+    "thumbnails":{
+        "title":"Thumbnails",
+        "text":"Pressing the 'Save Thumbnail' button will create a thumbnail from the current view in the 3D preview window. Alternatively you can upload a thumbnail. Note that thumbnails are saved instantly, and over-write any existing thumbnail."
+    },
+    "default_accessories":{
+        "title":"Default Accessories",
+        "text":"These accessories are included in the model when it first loads"
+    },
+    "model_id":{
+        "title":"Model ID",
+        "text":"A unique identifier for this model (non-editable)"
+    },
+    "model":{
+        "title":"Model",
+        "text":"The actual 3D model. Models are stored in .glb format with a scale of 1 unit to 1 meter."
+    },
+    "model_class":{
+        "title":"Class",
+        "text":"The javascript Class associated with this model. The class can change the behaviour of an object. For example it can include controls for animations, or decide whether the object is scalable, etc. All objects inherit from the DecorObject, which is the standard object type.<p><b>DecorScalable</b> - The item automatically becomes scalable in it's edit menu. This is used for generally used for things like columns, generic sofas, etc, that are NOT actual products, but added to give more realism</p><p><b>DecorAnimated</b> - If the .glb model includes an animation, a slider is added the edit interface, that scrubs through the animation.</p>"
+    },
+    "title":{
+        "title":"Title",
+        "text":"This is the title of the object as shown in the administration panel. The Title shown in the user interface may depend on translation."
+    },
+    "sku":{
+        "title":"SKU",
+        "text":"The \"Stock Keeping Unit\" is an identifier, typically used in e-commerce appliations"
+    },
+    "snap_target":{
+        "title":"Snap Target",
+        "text":"This is where an object should be attached to another object. For example, if the snap target is \"handle\", the object will snap to any snap point with a name starting \"_ashandle\". The \"_as\" denotes an accessory snap in a 3D model. As well as the target, there are 4 modes: <b>Extreme, Environment, All & Surface</b><p><b>Extreme</b> - If the item can be placed in a row of items, for example cupboards, only the extreme right and left snap points will be shown</p><p><b>Environment</b> - Used for Rooms, or any other environment that should be static, non-selectable</p><p><b>All</b> - If the item should be placed in all possible positions. This is used for example for handles, so the user does not have to add them individually, but will add a copy of the object in all available positions.</p><p><b>Surface</b> - Items with a Surface snap type will snap to any surface of any other object. This can be used for example to add a table lamp to a desk, or to place a book on a shelf.</p>Click the link below for a guide to creating models for use in trinityjs."
+    },
+    "exclude":{
+        "title":"Exclude",
+        "text":"This is a comma separated list of snap targets that can not be occupied when this item is added as an accessory. The logic reads, \"if you have one of these, you can't have one of the following\". In the standard user interface, options will be grayed out when not possible."
+    },
+    "include":{
+        "title":"Include",
+        "text":"This is a comma separated list of SKU's of other items that must be added if this item is added. The logic reads \"if you add this item, you will also require one of these.\" Included items are automatically added."
+    },
+    "categories":{
+        "title":"Categories",
+        "text":"Categories are used for organisation in the front-end application, but also in the Models list in this adminstration interface. It is generally a good idea to create your categories before adding models, as then it is easy to select the category(s) from the list. An item can be a member of many categories."
+    },
+    "accessory_groups":{
+        "title":"Accessory Groups",
+        "text":"When building product configurators, these are groups of accessories that are compatible with this product."
+    },
+    "material_variations":{
+        "title":"Material Variations",
+        "text":"A list of all the finishes this item is available in. These should be pre-configured materials."
+    },
+    "physical_variations":{
+        "title":"Physical Variations",
+        "text":"These are other items this product can be replaced by. Sometimes it is not enough to change a single material, so the physical variations are other models from the library that will be loaded in place of this one. If for example you have three office chairs, you could include the other two products here. Or if the same product can be used in 2 or more physical configurations, this could also be shown here."
+    },
+    "default_material":{
+        "title":"Default Material",
+        "text": "This is the finish that an item has by default. It is typically used when there are several finishes available. It can also be used when multiple items use the same material, in order to reduce memory usage, and to be able to update all models by changing a single material. This is particularly beneficial with large complex materials that include many maps (normal, roughness, etc.)"
+    },
+    "default_material_key":{
+        "title":"Default Material Key",
+        "text": "This is the first 4 letters of any mesh within the model where either the Default Material or Material Variation should be applied. For example if a sofa's fabric is to change, and the Default Material Key is \"fabr\", all meshes within the model that start with <b>fabr</b> ('fabric1', 'fabric2', 'fabricBack', etc.) with have the material applied."
+    },
+    "metadata":{
+        "title":"Metadata",
+        "text": "This is a string that will be parsed to the model when it is loaded. It can be use to store all kinds of information, and the format is decided by the Model Class. It could for example be used for the default angle and colour of say, a door. If the user adjusts these values they would be saved in the design, over-writing the default metadata written here. It is a \"widlcard\" that has many uses for sending parameters to an object when it is loaded."
+    },
+    "mirror":{
+        "title":"Mirror",
+        "text": "Can this item be mirrored? That is to say available in a right and lefthand version? This prevents the need for both a right and lefthand version to be maintained. An example could be a bunkbed, where the ladder could be on the left or right."
+    },
+    "roomplanner_menu":{
+        "title":"Show in Roomplanner Menu",
+        "text": "For most items, they should be available in the Room Planner menu. But some items are only to be shown as accessories and not available as an individual product that can be placed in a room. By unchecking this box they will not show up in the Room Planner Menu, but remain available where used as an accessory."
+    },
+    "updatecopies":{
+        "title":"Update Copies",
+        "text": "With this button checked, when you update this model, the data will be updated for all other items using the same model. This can save a lot of time when, for example adding or removing an accessory group from diffrent items that share the same model."
+    }
+
+
+
+
+
+
+}

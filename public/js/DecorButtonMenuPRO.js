@@ -181,7 +181,7 @@ class DecorButtonMenuPRO{
 
     // button order
    
-    this.buttonArray.appendChild(logo_button);
+    //this.buttonArray.appendChild(logo_button);
     this.buttonArray.appendChild(browse_button);
     this.buttonArray.appendChild(new_button);
     this.buttonArray.appendChild(room_edit_button);
@@ -204,7 +204,7 @@ class DecorButtonMenuPRO{
    
    this.buttonArray.appendChild(list_button);
    this.buttonArray.appendChild(this.user_button);
-   this.buttonArray.appendChild(lang_button);
+   //this.buttonArray.appendChild(lang_button);
 
    /*if(this.copyright_button == null){
    this.copyright_button = document.createElement("div");

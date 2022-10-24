@@ -149,8 +149,19 @@ input[type="submit" i]{
     padding-bottom: 20px;
     padding-left: 10px;
     width:500px;
-    position: absolute;
-    left:0px;
+    position: relative;
+    left: 0px;
+    z-index: 2;
+}
+.materialwindow3d{
+    width:500px;
+    height: 500px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    width:500px;
+    position: fixed;
+    left: 253px;
     z-index: 2;
 }
 .parameter-column{
@@ -313,10 +324,17 @@ color: white !important;
     border-radius: 5px;
     margin: 2px;
 }
-.model-select{
+.model-select {
     position: fixed;
     z-index: 10;
-    width:200px;
+    width: 212px;
+    top: 582px;
+}
+.model-select button{
+    width: 20px;
+    height: 20px;
+    border: 0px;
+    padding: 0px;
 }
 .target-select{
     top: 650px;
@@ -396,10 +414,45 @@ margin: 30px;
     position: relative;
     
 }
-
-
-
-
-
+}
+.help-icon{
+   
+    width: 15px;
+    height: 15px;
+    border-radius: 10px;
+    background-color: #017eff;
+    position: relative;
+    color: white;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: solid #ffffff 1px;
+    box-shadow: 2px 2px 2px #b9b9b9;
+    cursor: help;
+    visibility:visible;
+}
+.help-pop-up{
+    width: 300px;
+    background-color: white;
+    border: solid #000000 1px;
+    box-shadow: 2px 2px 2px #b9b9b9;
+    position: absolute;
+    right: 10px;
+    padding: 10px;
+    padding-top: 0px;
 
 }
+.help-close{
+    position: relative;
+    right: 4px;
+    top: 0;
+    text-align: right;
+    cursor: pointer;
+}
+
+
+
+
+
+
+
