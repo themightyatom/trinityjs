@@ -53,8 +53,8 @@ app.engine('hbs', hbs({defaultLayout: 'main', extname: '.hbs', helpers:require('
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-
-var allowlist = ['https://lifetime2.unicaster.net', 'http://127.0.0.1:5500/','https://lifetimekidsrooms.dk/']
+//if running within another web page, add domain(s) to CORS
+var allowlist = ['https://alloweddomain.com']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (allowlist.indexOf(req.header('Origin')) !== -1) {

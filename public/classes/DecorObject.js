@@ -214,6 +214,7 @@ class DecorObject extends Object3D {
                         var snap = child.name.substring(3, child.name.lastIndexOf('_'));
                         child.snap = snap;
                         child.decorObj = container;
+                        child.decorParent = child.parent;
                         child.visible = false;
                         child.material = SnapMaterial;
                         //is this a drag plane?
@@ -378,7 +379,7 @@ class DecorObject extends Object3D {
        // this.snapPoints.forEach(function (sp) { sp.visible = false; });
         this.snapPoints.forEach(function (sp) {
             if(sp.parent){
-                sp.decorParent = sp.parent;
+                
                 sp.parent.remove(sp); 
             }
         });

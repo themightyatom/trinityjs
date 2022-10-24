@@ -10,11 +10,11 @@ class DecorAnimated extends DecorObject {
         this.bounding;
         this.cHeight = 0.09;
         this.mixer;
-        this.timescale = 36;
+        this.timescale = 100;
         this.totalDuration = 0;
         this.animationArray = [];
         this.properties = [
-            { title: 'animate', ui: 'slider', range: [0, 36], value: this.defaultopen },
+            { title: 'animate', ui: 'slider', range: [0, 100], value: this.defaultopen },
             { title: 'remove', ui: 'alert_button' }
         ]
     }
