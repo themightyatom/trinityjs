@@ -155,9 +155,5 @@ function ltvs__loadButtonCSS(){
 
 
 
-if(ltvs__designid){
+
   ltvs__launch();
-}else{
-  // determine if this is a configurable product
-  ltvs__loadButtonCSS(); 
-}
